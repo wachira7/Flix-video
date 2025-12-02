@@ -1,0 +1,371 @@
+version: '3.8'
+
+services:
+  # ============================================
+  # DATABASE SERVICES
+  # ============================================
+  
+  postgres:
+    image: postgres:15-alpine
+    container_name: flixvideo-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: flixvideo
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - flixvideo-network
+
+  mongodb:
+    image: mongo:7
+    container_name: flixvideo-mongodb
+    environment:
+      MONGO_INITDB_DATABASE: flixvideo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - flixvideo-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: flixvideo-redis
+    command: redis-server --appendonly yes
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - flixvideo-network
+
+  # ============================================
+  # SEARCH & ANALYTICS
+  # ============================================
+  
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
+    container_name: flixvideo-elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - "9200:9200"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      - flixvideo-network
+
+  # ============================================
+  # MESSAGE QUEUE & TASK PROCESSING
+  # ============================================
+  
+  rabbitmq:
+    image: rabbitmq:3.12-management-alpine
+    container_name: flixvideo-rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: flixvideo
+      RABBITMQ_DEFAULT_PASS: flixvideo123
+    ports:
+      - "5672:5672"   # AMQP port
+      - "15672:15672" # Management UI
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      - flixvideo-network
+
+  # Celery Worker for background tasks
+  celery-worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: flixvideo-celery-worker
+    command: celery -A src.jobs.celery_app worker --loglevel=info --concurrency=4
+    environment:
+      - NODE_ENV=development
+      - CELERY_BROKER_URL=amqp://flixvideo:flixvideo123@rabbitmq:5672//
+      - CELERY_RESULT_BACKEND=redis://redis:6379/1
+    depends_on:
+      - rabbitmq
+      - redis
+      - postgres
+      - mongodb
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    networks:
+      - flixvideo-network
+    restart: unless-stopped
+
+  # Celery Beat for scheduled tasks
+  celery-beat:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: flixvideo-celery-beat
+    command: celery -A src.jobs.celery_app beat --loglevel=info
+    environment:
+      - NODE_ENV=development
+      - CELERY_BROKER_URL=amqp://flixvideo:flixvideo123@rabbitmq:5672//
+      - CELERY_RESULT_BACKEND=redis://redis:6379/1
+    depends_on:
+      - rabbitmq
+      - redis
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    networks:
+      - flixvideo-network
+    restart: unless-stopped
+
+  # Celery Flower for monitoring
+  celery-flower:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: flixvideo-celery-flower
+    command: celery -A src.jobs.celery_app flower --port=5555
+    environment:
+      - CELERY_BROKER_URL=amqp://flixvideo:flixvideo123@rabbitmq:5672//
+      - CELERY_RESULT_BACKEND=redis://redis:6379/1
+    ports:
+      - "5555:5555"
+    depends_on:
+      - rabbitmq
+      - redis
+      - celery-worker
+    networks:
+      - flixvideo-network
+    restart: unless-stopped
+
+  # ============================================
+  # MONITORING & LOGGING
+  # ============================================
+  
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: flixvideo-prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./infrastructure/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    networks:
+      - flixvideo-network
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: flixvideo-grafana
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin123
+      - GF_USERS_ALLOW_SIGN_UP=false
+    ports:
+      - "3001:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./infrastructure/monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - ./infrastructure/monitoring/grafana/datasources:/etc/grafana/provisioning/datasources
+    depends_on:
+      - prometheus
+    networks:
+      - flixvideo-network
+    restart: unless-stopped
+
+  # Node exporter for system metrics
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: flixvideo-node-exporter
+    ports:
+      - "9100:9100"
+    networks:
+      - flixvideo-network
+    restart: unless-stopped
+
+  # ============================================
+  # CACHE & SESSION MANAGEMENT
+  # ============================================
+  
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: flixvideo-redis-commander
+    environment:
+      - REDIS_HOSTS=local:redis:6379
+    ports:
+      - "8081:8081"
+    depends_on:
+      - redis
+    networks:
+      - flixvideo-network
+    restart: unless-stopped
+
+  # ============================================
+  # DATABASE MANAGEMENT TOOLS
+  # ============================================
+  
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: flixvideo-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@flixvideo.com
+      PGADMIN_DEFAULT_PASSWORD: admin123
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    depends_on:
+      - postgres
+    networks:
+      - flixvideo-network
+    restart: unless-stopped
+
+  mongo-express:
+    image: mongo-express:latest
+    container_name: flixvideo-mongo-express
+    environment:
+      ME_CONFIG_MONGODB_URL: mongodb://mongodb:27017/
+      ME_CONFIG_BASICAUTH_USERNAME: admin
+      ME_CONFIG_BASICAUTH_PASSWORD: admin123
+    ports:
+      - "8082:8081"
+    depends_on:
+      - mongodb
+    networks:
+      - flixvideo-network
+    restart: unless-stopped
+
+  # ============================================
+  # EMAIL SERVICE (Development)
+  # ============================================
+  
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: flixvideo-mailhog
+    ports:
+      - "1025:1025" # SMTP server
+      - "8025:8025" # Web UI
+    networks:
+      - flixvideo-network
+    restart: unless-stopped
+
+  # ============================================
+  # NGINX REVERSE PROXY (Optional)
+  # ============================================
+  
+  nginx:
+    image: nginx:alpine
+    container_name: flixvideo-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./infrastructure/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./infrastructure/nginx/ssl:/etc/nginx/ssl
+    depends_on:
+      - backend
+      - frontend-web
+    networks:
+      - flixvideo-network
+    restart: unless-stopped
+    profiles:
+      - production
+
+  # ============================================
+  # APPLICATION SERVICES (Commented out - for production)
+  # ============================================
+  
+  # backend:
+  #   build:
+  #     context: ./backend
+  #     dockerfile: Dockerfile
+  #   container_name: flixvideo-backend
+  #   ports:
+  #     - "5000:5000"
+  #   environment:
+  #     - NODE_ENV=development
+  #   volumes:
+  #     - ./backend:/app
+  #     - /app/node_modules
+  #   depends_on:
+  #     - postgres
+  #     - mongodb
+  #     - redis
+  #     - elasticsearch
+  #   networks:
+  #     - flixvideo-network
+  #   restart: unless-stopped
+
+  # frontend-web:
+  #   build:
+  #     context: ./frontend-web
+  #     dockerfile: Dockerfile
+  #   container_name: flixvideo-frontend
+  #   ports:
+  #     - "3000:3000"
+  #   environment:
+  #     - NEXT_PUBLIC_API_URL=http://backend:5000
+  #   volumes:
+  #     - ./frontend-web:/app
+  #     - /app/node_modules
+  #     - /app/.next
+  #   depends_on:
+  #     - backend
+  #   networks:
+  #     - flixvideo-network
+  #   restart: unless-stopped
+
+# ============================================
+# NETWORKS
+# ============================================
+
+networks:
+  flixvideo-network:
+    driver: bridge
+
+# ============================================
+# VOLUMES
+# ============================================
+
+volumes:
+  postgres_data:
+  mongodb_data:
+  redis_data:
+  elasticsearch_data:
+  rabbitmq_data:
+  prometheus_data:
+  grafana_data:
+  pgadmin_data:
