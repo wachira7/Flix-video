@@ -80,89 +80,22 @@ services:
     networks:
       - flixvideo-network
 
+  
   # ============================================
-  # MESSAGE QUEUE & TASK PROCESSING
+  # JOB QUEUE MONITORING
   # ============================================
   
-  rabbitmq:
-    image: rabbitmq:3.12-management-alpine
-    container_name: flixvideo-rabbitmq
+  bullmq-board:
+    image: deadly0/bull-board:latest
+    container_name: flixvideo-bullmq-board
     environment:
-      RABBITMQ_DEFAULT_USER: flixvideo
-      RABBITMQ_DEFAULT_PASS: flixvideo123
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - BULL_PREFIX=bull
     ports:
-      - "5672:5672"   # AMQP port
-      - "15672:15672" # Management UI
-    volumes:
-      - rabbitmq_data:/var/lib/rabbitmq
-    healthcheck:
-      test: ["CMD", "rabbitmq-diagnostics", "ping"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-    networks:
-      - flixvideo-network
-
-  # Celery Worker for background tasks
-  celery-worker:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    container_name: flixvideo-celery-worker
-    command: celery -A src.jobs.celery_app worker --loglevel=info --concurrency=4
-    environment:
-      - NODE_ENV=development
-      - CELERY_BROKER_URL=amqp://flixvideo:flixvideo123@rabbitmq:5672//
-      - CELERY_RESULT_BACKEND=redis://redis:6379/1
+      - "3002:3000"
     depends_on:
-      - rabbitmq
       - redis
-      - postgres
-      - mongodb
-    volumes:
-      - ./backend:/app
-      - /app/node_modules
-    networks:
-      - flixvideo-network
-    restart: unless-stopped
-
-  # Celery Beat for scheduled tasks
-  celery-beat:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    container_name: flixvideo-celery-beat
-    command: celery -A src.jobs.celery_app beat --loglevel=info
-    environment:
-      - NODE_ENV=development
-      - CELERY_BROKER_URL=amqp://flixvideo:flixvideo123@rabbitmq:5672//
-      - CELERY_RESULT_BACKEND=redis://redis:6379/1
-    depends_on:
-      - rabbitmq
-      - redis
-    volumes:
-      - ./backend:/app
-      - /app/node_modules
-    networks:
-      - flixvideo-network
-    restart: unless-stopped
-
-  # Celery Flower for monitoring
-  celery-flower:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    container_name: flixvideo-celery-flower
-    command: celery -A src.jobs.celery_app flower --port=5555
-    environment:
-      - CELERY_BROKER_URL=amqp://flixvideo:flixvideo123@rabbitmq:5672//
-      - CELERY_RESULT_BACKEND=redis://redis:6379/1
-    ports:
-      - "5555:5555"
-    depends_on:
-      - rabbitmq
-      - redis
-      - celery-worker
     networks:
       - flixvideo-network
     restart: unless-stopped
@@ -365,7 +298,6 @@ volumes:
   mongodb_data:
   redis_data:
   elasticsearch_data:
-  rabbitmq_data:
   prometheus_data:
   grafana_data:
   pgadmin_data:

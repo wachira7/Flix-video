@@ -1,12 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const { protect } = require('../middlewares/auth.middleware');
-const {
-  generateUserRecommendations,
-  getMyRecommendations,
-  clearMyRecommendations,
-  getAIStatus
-} = require('../controllers/recommendations.controller');
+const { generateUserRecommendations, getMyRecommendations, clearMyRecommendations, getAIStatus } = require('../controllers/recommendations.controller');
+const { checkUsageLimit } = require('../middlewares/subscription.middleware');
 
 
 /**
@@ -40,7 +36,7 @@ router.get('/status', getAIStatus);
  *       503:
  *         description: AI service not configured
  */
-router.post('/generate', protect, generateUserRecommendations);
+router.post('/generate', protect, checkUsageLimit('ai_recommendations_daily', 'daily'),  generateUserRecommendations);
 
 /**
  * @swagger

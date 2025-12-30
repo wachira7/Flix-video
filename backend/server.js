@@ -1,9 +1,11 @@
+//backend/server.js
 require('dotenv').config();
 const http = require('http');
 const socketIo = require('socket.io');
 const app = require('./app');
 const { Pool } = require('pg');
 const { MongoClient } = require('mongodb');
+const { startJobs } = require('./src/jobs');
 
 const PORT = process.env.PORT || 5000;
 
@@ -72,12 +74,13 @@ async function startServer() {
     require('./src/sockets/watchParty.socket')(io);
 
     // Start server
-    server.listen(PORT, () => {
+    server.listen(PORT, async () => {
       console.log('╔════════════════════════════════════════╗');
       console.log('║   🎬 FlixVideo API Server Running    ║');
       console.log('╚════════════════════════════════════════╝');
       console.log('');
       console.log(`📡 Server:      http://localhost:${PORT}`);
+      console.log(`📚 API Docs:    http://localhost:${PORT}/api-docs`);
       console.log(`🔌 WebSocket:   ws://localhost:${PORT}`);
       console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
       console.log(`⏰ Started:     ${new Date().toLocaleString()}`);
@@ -85,8 +88,18 @@ async function startServer() {
       console.log('📋 Quick Links:');
       console.log(`   → Home:      http://localhost:${PORT}/`);
       console.log(`   → Health:    http://localhost:${PORT}/health`);
-      console.log(`   → API Docs:  http://localhost:${PORT}/api-docs`);
       console.log('');
+      
+      // Start background jobs
+      try {
+        console.log('🔄 Starting background jobs...');
+        await startJobs();
+        console.log('');
+      } catch (error) {
+        console.error('⚠️  Failed to start background jobs:', error.message);
+        console.log('');
+      }
+      
       console.log('✨ Ready to accept requests!');
       console.log('🎮 WebSocket ready for watch parties!');
       console.log('');

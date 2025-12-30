@@ -9,6 +9,7 @@ const {
   getMyWatchParties,
   endWatchParty
 } = require('../controllers/watchParty.controller');
+const { checkUsageLimit } = require('../middlewares/subscription.middleware');
 
 /**
  * @swagger
@@ -56,7 +57,7 @@ const {
  *       201:
  *         description: Watch party created successfully
  */
-router.post('/', protect, createWatchParty);
+router.post('/', protect, checkUsageLimit('watch_parties_daily', 'daily'), createWatchParty);
 
 /**
  * @swagger
