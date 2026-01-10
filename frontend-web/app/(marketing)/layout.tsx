@@ -1,0 +1,1 @@
+//frontend-web/app/marketing/layout.tsx

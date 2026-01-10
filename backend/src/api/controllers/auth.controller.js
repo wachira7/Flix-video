@@ -64,22 +64,29 @@ const register = async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const password_hash = await bcrypt.hash(password, salt);
 
+        // Generate verification token
+    const verificationToken = crypto.randomBytes(32).toString('hex');
+
     // Create user
     const result = await global.pgPool.query(
-      `INSERT INTO users (email, password_hash, role, status, email_verified, created_at, updated_at) 
-       VALUES ($1, $2, $3, $4, $5, NOW(), NOW()) 
-       RETURNING id, email, role, status, created_at`,
-      [email.toLowerCase(), password_hash, USER_ROLES.USER, USER_STATUS.ACTIVE, false]
+      `INSERT INTO users (email, password_hash, role, status, email_verified, verification_token, created_at, updated_at) 
+      VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW()) 
+      RETURNING id, email, role, status, created_at`,
+      [email.toLowerCase(), password_hash, USER_ROLES.USER, USER_STATUS.ACTIVE, false, verificationToken]
     );
 
-    const user = result.rows[0];
+    const user = result.rows[0];  // DEFINE user FIRST
 
     // Create user profile
     await global.pgPool.query(
       `INSERT INTO user_profiles (user_id, username, full_name, created_at, updated_at) 
-       VALUES ($1, $2, $3, NOW(), NOW())`,
+      VALUES ($1, $2, $3, NOW(), NOW())`,
       [user.id, username || email.split('@')[0], full_name || '']
     );
+
+    // Send verification email (AFTER defining user)
+    const { sendVerificationEmail } = require('../../services/email.service');
+    await sendVerificationEmail(user.email, verificationToken);
 
     // Send welcome email
     const { sendWelcomeEmail } = require('../../services/email.service');
@@ -229,6 +236,110 @@ const getProfile = async (req, res) => {
     console.error('Get profile error:', error);
     res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ 
       error: ERROR_MESSAGES.SERVER_ERROR 
+    });
+  }
+};
+
+
+const crypto = require('crypto');
+
+// @desc    Verify email with token
+// @route   GET /api/auth/verify-email/:token
+// @access  Public
+const verifyEmail = async (req, res) => {
+  try {
+    const { token } = req.params;
+    
+    // Find user with verification token
+    const result = await global.pgPool.query(
+      'SELECT id, email FROM users WHERE verification_token = $1 AND email_verified = false',
+      [token]
+    );
+    
+    if (result.rows.length === 0) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({ 
+        success: false, 
+        message: 'Invalid or expired verification token' 
+      });
+    }
+    
+    const user = result.rows[0];
+    
+    // Update user - mark email as verified and clear token
+    await global.pgPool.query(
+      'UPDATE users SET email_verified = true, verification_token = null, updated_at = NOW() WHERE id = $1',
+      [user.id]
+    );
+    
+    res.json({ 
+      success: true, 
+      message: 'Email verified successfully' 
+    });
+  } catch (error) {
+    console.error('Email verification error:', error);
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ 
+      success: false, 
+      message: 'Verification failed' 
+    });
+  }
+};
+
+// @desc    Resend verification email
+// @route   POST /api/auth/resend-verification
+// @access  Public
+const resendVerification = async (req, res) => {
+  try {
+    const { email } = req.body;
+    
+    if (!email) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({ 
+        success: false, 
+        message: ERROR_MESSAGES.REQUIRED_FIELD 
+      });
+    }
+    
+    const result = await global.pgPool.query(
+      'SELECT id, email, email_verified FROM users WHERE email = $1',
+      [email.toLowerCase()]
+    );
+    
+    if (result.rows.length === 0) {
+      return res.status(HTTP_STATUS.NOT_FOUND).json({ 
+        success: false, 
+        message: 'User not found' 
+      });
+    }
+    
+    const user = result.rows[0];
+    
+    if (user.email_verified) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({ 
+        success: false, 
+        message: 'Email already verified' 
+      });
+    }
+    
+    // Generate new token
+    const token = crypto.randomBytes(32).toString('hex');
+    
+    await global.pgPool.query(
+      'UPDATE users SET verification_token = $1, updated_at = NOW() WHERE id = $2',
+      [token, user.id]
+    );
+    
+    // Send verification email
+    const { sendVerificationEmail } = require('../../services/email.service');
+    await sendVerificationEmail(user.email, token);
+    
+    res.json({ 
+      success: true, 
+      message: 'Verification email sent' 
+    });
+  } catch (error) {
+    console.error('Resend verification error:', error);
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ 
+      success: false, 
+      message: 'Failed to resend verification' 
     });
   }
 };
@@ -449,5 +560,7 @@ module.exports = {
   updateProfile,
   logout,
   forgotPassword,
-  resetPassword
+  resetPassword,
+  verifyEmail,
+  resendVerification
 };

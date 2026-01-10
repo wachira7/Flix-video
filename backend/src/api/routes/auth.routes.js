@@ -9,7 +9,9 @@ const {
   updateProfile,
   logout,
   forgotPassword,
-  resetPassword
+  resetPassword,
+  verifyEmail,        
+  resendVerification
 } = require('../controllers/auth.controller');
 const { protect } = require('../middlewares/auth.middleware');
 const {
@@ -80,6 +82,7 @@ const {
  */
 router.post('/register', registerValidator, register);
 
+
 /**
  * @swagger
  * /api/auth/login:
@@ -127,6 +130,56 @@ router.post('/register', registerValidator, register);
  *         description: Invalid credentials
  */
 router.post('/login', loginValidator, login);
+
+/**
+ * @swagger
+ * /api/auth/verify-email/{token}:
+ *   get:
+ *     tags: [Authentication]
+ *     summary: Verify email address
+ *     description: Verify user's email with token from email
+ *     parameters:
+ *       - in: path
+ *         name: token
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Email verification token
+ *     responses:
+ *       200:
+ *         description: Email verified successfully
+ *       400:
+ *         description: Invalid or expired token
+ */
+router.get('/verify-email/:token', verifyEmail);
+
+/**
+ * @swagger
+ * /api/auth/resend-verification:
+ *   post:
+ *     tags: [Authentication]
+ *     summary: Resend verification email
+ *     description: Send a new verification email to user
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: user@example.com
+ *     responses:
+ *       200:
+ *         description: Verification email sent
+ *       404:
+ *         description: User not found
+ */
+router.post('/resend-verification', resendVerification);
 
 /**
  * @swagger
@@ -184,6 +237,7 @@ router.post('/forgot-password', forgotPasswordValidator, forgotPassword);
  *         description: Password reset successful
  */
 router.post('/reset-password', resetPasswordValidator, resetPassword);
+
 
 /**
  * @swagger

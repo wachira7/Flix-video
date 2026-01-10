@@ -1,0 +1,1 @@
+//frontend-web/app/(marketing)/pricing/page.tsx
