@@ -9,6 +9,8 @@ import { CastCard } from "@/components/dashboard/cast-card"
 import { ContentRow } from "@/components/dashboard/content-row"
 import { VideoPlayer } from "@/components/dashboard/video-player"
 import { AddToListButton } from "@/components/dashboard/add-to-list-button"
+import { RatingSection } from "@/components/ratings/rating-section"
+import { ReviewsSection } from "@/components/reviews/reviews-section"
 
 export default async function TVDetailPage({
   params,
@@ -95,6 +97,10 @@ export default async function TVDetailPage({
 
       {/* Details Section */}
       <div className="px-12 py-8 space-y-12">
+        {/* Rating Section */}
+        <RatingSection contentType="tv" contentId={tvId} title={show.name} />
+        
+        {/* Cast */}
         {cast.length > 0 && (
           <div>
             <h2 className="text-3xl font-bold text-white mb-6">Cast</h2>
@@ -105,6 +111,8 @@ export default async function TVDetailPage({
             </div>
           </div>
         )}
+        {/* Reviews Section */}
+        <ReviewsSection contentType="tv" contentId={tvId} title={show.name} />
 
         {similar.length > 0 && (
           <ContentRow title="More Like This" items={similar.slice(0, 10)} />

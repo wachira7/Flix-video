@@ -1,15 +1,16 @@
-// components/dashboard/media-card.tsx
+// components/dashboard/media-card.tsx 
+
 "use client"
 
 import { useState } from "react"
 import Image from "next/image"
+import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
-import { Play, Plus, ThumbsUp, Info } from "lucide-react"
+import { Play, Plus, Info, Star } from "lucide-react"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import type { Movie, TVShow } from "@/lib/api/tmdb"
 import { getImageUrl } from "@/lib/api/tmdb"
-import Link from "next/link"
 
 interface MediaCardProps {
   media: Movie | TVShow
@@ -18,14 +19,20 @@ interface MediaCardProps {
 
 export function MediaCard({ media, index }: MediaCardProps) {
   const [isHovered, setIsHovered] = useState(false)
+  const router = useRouter()
+  
   const title = 'title' in media ? media.title : media.name
   const releaseDate = 'release_date' in media ? media.release_date : media.first_air_date
   const year = releaseDate ? new Date(releaseDate).getFullYear() : 'N/A'
   const imageUrl = getImageUrl(media.poster_path || media.backdrop_path, "w500")
-
-   // Determine if it's a movie or TV show
+  
+  // Determine if it's a movie or TV show
   const mediaType = 'title' in media ? 'movie' : 'tv'
   const detailUrl = `/${mediaType}/${media.id}`
+
+  const handleClick = () => {
+    router.push(detailUrl)
+  }
 
   return (
     <motion.div
@@ -37,8 +44,10 @@ export function MediaCard({ media, index }: MediaCardProps) {
       onHoverEnd={() => setIsHovered(false)}
       className="relative group"
     >
-     <Link href={detailUrl}>  
-      <Card className="overflow-hidden bg-gray-900 border-gray-800 cursor-pointer">
+      <Card 
+        className="overflow-hidden bg-gray-900 border-gray-800 cursor-pointer"
+        onClick={handleClick}
+      >
         <div className="relative aspect-2/3">
           <Image
             src={imageUrl || "/placeholder.svg"}
@@ -56,9 +65,11 @@ export function MediaCard({ media, index }: MediaCardProps) {
             >
               <h3 className="text-white font-semibold mb-2 line-clamp-2">{title}</h3>
               <div className="flex items-center gap-2 mb-3">
-                <span className="text-green-500 font-semibold">
-                  {Math.round(media.vote_average * 10)}% Match
-                </span>
+                {media.vote_average !== undefined && media.vote_average > 0 && (
+                  <span className="text-green-500 font-semibold">
+                    {Math.round(media.vote_average * 10)}% Match
+                  </span>
+                )}
                 <span className="text-gray-400 text-sm">{year}</span>
               </div>
               
@@ -67,6 +78,10 @@ export function MediaCard({ media, index }: MediaCardProps) {
                 <Button
                   size="sm"
                   className="bg-white text-black hover:bg-gray-200 flex-1"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    handleClick()
+                  }}
                 >
                   <Play className="w-4 h-4 mr-1" fill="currentColor" />
                   Play
@@ -75,6 +90,7 @@ export function MediaCard({ media, index }: MediaCardProps) {
                   size="sm"
                   variant="outline"
                   className="border-gray-600 bg-gray-800/80 hover:bg-gray-700"
+                  onClick={(e) => e.stopPropagation()}
                 >
                   <Plus className="w-4 h-4" />
                 </Button>
@@ -82,6 +98,7 @@ export function MediaCard({ media, index }: MediaCardProps) {
                   size="sm"
                   variant="outline"
                   className="border-gray-600 bg-gray-800/80 hover:bg-gray-700"
+                  onClick={(e) => e.stopPropagation()}
                 >
                   <Info className="w-4 h-4" />
                 </Button>
@@ -89,15 +106,17 @@ export function MediaCard({ media, index }: MediaCardProps) {
             </motion.div>
           )}
 
-          {/* Rating Badge */}
-          <div className="absolute top-2 right-2 bg-black/70 backdrop-blur-sm rounded px-2 py-1">
-            <span className="text-yellow-500 font-semibold text-sm">
-              ⭐ {media.vote_average.toFixed(1)}
-            </span>
-          </div>
+          {/* Rating Badge - Only show if vote_average exists */}
+          {media.vote_average !== undefined && media.vote_average > 0 && (
+            <div className="absolute top-2 right-2 bg-black/70 backdrop-blur-sm rounded px-2 py-1">
+              <Star className="w-3 h-3 text-yellow-500 fill-yellow-500" />
+              <span className="text-yellow-500 font-semibold text-sm">
+                ⭐ {media.vote_average.toFixed(1)}
+              </span>
+            </div>
+          )}
         </div>
       </Card>
-      </Link>
     </motion.div>
   )
 }

@@ -1,10 +1,12 @@
-// components/dashboard/video-player.tsx
+// components/dashboard/video-player.tsx 
+
 "use client"
 
 import { useState } from "react"
 import { X } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Dialog, DialogContent } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
+import * as VisuallyHidden from "@radix-ui/react-visually-hidden"
 
 interface VideoPlayerProps {
   videoKey: string
@@ -24,12 +26,15 @@ export function VideoPlayer({ videoKey, title }: VideoPlayerProps) {
       </Button>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-4xl p-0 bg-black">
+        <DialogContent className="max-w-4xl p-0 bg-black border-0">
+          <VisuallyHidden.Root>
+            <DialogTitle>{title} - Trailer</DialogTitle>
+          </VisuallyHidden.Root>
           <div className="relative pt-[56.25%]">
             <iframe
               className="absolute inset-0 w-full h-full"
               src={`https://www.youtube.com/embed/${videoKey}?autoplay=1`}
-              title={title}
+              title={`${title} Trailer`}
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
             />
@@ -38,7 +43,7 @@ export function VideoPlayer({ videoKey, title }: VideoPlayerProps) {
             onClick={() => setOpen(false)}
             variant="ghost"
             size="icon"
-            className="absolute top-4 right-4 text-white hover:bg-white/20"
+            className="absolute top-4 right-4 text-white hover:bg-white/20 z-10"
           >
             <X className="w-6 h-6" />
           </Button>

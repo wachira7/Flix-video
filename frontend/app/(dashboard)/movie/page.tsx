@@ -127,9 +127,22 @@ const handlePageChange = (newPage: number) => {
             </Button>
             
             <div className="flex items-center gap-2">
-              {[...Array(Math.min(totalPages, 5))].map((_, i) => {
-                const pageNum = i + 1
-                return (
+              {(() => {
+                // Calculate page window (5 pages centered on current page)
+                let startPage = Math.max(1, page - 2)
+                let endPage = Math.min(totalPages, startPage + 4)
+                
+                // Adjust if we're near the end
+                if (endPage - startPage < 4) {
+                  startPage = Math.max(1, endPage - 4)
+                }
+                
+                const pages = []
+                for (let i = startPage; i <= endPage; i++) {
+                  pages.push(i)
+                }
+                
+                return pages.map((pageNum) => (
                   <Button
                     key={pageNum}
                     variant={page === pageNum ? "default" : "outline"}
@@ -142,8 +155,8 @@ const handlePageChange = (newPage: number) => {
                   >
                     {pageNum}
                   </Button>
-                )
-              })}
+                ))
+              })()}
             </div>
 
             <Button

@@ -8,9 +8,18 @@ const {
   getMyReviews,
   updateReview,
   deleteReview,
-  toggleReviewLike
+  toggleReviewLike,
+  getReviewComments,
+  createReviewComment,
+  updateReviewComment,
+  deleteReviewComment
 } = require('../controllers/reviews.controller');
 
+// ========================================
+// IMPORTANT: Specific routes FIRST!
+// ========================================
+
+// myreviews (must be before /:reviewId routes)
 /**
  * @swagger
  * /api/reviews/me:
@@ -42,6 +51,7 @@ const {
  */
 router.get('/me', protect, getMyReviews);
 
+// User reviews (must be before /:reviewId routes)
 /**
  * @swagger
  * /api/reviews/user/{userId}:
@@ -77,6 +87,105 @@ router.get('/me', protect, getMyReviews);
  */
 router.get('/user/:userId', getUserReviews);
 
+// Comment routes (must be before /:reviewId routes)
+/**
+ * @swagger
+ * /api/reviews/{reviewId}/comments:
+ *   get:
+ *     tags: [Review Comments]
+ *     summary: Get comments for a review
+ *     parameters:
+ *       - in: path
+ *         name: reviewId
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *     responses:
+ *       200:
+ *         description: List of comments
+ */
+router.get('/:reviewId/comments', getReviewComments);
+
+/**
+ * @swagger
+ * /api/reviews/{reviewId}/comments:
+ *   post:
+ *     tags: [Review Comments]
+ *     summary: Create comment on review
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: reviewId
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - content
+ *             properties:
+ *               content:
+ *                 type: string
+ *                 maxLength: 1000
+ *               parent_comment_id:
+ *                 type: string
+ *                 format: uuid
+ *     responses:
+ *       201:
+ *         description: Comment created
+ */
+router.post('/:reviewId/comments', protect, createReviewComment);
+
+/**
+ * @swagger
+ * /api/reviews/comments/{commentId}:
+ *   put:
+ *     tags: [Review Comments]
+ *     summary: Update comment
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: commentId
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *     responses:
+ *       200:
+ *         description: Comment updated
+ */
+router.put('/comments/:commentId', protect, updateReviewComment);
+
+/**
+ * @swagger
+ * /api/reviews/comments/{commentId}:
+ *   delete:
+ *     tags: [Review Comments]
+ *     summary: Delete comment
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: commentId
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *     responses:
+ *       200:
+ *         description: Comment deleted
+ */
+router.delete('/comments/:commentId', protect, deleteReviewComment);
+
+// Review actions (specific routes before dynamic)
 /**
  * @swagger
  * /api/reviews/{reviewId}/like:
@@ -157,6 +266,11 @@ router.put('/:reviewId', protect, updateReview);
  */
 router.delete('/:reviewId', protect, deleteReview);
 
+// ========================================
+// Dynamic routes LAST!
+// ========================================
+
+// Content reviews (must be LAST - catches everything else)
 /**
  * @swagger
  * /api/reviews/{contentType}/{contentId}:

@@ -9,6 +9,8 @@ import { CastCard } from "@/components/dashboard/cast-card"
 import { ContentRow } from "@/components/dashboard/content-row"
 import { VideoPlayer } from "@/components/dashboard/video-player"
 import { AddToListButton } from "@/components/dashboard/add-to-list-button"
+import { RatingSection } from "@/components/ratings/rating-section"
+import { ReviewsSection } from "@/components/reviews/reviews-section"
 
 
 export default async function MovieDetailPage({
@@ -99,6 +101,8 @@ export default async function MovieDetailPage({
 
       {/* Details Section */}
       <div className="px-12 py-8 space-y-12">
+        {/* Rating Section */}
+        <RatingSection contentType="movie" contentId={movieId} title={movie.title} />
         {/* Cast */}
         {cast.length > 0 && (
           <div>
@@ -110,6 +114,8 @@ export default async function MovieDetailPage({
             </div>
           </div>
         )}
+        {/* Reviews Section */}
+        <ReviewsSection contentType="movie" contentId={movieId} title={movie.title} />
 
         {/* Similar Movies */}
         {similar.length > 0 && (

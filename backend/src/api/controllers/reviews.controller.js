@@ -92,8 +92,8 @@ const getContentReviews = async (req, res) => {
     const query = `
       SELECT 
         r.*,
-        u.username,
         u.email,
+        COALESCE(up.username, u.email) AS username,
         up.full_name,
         up.avatar_url
       FROM reviews r
@@ -140,8 +140,14 @@ const getUserReviews = async (req, res) => {
     const offset = (page - 1) * limit;
 
     let query = `
-      SELECT r.*
+      SELECT r.*,
+      u.email,
+      COALESCE(up.username, u.email) AS username,
+      up.full_name,
+      up.avatar_url
       FROM reviews r
+      JOIN users u ON r.user_id = u.id
+      LEFT JOIN user_profiles up ON u.id = up.user_id
       WHERE r.user_id = $1 AND r.is_public = true
     `;
     let params = [userId];
@@ -397,6 +403,276 @@ const toggleReviewLike = async (req, res) => {
   }
 };
 
+
+// @desc    Get comments for a review
+// @route   GET /api/reviews/:reviewId/comments
+// @access  Public
+const getReviewComments = async (req, res) => {
+  try {
+    const { reviewId } = req.params;
+    const { page = 1, limit = 50 } = req.query;
+    const offset = (page - 1) * limit;
+
+    // Get comments with user info and nested replies
+    const query = `
+      WITH RECURSIVE comment_tree AS (
+        -- Top-level comments (no parent)
+        SELECT 
+          c.*,
+          u.email,
+          COALESCE(up.username, u.email) as username,
+          up.avatar_url,
+          0 as depth,
+          ARRAY[c.created_at::text, c.id::text] as path
+        FROM review_comments c
+        JOIN users u ON c.user_id = u.id
+        LEFT JOIN user_profiles up ON u.id = up.user_id
+        WHERE c.review_id = $1 AND c.parent_comment_id IS NULL
+        
+        UNION ALL
+        
+        -- Nested replies (recursive)
+        SELECT 
+          c.*,
+          u.email,
+          COALESCE(up.username, u.email) as username,
+          up.avatar_url,
+          ct.depth + 1,
+          ct.path || ARRAY[c.created_at::text, c.id::text]
+        FROM review_comments c
+        JOIN users u ON c.user_id = u.id
+        LEFT JOIN user_profiles up ON u.id = up.user_id
+        JOIN comment_tree ct ON c.parent_comment_id = ct.id
+        WHERE ct.depth < 10
+      )
+      SELECT * FROM comment_tree
+      ORDER BY path
+      LIMIT $2 OFFSET $3
+    `;
+
+    const result = await global.pgPool.query(query, [reviewId, limit, offset]);
+
+    // Get total count
+    const countResult = await global.pgPool.query(
+      'SELECT COUNT(*) FROM review_comments WHERE review_id = $1',
+      [reviewId]
+    );
+    const total = parseInt(countResult.rows[0].count);
+
+    res.json({
+      success: true,
+      page: parseInt(page),
+      limit: parseInt(limit),
+      total,
+      total_pages: Math.ceil(total / limit),
+      comments: result.rows
+    });
+  } catch (error) {
+    console.error('Get review comments error:', error);
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      error: ERROR_MESSAGES.SERVER_ERROR
+    });
+  }
+};
+
+// @desc    Create comment on review
+// @route   POST /api/reviews/:reviewId/comments
+// @access  Private
+const createReviewComment = async (req, res) => {
+  try {
+    const { reviewId } = req.params;
+    const { content, parent_comment_id = null } = req.body;
+    const userId = req.user.id;
+
+    if (!content || content.trim().length === 0) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        success: false,
+        error: 'Comment content is required'
+      });
+    }
+
+    if (content.length > 1000) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        success: false,
+        error: 'Comment must be 1000 characters or less'
+      });
+    }
+
+    // Check if review exists
+    const reviewExists = await global.pgPool.query(
+      'SELECT id FROM reviews WHERE id = $1',
+      [reviewId]
+    );
+
+    if (reviewExists.rows.length === 0) {
+      return res.status(HTTP_STATUS.NOT_FOUND).json({
+        success: false,
+        error: 'Review not found'
+      });
+    }
+
+    // If replying, verify parent exists
+    if (parent_comment_id) {
+      const parentExists = await global.pgPool.query(
+        'SELECT review_id FROM review_comments WHERE id = $1',
+        [parent_comment_id]
+      );
+
+      if (parentExists.rows.length === 0) {
+        return res.status(HTTP_STATUS.BAD_REQUEST).json({
+          success: false,
+          error: 'Parent comment not found'
+        });
+      }
+
+      if (parentExists.rows[0].review_id !== reviewId) {
+        return res.status(HTTP_STATUS.BAD_REQUEST).json({
+          success: false,
+          error: 'Parent comment does not belong to this review'
+        });
+      }
+    }
+
+    // Create comment
+    const result = await global.pgPool.query(
+      `INSERT INTO review_comments (review_id, user_id, parent_comment_id, content, created_at, updated_at)
+       VALUES ($1, $2, $3, $4, NOW(), NOW())
+       RETURNING *`,
+      [reviewId, userId, parent_comment_id, content.trim()]
+    );
+
+    // Get comment with user info
+    const commentWithUser = await global.pgPool.query(
+      `SELECT 
+        c.*,
+        u.email,
+        COALESCE(up.username, u.email) as username,
+        up.avatar_url
+      FROM review_comments c
+      JOIN users u ON c.user_id = u.id
+      LEFT JOIN user_profiles up ON u.id = up.user_id
+      WHERE c.id = $1`,
+      [result.rows[0].id]
+    );
+
+    res.status(HTTP_STATUS.CREATED).json({
+      success: true,
+      message: 'Comment created successfully',
+      comment: commentWithUser.rows[0]
+    });
+  } catch (error) {
+    console.error('Create review comment error:', error);
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      error: ERROR_MESSAGES.SERVER_ERROR
+    });
+  }
+};
+
+// @desc    Update comment
+// @route   PUT /api/reviews/comments/:commentId
+// @access  Private
+const updateReviewComment = async (req, res) => {
+  try {
+    const { commentId } = req.params;
+    const { content } = req.body;
+    const userId = req.user.id;
+
+    if (!content || content.trim().length === 0) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        success: false,
+        error: 'Comment content is required'
+      });
+    }
+
+    // Check ownership
+    const existing = await global.pgPool.query(
+      'SELECT user_id FROM review_comments WHERE id = $1',
+      [commentId]
+    );
+
+    if (existing.rows.length === 0) {
+      return res.status(HTTP_STATUS.NOT_FOUND).json({
+        success: false,
+        error: 'Comment not found'
+      });
+    }
+
+    if (existing.rows[0].user_id !== userId) {
+      return res.status(HTTP_STATUS.FORBIDDEN).json({
+        success: false,
+        error: 'You can only update your own comments'
+      });
+    }
+
+    // Update comment
+    const result = await global.pgPool.query(
+      `UPDATE review_comments 
+       SET content = $1, updated_at = NOW()
+       WHERE id = $2
+       RETURNING *`,
+      [content.trim(), commentId]
+    );
+
+    res.json({
+      success: true,
+      message: 'Comment updated successfully',
+      comment: result.rows[0]
+    });
+  } catch (error) {
+    console.error('Update review comment error:', error);
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      error: ERROR_MESSAGES.SERVER_ERROR
+    });
+  }
+};
+
+// @desc    Delete comment
+// @route   DELETE /api/reviews/comments/:commentId
+// @access  Private
+const deleteReviewComment = async (req, res) => {
+  try {
+    const { commentId } = req.params;
+    const userId = req.user.id;
+
+    // Check ownership
+    const existing = await global.pgPool.query(
+      'SELECT user_id FROM review_comments WHERE id = $1',
+      [commentId]
+    );
+
+    if (existing.rows.length === 0) {
+      return res.status(HTTP_STATUS.NOT_FOUND).json({
+        success: false,
+        error: 'Comment not found'
+      });
+    }
+
+    if (existing.rows[0].user_id !== userId) {
+      return res.status(HTTP_STATUS.FORBIDDEN).json({
+        success: false,
+        error: 'You can only delete your own comments'
+      });
+    }
+
+    // Delete comment (cascade will delete replies)
+    await global.pgPool.query('DELETE FROM review_comments WHERE id = $1', [commentId]);
+
+    res.json({
+      success: true,
+      message: 'Comment deleted successfully'
+    });
+  } catch (error) {
+    console.error('Delete review comment error:', error);
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      error: ERROR_MESSAGES.SERVER_ERROR
+    });
+  }
+};
+
 module.exports = {
   createReview,
   getContentReviews,
@@ -404,5 +680,9 @@ module.exports = {
   getMyReviews,
   updateReview,
   deleteReview,
-  toggleReviewLike
+  toggleReviewLike,
+  getReviewComments,
+  createReviewComment,
+  updateReviewComment,
+  deleteReviewComment
 };
