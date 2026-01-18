@@ -34,15 +34,15 @@
     "docker:up": "docker-compose up -d postgres mongodb redis",
     "docker:down": "docker-compose down",
     "docker:logs": "docker-compose logs -f",
-    "docker:clean": "docker-compose down -v",   
+    "docker:clean": "docker-compose down -v",
     "clean": "rm -rf node_modules coverage .nyc_output",
     "fresh": "yarn clean && yarn install"
-},
+  },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.71.2",
     "@elastic/elasticsearch": "^8.11.0",
     "@sentry/node": "^7.92.0",
-    "@supabase/supabase-js": "^2.39.0",
+    "@supabase/supabase-js": "^2.90.1",
     "axios": "^1.6.2",
     "bcrypt": "^6.0.0",
     "bcryptjs": "^2.4.3",
@@ -75,7 +75,7 @@
     "mongodb": "^7.0.0",
     "mongoose": "^8.0.3",
     "morgan": "^1.10.0",
-    "multer": "^1.4.5-lts.1",
+    "multer": "^2.0.2",
     "node-schedule": "^2.1.1",
     "nodemailer": "^6.9.7",
     "openai": "^6.15.0",
@@ -136,7 +136,6 @@
     "nodemon": "^3.0.2",
     "prettier": "^3.1.1",
     "supertest": "^6.3.3"
-    
   },
   "lint-staged": {
     "*.ts": [

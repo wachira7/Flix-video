@@ -1,4 +1,5 @@
 // components/dashboard/sidebar.tsx
+
 "use client"
 
 import { useState, useEffect } from "react"
@@ -12,6 +13,7 @@ import { logout, getUser } from "@/lib/auth"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
+import { avatarEvents } from "@/lib/events/avatar-events"
 
 const mainNavItems = [
   { href: "/dashboard", label: "Browse", icon: Home },
@@ -40,10 +42,71 @@ export function Sidebar() {
   const pathname = usePathname()
   const { collapsed, setCollapsed } = useSidebar()
   const [user, setUser] = useState<any>(null)
+  const [mounted, setMounted] = useState(false)
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null)
 
   useEffect(() => {
-    setUser(getUser())
+    setMounted(true)
+    const currentUser = getUser()
+    setUser(currentUser)
+    setAvatarUrl(currentUser?.avatar_url || null)
+
+    // ✅ Subscribe to avatar updates
+    const unsubscribe = avatarEvents.subscribe((newAvatarUrl) => {
+      setAvatarUrl(newAvatarUrl)
+    })
+
+    return () => unsubscribe()
   }, [])
+
+  if (!mounted) {
+    return (
+      <motion.aside
+        initial={{ x: 0 }}
+        animate={{ width: collapsed ? 80 : 256 }}
+        transition={{ duration: 0.3, ease: "easeInOut" }}
+        className="fixed left-0 top-0 z-40 h-screen bg-linear-to-b from-gray-900 to-black border-r border-gray-800"
+      >
+        <div className="flex flex-col h-full">
+          <div className="p-4 border-b border-gray-800 flex items-center justify-between">
+            <Link href="/dashboard" className="flex items-center space-x-2">
+              <div className="bg-linear-to-r from-purple-700 to-fuchsia-600 p-2 rounded-lg">
+                <Play className="w-6 h-6 text-white" fill="white" />
+              </div>
+              {!collapsed && (
+                <span className="text-2xl font-bold gradient-text whitespace-nowrap">
+                  FlixVideo
+                </span>
+              )}
+            </Link>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setCollapsed(!collapsed)}
+              className="shrink-0 hover:bg-gray-800"
+            >
+              {collapsed ? (
+                <ChevronRight className="w-5 h-5 text-gray-400" />
+              ) : (
+                <ChevronLeft className="w-5 h-5 text-gray-400" />
+              )}
+            </Button>
+          </div>
+          <div className="p-4 border-b border-gray-800">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-full bg-gray-800 animate-pulse" />
+              {!collapsed && (
+                <div className="flex-1">
+                  <div className="h-4 w-24 bg-gray-800 rounded animate-pulse mb-2" />
+                  <div className="h-3 w-20 bg-gray-800 rounded animate-pulse" />
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </motion.aside>
+    )
+  }
 
   return (
     <motion.aside
@@ -88,13 +151,15 @@ export function Sidebar() {
           </Button>
         </div>
 
-        {/* User Info */}
+        {/* User Info -NOW UPDATES REACTIVELY */}
         <div className="p-4 border-b border-gray-800">
           <div className="flex items-center gap-3">
             <Avatar className="border-2 border-purple-600">
-              <AvatarImage src={user?.avatar_url} alt={user?.email} />
+              {avatarUrl && (
+                <AvatarImage src={avatarUrl} alt={user?.email} />
+              )}
               <AvatarFallback className="bg-linear-to-r from-purple-700 to-fuchsia-600">
-                {user?.email?.charAt(0).toUpperCase()}
+                {user?.email?.charAt(0).toUpperCase() || "U"}
               </AvatarFallback>
             </Avatar>
             <AnimatePresence>
@@ -106,7 +171,7 @@ export function Sidebar() {
                   className="flex-1 overflow-hidden"
                 >
                   <p className="text-sm font-semibold text-white truncate">
-                    {user?.full_name || user?.email?.split('@')[0]}
+                    {user?.full_name || user?.email?.split('@')[0] || "User"}
                   </p>
                   <p className="text-xs text-gray-400 truncate">Premium Member</p>
                 </motion.div>
@@ -115,7 +180,7 @@ export function Sidebar() {
           </div>
         </div>
 
-        {/* Main Navigation */}
+        {/* Navigation sections remain the same... */}
         <nav className="flex-1 p-4 space-y-6 overflow-y-auto">
           {/* Main Section */}
           <div className="space-y-1">
@@ -160,7 +225,7 @@ export function Sidebar() {
 
           {!collapsed && <Separator className="bg-gray-800" />}
 
-          {/* Library Section */}
+          {/* Library & Discover sections...  */}
           <div className="space-y-1">
             {!collapsed && (
               <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider px-3 mb-2">
@@ -203,7 +268,6 @@ export function Sidebar() {
 
           {!collapsed && <Separator className="bg-gray-800" />}
 
-          {/* Discover Section */}
           <div className="space-y-1">
             {!collapsed && (
               <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider px-3 mb-2">

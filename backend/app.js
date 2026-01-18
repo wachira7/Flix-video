@@ -29,6 +29,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
 
 // Import routes
 const authRoutes = require('./src/api/routes/auth.routes');
+const userRoutes = require('./src/api/routes/user.routes');
 const movieRoutes = require('./src/api/routes/movie.routes');
 const tvRoutes = require('./src/api/routes/tv.routes');
 const favoritesRoutes = require('./src/api/routes/favorites.routes');
@@ -48,6 +49,7 @@ const currencyRoutes = require('./src/api/routes/currency.routes');
 
 // Use routes
 app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
 app.use('/api/movies', movieRoutes);
 app.use('/api/tv', tvRoutes);
 app.use('/api/favorites', favoritesRoutes);

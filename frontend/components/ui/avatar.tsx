@@ -1,4 +1,4 @@
-//frontend-web/components/ui/avatar.tsx
+//frontend/components/ui/avatar.tsx
 "use client"
 
 import * as React from "react"
