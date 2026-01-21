@@ -1,3 +1,4 @@
+//backend/src/api/middlewares/auth.middleware.js
 const jwt = require('jsonwebtoken');
 const { USER_STATUS, USER_ROLES, HTTP_STATUS, ERROR_MESSAGES } = require('../../utils/constants');
 

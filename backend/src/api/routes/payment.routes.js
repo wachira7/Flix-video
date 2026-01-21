@@ -1,3 +1,4 @@
+// backend/src/api/routes/payment.routes.js
 const express = require('express');
 const router = express.Router();
 const { protect } = require('../middlewares/auth.middleware');
@@ -16,7 +17,16 @@ const {
   createCryptoPayment,
   cryptoWebhook,
   getCryptoStatus,
-  getCryptoCurrencies
+  getCryptoCurrencies,
+  
+  // Payment Methods
+  getPaymentMethods,
+  setDefaultPaymentMethod,
+  deletePaymentMethod,
+
+  // Payment History
+  getPaymentHistory
+
 } = require('../controllers/payment.controller');
 
 // =============================================================================
@@ -263,5 +273,68 @@ router.post('/crypto/webhook', cryptoWebhook);
  *         description: Payment status retrieved
  */
 router.get('/crypto/status/:paymentId', protect, getCryptoStatus);
+
+/**
+ * @swagger
+ * /api/payments/methods:
+ *   get:
+ *     tags: [Payments]
+ *     summary: Get user's saved payment methods
+ *     security:
+ *       - bearerAuth: []
+ */
+router.get('/methods', protect, getPaymentMethods);
+
+/**
+ * @swagger
+ * /api/payments/methods/{methodId}/default:
+ *   put:
+ *     tags: [Payments]
+ *     summary: Set default payment method
+ *     security:
+ *       - bearerAuth: []
+ */
+router.put('/methods/:methodId/default', protect, setDefaultPaymentMethod);
+
+/**
+ * @swagger
+ * /api/payments/methods/{methodId}:
+ *   delete:
+ *     tags: [Payments]
+ *     summary: Delete payment method
+ *     security:
+ *       - bearerAuth: []
+ */
+router.delete('/methods/:methodId', protect, deletePaymentMethod);
+
+// =============================================================================
+// PAYMENT HISTORY ROUTE
+// =============================================================================  
+
+/**
+ * @swagger
+ * /api/payments/history:
+ *   get:
+ *     tags: [Payments]
+ *     summary: Get user's payment history
+ *     description: Get list of user's past payments
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 20
+ *       - in: query
+ *         name: offset
+ *         schema:
+ *           type: integer
+ *           default: 0
+ *     responses:
+ *       200:
+ *         description: Payment history retrieved
+ */
+router.get('/history', protect, getPaymentHistory);
 
 module.exports = router;

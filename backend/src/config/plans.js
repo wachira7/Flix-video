@@ -1,3 +1,4 @@
+//backend/src/config/plans.js
 /**
  * Subscription Plans Configuration
  */

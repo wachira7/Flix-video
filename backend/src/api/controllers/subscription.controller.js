@@ -1,3 +1,4 @@
+// backend/src/api/controllers/subscription.controller.js
 const { HTTP_STATUS, ERROR_MESSAGES } = require('../../utils/constants');
 const { PLANS, getPlan, isValidUpgrade, isValidDowngrade } = require('../../config/plans');
 const { getUserSubscription } = require('../middlewares/subscription.middleware');

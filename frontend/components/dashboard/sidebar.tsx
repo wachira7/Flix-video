@@ -10,6 +10,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import { Home, Search, Heart, Film, Tv, User, Settings, LogOut, Play, ChevronLeft, ChevronRight, TrendingUp, Clock, Star, Sparkles } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { logout, getUser } from "@/lib/auth"
+import { subscriptionAPI } from "@/lib/api/subscriptions"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
@@ -42,6 +43,7 @@ export function Sidebar() {
   const pathname = usePathname()
   const { collapsed, setCollapsed } = useSidebar()
   const [user, setUser] = useState<any>(null)
+  const [subscriptionPlan, setSubscriptionPlan] = useState<string>('free')
   const [mounted, setMounted] = useState(false)
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null)
 
@@ -50,6 +52,17 @@ export function Sidebar() {
     const currentUser = getUser()
     setUser(currentUser)
     setAvatarUrl(currentUser?.avatar_url || null)
+
+    // Fetch subscription plan
+  const fetchSubscription = async () => {
+    try {
+      const response = await subscriptionAPI.getMySubscription()
+      setSubscriptionPlan(response.subscription?.plan_type || 'free')
+    } catch (error) {
+      setSubscriptionPlan('free')
+    }
+  }
+  fetchSubscription()
 
     // ✅ Subscribe to avatar updates
     const unsubscribe = avatarEvents.subscribe((newAvatarUrl) => {
@@ -173,14 +186,23 @@ export function Sidebar() {
                   <p className="text-sm font-semibold text-white truncate">
                     {user?.full_name || user?.email?.split('@')[0] || "User"}
                   </p>
-                  <p className="text-xs text-gray-400 truncate">Premium Member</p>
+                  <p className={cn(
+                    "text-xs truncate",
+                    subscriptionPlan === 'premium' ? "text-purple-400" : 
+                    subscriptionPlan === 'basic' ? "text-blue-400" : 
+                    "text-gray-400"
+                  )}>
+                    {subscriptionPlan === 'premium' && '👑 Premium Member'}
+                    {subscriptionPlan === 'basic' && '⭐ Basic Member'}
+                    {subscriptionPlan === 'free' && 'Free Plan'}
+                  </p>
                 </motion.div>
               )}
             </AnimatePresence>
           </div>
         </div>
 
-        {/* Navigation sections remain the same... */}
+        {/* Navigation sections and links */}
         <nav className="flex-1 p-4 space-y-6 overflow-y-auto">
           {/* Main Section */}
           <div className="space-y-1">

@@ -1,3 +1,4 @@
+// backend/src/integrations/stripe/index.js
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 /**

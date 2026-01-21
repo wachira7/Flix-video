@@ -1,3 +1,4 @@
+// backend/src/api/controllers/payment.controller.js
 const { HTTP_STATUS, ERROR_MESSAGES } = require('../../utils/constants');
 const stripeService = require('../../integrations/stripe');
 const mpesaService = require('../../integrations/mpesa');
@@ -592,6 +593,133 @@ const getCryptoCurrencies = async (req, res) => {
   }
 };
 
+
+// @desc    Get user's saved payment methods
+// @route   GET /api/payments/methods
+// @access  Private
+const getPaymentMethods = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    // For now, return empty since we don't save payment methods
+    // In production, you'd query Stripe/M-Pesa for saved methods
+    
+    res.json({
+      success: true,
+      payment_methods: []
+    });
+
+  } catch (error) {
+    console.error('Get payment methods error:', error);
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      error: ERROR_MESSAGES.SERVER_ERROR
+    });
+  }
+};
+
+// @desc    Set default payment method
+// @route   PUT /api/payments/methods/:methodId/default
+// @access  Private
+const setDefaultPaymentMethod = async (req, res) => {
+  try {
+    // TODO: Implement when we add saved payment methods feature
+    res.json({
+      success: true,
+      message: 'Default payment method updated'
+    });
+
+  } catch (error) {
+    console.error('Set default error:', error);
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      error: ERROR_MESSAGES.SERVER_ERROR
+    });
+  }
+};
+
+// @desc    Delete payment method
+// @route   DELETE /api/payments/methods/:methodId
+// @access  Private
+const deletePaymentMethod = async (req, res) => {
+  try {
+    // TODO: Implement when we add saved payment methods feature
+    res.json({
+      success: true,
+      message: 'Payment method removed'
+    });
+
+  } catch (error) {
+    console.error('Delete payment method error:', error);
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      error: ERROR_MESSAGES.SERVER_ERROR
+    });
+  }
+};
+
+// @desc    Get User's Payment History
+// @route   GET /api/payments/history
+// @access  Private
+const getPaymentHistory = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { limit = 20, offset = 0 } = req.query;
+
+    // Get user's payments
+    const result = await global.pgPool.query(
+      `SELECT 
+        p.id,
+        p.amount,
+        p.currency,
+        p.payment_method,
+        p.status,
+        p.plan_type,
+        p.description,
+        p.created_at,
+        p.paid_at,
+        p.failed_at,
+        
+        -- Include method-specific details
+        CASE 
+          WHEN p.payment_method = 'stripe' THEN p.stripe_session_id
+          WHEN p.payment_method = 'mpesa' THEN mp.mpesa_receipt_number
+          WHEN p.payment_method = 'crypto' THEN cp.pay_in_hash
+        END as transaction_id
+
+      FROM payments p
+      LEFT JOIN mpesa_payments mp ON p.id = mp.payment_id
+      LEFT JOIN crypto_payments cp ON p.id = cp.payment_id
+      WHERE p.user_id = $1
+      ORDER BY p.created_at DESC
+      LIMIT $2 OFFSET $3`,
+      [userId, limit, offset]
+    );
+
+    // Get total count
+    const countResult = await global.pgPool.query(
+      'SELECT COUNT(*) FROM payments WHERE user_id = $1',
+      [userId]
+    );
+
+    res.json({
+      success: true,
+      payments: result.rows,
+      total: parseInt(countResult.rows[0].count),
+      limit: parseInt(limit),
+      offset: parseInt(offset)
+    });
+
+  } catch (error) {
+    console.error('Get payment history error:', error);
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      error: ERROR_MESSAGES.SERVER_ERROR
+    });
+  }
+};
+
+
 module.exports = {
   // Stripe
   createStripeCheckout,
@@ -607,5 +735,13 @@ module.exports = {
   createCryptoPayment,
   cryptoWebhook,
   getCryptoStatus,
-  getCryptoCurrencies
+  getCryptoCurrencies,
+  
+  // Payment Methods
+  getPaymentMethods,
+  setDefaultPaymentMethod,
+  deletePaymentMethod,
+
+  // Payment History
+  getPaymentHistory
 };

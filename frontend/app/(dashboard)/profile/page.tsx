@@ -42,7 +42,7 @@ export default function ProfilePage() {
   const fetchProfile = async () => {
     try {
       const response = await userAPI.getProfile()
-      // ✅ Format date properly for the input field (YYYY-MM-DD)
+      // Format date properly for the input field (YYYY-MM-DD)
       const profileData = response.profile || {}
       if (profileData.date_of_birth) {
         // Ensure it's in YYYY-MM-DD format
@@ -62,7 +62,7 @@ export default function ProfilePage() {
     
     setSaving(true)
     try {
-      // ✅ Build the profile object - only include fields that have values
+      //Build the profile object - only include fields that have values
       const profileToSave: any = {}
 
       // Handle text fields
@@ -88,7 +88,7 @@ export default function ProfilePage() {
       
       await userAPI.updateProfile(profileToSave)
       
-      toast.success("✅ Profile updated successfully!", {
+      toast.success("Profile updated successfully!", {
         duration: 2000,
         position: "top-center"
       })

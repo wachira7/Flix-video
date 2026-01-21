@@ -1,3 +1,4 @@
+//backend/src/integrations/crypto/nowpayments/index.js
 const axios = require('axios');
 
 const NOWPAYMENTS_API_URL = process.env.NOWPAYMENTS_ENVIRONMENT === 'sandbox'

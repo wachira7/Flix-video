@@ -1,7 +1,10 @@
 // app/(dashboard)/dashboard/page.tsx
+
 import { getTrendingMovies, getTrendingTV, getPopularMovies, getUpcomingMovies, getOnTheAirTV } from "@/app/actions/tmdb"
 import { HeroBanner } from "@/components/dashboard/hero-banner"
 import { ContentRow } from "@/components/dashboard/content-row"
+import { SubscriptionBanner } from "@/components/dashboard/subscription-banner"
+import { UsageWidget } from "@/components/dashboard/usage-widget"
 import { tmdbClient } from "@/lib/api/tmdb"
 import type { Movie, TVShow } from "@/lib/api/tmdb"
 
@@ -30,28 +33,51 @@ export default async function DashboardPage() {
   const upcomingMovies = (upcomingMoviesRes.success ? upcomingMoviesRes.data : []) as Movie[]
   const onTheAirTV = (onTheAirTVRes.success ? onTheAirTVRes.data : []) as TVShow[]
 
-  // Extract .results from TMDB responses (they now return { results, total_pages, page })
   const topRatedMovies = topRatedMoviesRes.results as Movie[]
   const topRatedTV = topRatedTVRes.results as TVShow[]
 
-  // Combine trending movies and TV shows, then get 10 random items
   const combinedTrending = [...trendingMovies, ...trendingTV]
   const randomHeroItems = getRandomItems(combinedTrending, 10)
 
   return (
     <div className="min-h-screen">
-      {/* Hero Banner - now with random 10 movies/TV shows */}
+      {/* Hero Banner - Full Width */}
       {randomHeroItems.length > 0 && <HeroBanner movies={randomHeroItems} />}
 
-      {/* Content Rows */}
-      <div className="space-y-8">
-        <ContentRow title="Trending Movies" items={trendingMovies} />
-        <ContentRow title="Upcoming Movies" items={upcomingMovies} />
-        <ContentRow title="Trending TV Shows" items={trendingTV} />
-        <ContentRow title="On The Air TV Shows" items={onTheAirTV} />
-        <ContentRow title="Popular on FlixVideo" items={popularMovies} />
-        <ContentRow title="Top Rated Movies" items={topRatedMovies} />
-        <ContentRow title="Top Rated TV Shows" items={topRatedTV} />
+      {/* Main Container with Grid Layout */}
+      <div className="container mx-auto px-4 lg:px-8 py-8">
+        {/* Subscription Banner - Full Width */}
+        <div className="mb-8">
+          <SubscriptionBanner />
+        </div>
+
+        {/* Two Column Layout: Content + Sidebar */}
+        <div className="grid grid-cols-1 xl:grid-cols-[1fr_350px] gap-8">
+          
+          {/* Main Content - Left Side */}
+          <div className="space-y-8">
+            <ContentRow title="Trending Movies" items={trendingMovies} />
+            <ContentRow title="Upcoming Movies" items={upcomingMovies} />
+            <ContentRow title="Trending TV Shows" items={trendingTV} />
+            <ContentRow title="On The Air TV Shows" items={onTheAirTV} />
+            <ContentRow title="Popular on FlixVideo" items={popularMovies} />
+            <ContentRow title="Top Rated Movies" items={topRatedMovies} />
+            <ContentRow title="Top Rated TV Shows" items={topRatedTV} />
+          </div>
+
+          {/* Sidebar - Right Side (Sticky) */}
+          <aside className="hidden xl:block space-y-6">
+            <div className="sticky top-8 space-y-6">
+              {/* Usage Widget */}
+              <UsageWidget />
+              
+              {/* You can add more widgets here */}
+              {/* <RecommendationsWidget /> */}
+              {/* <ActivityWidget /> */}
+            </div>
+          </aside>
+
+        </div>
       </div>
     </div>
   )
