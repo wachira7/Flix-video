@@ -1,3 +1,4 @@
+//backend/src/sockets/watchParty.socket.js
 /**
  * Watch Party Socket Handlers
  * Real-time synchronization for watch parties

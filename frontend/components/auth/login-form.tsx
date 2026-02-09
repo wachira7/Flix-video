@@ -37,18 +37,49 @@ export function LoginForm() {
     try {
       const response = await axios.post(`${API_URL}/api/auth/login`, data)
       
-    // Store in localStorage (for client-side access)
-    localStorage.setItem("token", response.data.token)
-    localStorage.setItem("user", JSON.stringify(response.data.user))
-    
-    // Store in cookies (for middleware)
-    document.cookie = `token=${response.data.token}; path=/; max-age=2592000; SameSite=Strict`
+      // Store in localStorage (for client-side access)
+      localStorage.setItem("token", response.data.token)
+      localStorage.setItem("user", JSON.stringify(response.data.user))
       
-      toast.success("Welcome back!")
-      router.push("/dashboard")
-    } catch (error: any) {
-      const message = error.response?.data?.message || "Login failed"
-      toast.error(message)
+      // Store in cookies (for middleware)
+      document.cookie = `token=${response.data.token}; path=/; max-age=2592000; SameSite=Strict`
+      
+      // Success message with username
+      const username = response.data.user?.username || response.data.user?.email?.split('@')[0] || 'User'
+      toast.success(`Welcome back, ${username}!`)
+      
+      // Small delay for better UX
+      setTimeout(() => {
+        router.push("/dashboard")
+      }, 500)
+      
+    } catch (error: any) {        
+      // Extract error message from various possible fields
+      let message = "Login failed"
+      
+      if (error.response?.data) {
+        // Backend might send: { error: "..." } or { message: "..." }
+        message = error.response.data.error || 
+                  error.response.data.message || 
+                  message
+      } else if (error.message) {
+        // Network error
+        message = "Network error - please check your connection"
+      }
+      
+      // Show specific error messages
+      if (message.toLowerCase().includes('invalid') || 
+          message.toLowerCase().includes('incorrect') ||
+          message.toLowerCase().includes('wrong')) {
+        toast.error("Invalid email or password")
+      } else if (message.toLowerCase().includes('not found')) {
+        toast.error("Account not found - please sign up")
+      } else if (message.toLowerCase().includes('network')) {
+        toast.error("Connection failed - please try again")
+      } else {
+        toast.error(message)
+      }
+    
     } finally {
       setLoading(false)
     }

@@ -1,13 +1,13 @@
 // components/dashboard/topbar.tsx
-
 "use client"
 
 import { useState, useEffect } from "react"
-import { Search, Bell, User } from "lucide-react"
+import { Search, User } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { NotificationsDropdown } from "./notifications-dropdown"
 import { useRouter } from "next/navigation"
 import { getUser, logout } from "@/lib/auth"
 import { avatarEvents } from "@/lib/events/avatar-events"
@@ -58,11 +58,10 @@ export function Topbar() {
         </form>
 
         <div className="flex items-center space-x-4">
-          <Button variant="ghost" size="icon" className="relative">
-            <Bell className="w-5 h-5 text-gray-400 hover:text-white" />
-            <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full" />
-          </Button>
+          {/* Notifications Dropdown */}
+          <NotificationsDropdown />
 
+          {/* User Menu */}
           {mounted && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>

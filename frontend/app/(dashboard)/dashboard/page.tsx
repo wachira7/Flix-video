@@ -4,7 +4,8 @@ import { getTrendingMovies, getTrendingTV, getPopularMovies, getUpcomingMovies, 
 import { HeroBanner } from "@/components/dashboard/hero-banner"
 import { ContentRow } from "@/components/dashboard/content-row"
 import { SubscriptionBanner } from "@/components/dashboard/subscription-banner"
-import { UsageWidget } from "@/components/dashboard/usage-widget"
+// import { UsageWidget } from "@/components/dashboard/usage-widget"
+// import { AIRecommendationsWidget } from "@/components/dashboard/ai-recommendations-widget" 
 import { tmdbClient } from "@/lib/api/tmdb"
 import type { Movie, TVShow } from "@/lib/api/tmdb"
 
@@ -44,39 +45,22 @@ export default async function DashboardPage() {
       {/* Hero Banner - Full Width */}
       {randomHeroItems.length > 0 && <HeroBanner movies={randomHeroItems} />}
 
-      {/* Main Container with Grid Layout */}
-      <div className="container mx-auto px-4 lg:px-8 py-8">
+      {/* Main Container - Full Width */}
+      <div className=" px-6 py-8">
         {/* Subscription Banner - Full Width */}
         <div className="mb-8">
           <SubscriptionBanner />
         </div>
 
-        {/* Two Column Layout: Content + Sidebar */}
-        <div className="grid grid-cols-1 xl:grid-cols-[1fr_350px] gap-8">
-          
-          {/* Main Content - Left Side */}
-          <div className="space-y-8">
-            <ContentRow title="Trending Movies" items={trendingMovies} />
-            <ContentRow title="Upcoming Movies" items={upcomingMovies} />
-            <ContentRow title="Trending TV Shows" items={trendingTV} />
-            <ContentRow title="On The Air TV Shows" items={onTheAirTV} />
-            <ContentRow title="Popular on FlixVideo" items={popularMovies} />
-            <ContentRow title="Top Rated Movies" items={topRatedMovies} />
-            <ContentRow title="Top Rated TV Shows" items={topRatedTV} />
-          </div>
-
-          {/* Sidebar - Right Side (Sticky) */}
-          <aside className="hidden xl:block space-y-6">
-            <div className="sticky top-8 space-y-6">
-              {/* Usage Widget */}
-              <UsageWidget />
-              
-              {/* You can add more widgets here */}
-              {/* <RecommendationsWidget /> */}
-              {/* <ActivityWidget /> */}
-            </div>
-          </aside>
-
+        {/* Content Rows - Full Width */}
+        <div className="space-y-8">
+          <ContentRow title="Trending Movies" items={trendingMovies} />
+          <ContentRow title="Upcoming Movies" items={upcomingMovies} />
+          <ContentRow title="Trending TV Shows" items={trendingTV} />
+          <ContentRow title="On The Air TV Shows" items={onTheAirTV} />
+          <ContentRow title="Popular on FlixVideo" items={popularMovies} />
+          <ContentRow title="Top Rated Movies" items={topRatedMovies} />
+          <ContentRow title="Top Rated TV Shows" items={topRatedTV} />
         </div>
       </div>
     </div>

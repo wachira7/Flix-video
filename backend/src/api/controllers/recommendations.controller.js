@@ -1,3 +1,4 @@
+//backend/src/api/controllers/recommendations.controller.js
 const { HTTP_STATUS, ERROR_MESSAGES } = require('../../utils/constants');
 const { generateRecommendations, getProviderStatus } = require('../../services/ai.service');
 const { getCache, setCache } = require('../../utils/cache-helper');
@@ -9,7 +10,7 @@ const CACHE_EXPIRY = 86400;
 // @route   POST /api/recommendations/generate
 // @access  Private
 const generateUserRecommendations = async (req, res) => {
-  try {
+  try { 
     const userId = req.user.id;
 
     // Check cache first

@@ -1,0 +1,2 @@
+//frontend/components/auth/social-login.tsx
+//to be implemented in future when we add social login providers like facebook, etc. For now we will focus on email/password authentication and add social login later as an enhancement.

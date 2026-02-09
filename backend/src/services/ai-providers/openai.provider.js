@@ -1,3 +1,4 @@
+//backend/src/services/ai-providers/openai.provider.js
 const OpenAI = require('openai');
 const BaseAIProvider = require('./base.provider');
 

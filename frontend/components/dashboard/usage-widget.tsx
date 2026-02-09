@@ -1,4 +1,4 @@
-// components/dashboard/usage-widget.tsx - ENHANCED VERSION
+// components/dashboard/usage-widget.tsx 
 
 "use client"
 

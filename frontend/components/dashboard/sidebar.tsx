@@ -7,7 +7,7 @@ import { useSidebar } from "@/app/(dashboard)/layout"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
-import { Home, Search, Heart, Film, Tv, User, Settings, LogOut, Play, ChevronLeft, ChevronRight, TrendingUp, Clock, Star, Sparkles } from "lucide-react"
+import { Home, Search, Heart, Film, Tv, User, Settings, LogOut, Play, ChevronLeft, ChevronRight, TrendingUp, Clock, Star, Sparkles, Brain, Users, List } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { logout, getUser } from "@/lib/auth"
 import { subscriptionAPI } from "@/lib/api/subscriptions"
@@ -17,9 +17,10 @@ import { Separator } from "@/components/ui/separator"
 import { avatarEvents } from "@/lib/events/avatar-events"
 
 const mainNavItems = [
-  { href: "/dashboard", label: "Browse", icon: Home },
+  { href: "/dashboard", label: "Home", icon: Home },
   { href: "/search", label: "Search", icon: Search },
   { href: "/my-list", label: "My List", icon: Heart },
+  { href: "/lists", label: "My Lists", icon: List }, 
 ]
 
 const libraryNavItems = [
@@ -32,6 +33,8 @@ const discoverNavItems = [
   { href: "/new-releases", label: "New Releases", icon: Sparkles },
   { href: "/top-rated", label: "Top Rated", icon: Star },
   { href: "/recently-added", label: "Recently Added", icon: Clock },
+  { href: "/ai-chat", label: "AI Chat", icon: Brain },
+  { href: "/watch-party", label: "Watch Party", icon: Users }, 
 ]
 
 const bottomNavItems = [
@@ -64,7 +67,7 @@ export function Sidebar() {
   }
   fetchSubscription()
 
-    // ✅ Subscribe to avatar updates
+    // Subscribe to avatar updates
     const unsubscribe = avatarEvents.subscribe((newAvatarUrl) => {
       setAvatarUrl(newAvatarUrl)
     })
@@ -164,7 +167,7 @@ export function Sidebar() {
           </Button>
         </div>
 
-        {/* User Info -NOW UPDATES REACTIVELY */}
+        {/* User Info UPDATES REACTIVELY */}
         <div className="p-4 border-b border-gray-800">
           <div className="flex items-center gap-3">
             <Avatar className="border-2 border-purple-600">

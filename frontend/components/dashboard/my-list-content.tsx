@@ -1,4 +1,4 @@
-// components/dashboard/my-list-content.tsx - Complete rewrite:
+// components/dashboard/my-list-content.tsx 
 
 "use client"
 

@@ -1,16 +1,19 @@
 // app/(dashboard)/tv/[id]/page.tsx
+
 import { notFound } from "next/navigation"
 import Image from "next/image"
 import { tmdbClient, getImageUrl } from "@/lib/api/tmdb"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Play, Plus, Share2, Calendar, Star, Tv as TvIcon } from "lucide-react"
+import { Plus, Calendar, Star, Tv as TvIcon } from "lucide-react"
 import { CastCard } from "@/components/dashboard/cast-card"
 import { ContentRow } from "@/components/dashboard/content-row"
 import { VideoPlayer } from "@/components/dashboard/video-player"
 import { AddToListButton } from "@/components/dashboard/add-to-list-button"
 import { RatingSection } from "@/components/ratings/rating-section"
 import { ReviewsSection } from "@/components/reviews/reviews-section"
+import { PlayOptionsButton } from "@/components/media/play-options-button"
+import { toast } from "sonner"
 
 export default async function TVDetailPage({
   params,
@@ -82,14 +85,28 @@ export default async function TVDetailPage({
           <p className="text-gray-300 text-lg mb-6 line-clamp-3">{show.overview}</p>
 
           <div className="flex items-center gap-4">
-            <Button size="lg" className="bg-white text-black hover:bg-gray-200">
-              <Play className="w-6 h-6 mr-2" fill="currentColor" />
-              Play
-            </Button>
+            {/* Play Options Button - Watch Party & Streaming */}
+            <PlayOptionsButton
+              contentType="tv"
+              contentId={tvId}
+              title={show.name}
+              seasonNumber={show.number_of_seasons}
+              episodeNumber={1}
+            />
+            
+            {/* Trailer Button */}
             {trailer && <VideoPlayer videoKey={trailer.key} title={show.name} />}
+            
+            {/* Add to List Button */}
             <AddToListButton contentType="tv" contentId={tvId} variant="full" />
-            <Button size="lg" variant="outline" className="border-gray-400 bg-gray-800/80">
-              <Share2 className="w-6 h-6" />
+            
+            {/* Quick Add to Favorites */}
+            <Button 
+              size="lg" 
+              variant="outline" 
+              className="border-gray-400 bg-gray-800/80 hover:border-purple-600 hover:bg-gray-700 transition-all"
+            >
+              <Plus className="w-6 h-6" />
             </Button>
           </div>
         </div>
@@ -111,6 +128,7 @@ export default async function TVDetailPage({
             </div>
           </div>
         )}
+        
         {/* Reviews Section */}
         <ReviewsSection contentType="tv" contentId={tvId} title={show.name} />
 

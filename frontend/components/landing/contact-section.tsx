@@ -19,7 +19,7 @@ const contactMethods = [
   {
     icon: Phone,
     title: "Call Us",
-    detail: "+254 712 345 678",
+    detail: "+254 705 274 244",
   },
   {
     icon: MessageSquare,

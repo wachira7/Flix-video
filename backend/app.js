@@ -40,12 +40,14 @@ const reviewsRoutes = require('./src/api/routes/reviews.routes');
 const listsRoutes = require('./src/api/routes/lists.routes');
 const recommendationsRoutes = require('./src/api/routes/recommendations.routes');
 const watchPartyRoutes = require('./src/api/routes/watchParty.routes');
+const streamingRoutes = require('./src/api/routes/streaming.routes');
 const adminRoutes = require('./src/api/routes/admin.routes');
 const analyticsRoutes = require('./src/api/routes/analytics.routes'); 
 const moderatorRoutes = require('./src/api/routes/moderator.routes');
 const paymentRoutes = require('./src/api/routes/payment.routes');
 const subscriptionRoutes = require('./src/api/routes/subscription.routes'); 
 const currencyRoutes = require('./src/api/routes/currency.routes');
+const notificationRoutes = require('./src/api/routes/notification.routes');
 
 // Use routes
 app.use('/api/auth', authRoutes);
@@ -60,12 +62,14 @@ app.use('/api/reviews', reviewsRoutes);
 app.use('/api/lists', listsRoutes);
 app.use('/api/recommendations', recommendationsRoutes);
 app.use('/api/watch-party', watchPartyRoutes);
+app.use('/api/streaming', streamingRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/moderator', moderatorRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/subscriptions', subscriptionRoutes);
 app.use('/api/currency', currencyRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 
 // Basic routes
