@@ -48,9 +48,16 @@ export function LoginForm() {
       const username = response.data.user?.username || response.data.user?.email?.split('@')[0] || 'User'
       toast.success(`Welcome back, ${username}!`)
       
-      // Small delay for better UX
+      const user = response.data.user
+      const isAdmin = user?.role === 'admin' || user?.is_admin === true
+      const isModerator = user?.role === 'moderator'
+
       setTimeout(() => {
-        router.push("/dashboard")
+        if (isAdmin || isModerator) {
+          router.push("/admin")
+        } else {
+          router.push("/dashboard")
+        }
       }, 500)
       
     } catch (error: any) {        

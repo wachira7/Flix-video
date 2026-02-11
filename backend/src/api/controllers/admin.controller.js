@@ -69,12 +69,13 @@ const getDashboardStats = async (req, res) => {
 // @access  Private (Admin only)
 const getAllUsers = async (req, res) => {
   try {
-    const { page = 1, limit = 20, search = '', status = 'all' } = req.query;
+    const { page = 1, limit = 20, search = '', status = 'all', role = 'all' } = req.query;
     const offset = (page - 1) * limit;
 
     let query = `
-      SELECT u.id, u.email, u.email_verified, u.is_admin, u.banned_at, u.ban_reason, u.created_at,
-             up.username, up.full_name, up.avatar_url
+      SELECT u.id, u.email, u.role, u.status, u.email_verified, u.is_admin, 
+         u.banned_at, u.ban_reason, u.created_at, u.last_login_at,
+         up.username, up.full_name, up.avatar_url
       FROM users u
       LEFT JOIN user_profiles up ON u.id = up.user_id
       WHERE 1=1
@@ -99,8 +100,17 @@ const getAllUsers = async (req, res) => {
       query += ' AND u.is_admin = true';
     }
 
+    // Role filter ← ADD THIS
+    if (role === 'admin') {
+      query += ' AND u.is_admin = true';
+    } else if (role === 'moderator') {
+      query += " AND u.role = 'moderator'";
+    } else if (role === 'user') {
+      query += " AND u.role = 'user' AND u.is_admin = false";
+    }
+
     // Get total count
-    const countQuery = query.replace(/SELECT.*FROM/, 'SELECT COUNT(*) FROM');
+    const countQuery = query.replace(/SELECT[\s\S]*?FROM/, 'SELECT COUNT(*) FROM');
     const countResult = await global.pgPool.query(countQuery, params);
     const total = parseInt(countResult.rows[0].count);
 

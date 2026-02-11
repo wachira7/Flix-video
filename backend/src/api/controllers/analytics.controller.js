@@ -1,51 +1,48 @@
+// src/api/controllers/analytics.controller.js
 const { HTTP_STATUS, ERROR_MESSAGES } = require('../../utils/constants');
 
 // @desc    Get user growth analytics
 // @route   GET /api/admin/analytics/users
 // @access  Private (Admin only)
+// REPLACE the entire getUserAnalytics function:
 const getUserAnalytics = async (req, res) => {
   try {
     const { period = '30days' } = req.query;
 
-    let interval = '1 day';
     let dateRange = '30 days';
+    let truncUnit = 'day';
 
     if (period === '7days') {
       dateRange = '7 days';
     } else if (period === '90days') {
       dateRange = '90 days';
-      interval = '1 day';
     } else if (period === '1year') {
       dateRange = '1 year';
-      interval = '1 week';
+      truncUnit = 'week';
     }
 
-    // User growth over time
+    //  Use string interpolation for INTERVAL (safe - values are hardcoded above)
     const growthResult = await global.pgPool.query(
       `SELECT 
-        DATE_TRUNC($1, created_at) as date,
+        DATE_TRUNC('${truncUnit}', created_at) as date,
         COUNT(*) as new_users
        FROM users
-       WHERE created_at >= NOW() - INTERVAL $2
-       GROUP BY DATE_TRUNC($1, created_at)
-       ORDER BY date ASC`,
-      [interval, dateRange]
+       WHERE created_at >= NOW() - INTERVAL '${dateRange}'
+       GROUP BY DATE_TRUNC('${truncUnit}', created_at)
+       ORDER BY date ASC`
     );
 
-    // Total active users (logged in last 30 days)
     const activeResult = await global.pgPool.query(
       `SELECT COUNT(*) as active_users
        FROM users
        WHERE last_login_at >= NOW() - INTERVAL '30 days'`
     );
 
-    // User retention (users who came back after first day)
     const retentionResult = await global.pgPool.query(
       `SELECT COUNT(*) as retained_users
        FROM users
        WHERE last_login_at > created_at + INTERVAL '1 day'
-       AND created_at >= NOW() - INTERVAL $1`,
-      [dateRange]
+       AND created_at >= NOW() - INTERVAL '${dateRange}'`
     );
 
     res.json({
@@ -58,13 +55,12 @@ const getUserAnalytics = async (req, res) => {
 
   } catch (error) {
     console.error('Get user analytics error:', error);
-    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+    res.status(500).json({
       success: false,
-      error: ERROR_MESSAGES.SERVER_ERROR
+      error: 'Internal server error'
     });
   }
 };
-
 // @desc    Get content analytics
 // @route   GET /api/admin/analytics/content
 // @access  Private (Admin only)

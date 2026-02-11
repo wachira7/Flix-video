@@ -64,7 +64,7 @@ app.use('/api/recommendations', recommendationsRoutes);
 app.use('/api/watch-party', watchPartyRoutes);
 app.use('/api/streaming', streamingRoutes);
 app.use('/api/admin', adminRoutes);
-app.use('/api/analytics', analyticsRoutes);
+app.use('/api/admin/analytics', analyticsRoutes);
 app.use('/api/moderator', moderatorRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/subscriptions', subscriptionRoutes);

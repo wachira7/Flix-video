@@ -1,4 +1,4 @@
-// components/landing/navbar.tsx
+//components/landing/navbar.tsx
 'use client';
 
 import { useState, useEffect } from 'react';
