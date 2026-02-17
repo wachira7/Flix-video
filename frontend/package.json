@@ -90,7 +90,7 @@
     "react-intersection-observer": "^10.0.0",
     "react-markdown": "^10.1.0",
     "react-player": "^3.4.0",
-    "react-resizable-panels": "^4.2.0",
+    "react-resizable-panels": "^4.6.4",
     "react-use": "^17.5.0",
     "react-virtuoso": "^4.7.1",
     "recharts": "^3.7.0",

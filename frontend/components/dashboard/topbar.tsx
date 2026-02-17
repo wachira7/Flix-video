@@ -20,18 +20,18 @@ export function Topbar() {
   const router = useRouter()
 
   useEffect(() => {
-    setMounted(true)
-    const currentUser = getUser()
-    setUser(currentUser)
-    setAvatarUrl(currentUser?.avatar_url || null)
+      setMounted(true)
+      const currentUser = getUser()
+      setUser(currentUser)
+      setAvatarUrl(currentUser?.avatar_url || null)
 
-    //Subscribe to avatar updates
-    const unsubscribe = avatarEvents.subscribe((newAvatarUrl) => {
-      setAvatarUrl(newAvatarUrl)
-    })
+      //Subscribe to avatar updates
+      const unsubscribe = avatarEvents.subscribe((newAvatarUrl) => {
+        setAvatarUrl(newAvatarUrl)
+      })
 
-    return () => unsubscribe()
-  }, [])
+      return () => unsubscribe()
+    }, [])
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()

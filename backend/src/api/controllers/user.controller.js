@@ -1,18 +1,30 @@
 // ============================================
-// COMPLETE FIX FOR TIMEZONE ISSUE
-// ============================================
-
-// ============================================
 // BACKEND: user.controller.js
 // ============================================
 
 const { HTTP_STATUS, ERROR_MESSAGES } = require('../../utils/constants');
-const { createClient } = require('@supabase/supabase-js');
+const { uploadToS3, deleteFromS3, generateUniqueFilename } = require('../../utils/s3');
+const multer = require('multer');
+// const { createClient } = require('@supabase/supabase-js');
 
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_KEY
-);
+// const supabase = createClient(
+//   process.env.SUPABASE_URL,
+//   process.env.SUPABASE_SERVICE_KEY
+// );
+
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB limit
+  },
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only image files are allowed!'), false);
+    }
+  },
+});
 
 // @desc    Get current user profile
 // @route   GET /api/users/me
@@ -197,69 +209,74 @@ const updateProfile = async (req, res) => {
   }
 };
 
-// @desc    Upload avatar to Supabase
+// @desc    Upload user avatar to S3(Amazon S3),instead of Supabase Storage
 // @route   POST /api/users/avatar
 // @access  Private
 const uploadAvatar = async (req, res) => {
   try {
     const userId = req.user.id;
-    
+
     if (!req.file) {
-      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+      return res.status(400).json({
         success: false,
         error: 'No file uploaded'
       });
     }
 
-    const file = req.file;
-    const fileExt = file.originalname.split('.').pop();
-    const fileName = `${userId}-${Date.now()}.${fileExt}`;
-    const filePath = `avatars/${fileName}`;
-
-    const { data, error } = await supabase.storage
-      .from('flixvideo-bucket')
-      .upload(filePath, file.buffer, {
-        contentType: file.mimetype,
-        upsert: false
-      });
-
-    if (error) {
-      console.error('Supabase upload error:', error);
-      return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
-        success: false,
-        error: 'Failed to upload avatar'
-      });
-    }
-
-    const { data: publicUrlData } = supabase.storage
-      .from('flixvideo-bucket')
-      .getPublicUrl(filePath);
-
-    const avatarUrl = publicUrlData.publicUrl;
-
-    await global.pgPool.query(
-      `INSERT INTO user_profiles (user_id, avatar_url, created_at, updated_at)
-       VALUES ($1, $2, NOW(), NOW())
-       ON CONFLICT (user_id) 
-       DO UPDATE SET avatar_url = $2, updated_at = NOW()`,
-      [userId, avatarUrl]
+    // Get old avatar URL
+    const oldAvatarResult = await global.pgPool.query(
+      'SELECT avatar_url FROM user_profiles WHERE user_id = $1',
+      [userId]
     );
+    const oldAvatarUrl = oldAvatarResult.rows[0]?.avatar_url;
+
+    // Generate unique filename
+    const filename = generateUniqueFilename(req.file.originalname);
+    const s3Key = `avatars/${userId}/${filename}`;
+
+    // Upload to S3
+    const avatarUrl = await uploadToS3(
+      req.file.buffer,
+      s3Key,
+      req.file.mimetype
+    );
+
+    // Update database
+    await global.pgPool.query(
+      `UPDATE user_profiles 
+       SET avatar_url = $1, updated_at = NOW() 
+       WHERE user_id = $2`,
+      [avatarUrl, userId]
+    );
+
+    // Delete old avatar from S3
+    if (oldAvatarUrl && oldAvatarUrl.includes('s3.amazonaws.com')) {
+      try {
+        const urlParts = oldAvatarUrl.split('.com/');
+        if (urlParts[1]) {
+          await deleteFromS3(urlParts[1]);
+        }
+      } catch (deleteError) {
+        console.error('Failed to delete old avatar:', deleteError);
+      }
+    }
 
     res.json({
       success: true,
-      message: 'Avatar uploaded successfully',
-      avatar_url: avatarUrl
+      avatar_url: avatarUrl,
+      message: 'Avatar uploaded successfully'
     });
+
   } catch (error) {
     console.error('Upload avatar error:', error);
-    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+    res.status(500).json({
       success: false,
-      error: ERROR_MESSAGES.SERVER_ERROR
+      error: 'Failed to upload avatar'
     });
   }
 };
 
-// @desc    Delete avatar
+// @desc    Delete avatar from S3
 // @route   DELETE /api/users/avatar
 // @access  Private
 const deleteAvatar = async (req, res) => {
@@ -280,12 +297,19 @@ const deleteAvatar = async (req, res) => {
 
     const avatarUrl = profileResult.rows[0].avatar_url;
     
-    const urlParts = avatarUrl.split('/avatars/');
-    if (urlParts.length > 1) {
-      const filePath = `avatars/${urlParts[1]}`;
-      await supabase.storage.from('flixvideo-bucket').remove([filePath]);
+    // Delete from S3 (not Supabase!)
+    if (avatarUrl.includes('s3.amazonaws.com')) {
+      try {
+        const urlParts = avatarUrl.split('.com/');
+        if (urlParts[1]) {
+          await deleteFromS3(urlParts[1]);
+        }
+      } catch (deleteError) {
+        console.error('Failed to delete from S3:', deleteError);
+      }
     }
 
+    // Update database
     await global.pgPool.query(
       'UPDATE user_profiles SET avatar_url = NULL, updated_at = NOW() WHERE user_id = $1',
       [userId]
@@ -372,6 +396,7 @@ module.exports = {
   getMyProfile,
   updateProfile,
   uploadAvatar,
+  upload,
   deleteAvatar,
   changePassword
 };

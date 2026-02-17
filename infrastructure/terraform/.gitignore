@@ -1,0 +1,50 @@
+# Local .terraform directories
+**/.terraform/*
+
+# .tfstate files - CRITICAL! Contains secrets!
+*.tfstate
+*.tfstate.*
+
+# Crash log files
+crash.log
+crash.*.log
+
+# Exclude all .tfvars files which may contain sensitive data
+# EXCEPT the ones we explicitly allow
+*.tfvars
+*.tfvars.json
+
+# BUT allow these specific files (no secrets in them)
+!aws/production/terraform.tfvars
+!aws/staging/terraform.tfvars
+!aws/dev/terraform.tfvars
+
+# Override files as they are usually used locally
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Include override files you do wish to add to version control
+# !example_override.tf
+
+# CLI configuration files
+.terraformrc
+terraform.rc
+
+# Ignore any .terraform.lock.hcl files in subdirectories
+# .terraform.lock.hcl
+
+# Sensitive outputs
+secrets.txt
+credentials.txt
+*.pem
+*.key
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db

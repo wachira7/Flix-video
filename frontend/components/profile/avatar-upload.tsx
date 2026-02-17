@@ -62,7 +62,7 @@ export function AvatarUpload({ currentAvatar, username, onAvatarUpdate }: Avatar
       }
 
       // BROADCAST avatar update to sidebar and topbar
-      avatarEvents.emit(response.avatar_url)
+      avatarEvents.publish(response.avatar_url)
       
       toast.success("✅ Avatar uploaded successfully!")
       
@@ -98,7 +98,7 @@ export function AvatarUpload({ currentAvatar, username, onAvatarUpdate }: Avatar
       }
       
       // BROADCAST avatar removal to sidebar and topbar
-      avatarEvents.emit(null)
+       avatarEvents.publish(null)
       
       toast.success("Avatar deleted")
       

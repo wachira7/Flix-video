@@ -1,7 +1,11 @@
+# flix-video .gitignore
+
 # Dependencies
 node_modules/
 */node_modules/
 **/node_modules/
+.pnp
+.pnp.js
 
 # Build outputs
 .next/
@@ -21,23 +25,38 @@ logs/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+lerna-debug.log*
 
 # OS files
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
+Desktop.ini
 
 # IDE
 .vscode/
 .idea/
 *.swp
 *.swo
+*~
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
 
 # Docker
 docker-compose.override.yml
+.dockerignore
 
 # Database
 *.sqlite
 *.db
+*.sql
 
 # Uploads
 uploads/
@@ -51,3 +70,27 @@ temp/
 # Lock files (keep yarn.lock, remove others)
 package-lock.json
 pnpm-lock.yaml
+
+# Secrets
+secrets/
+*.pem
+*.key
+credentials.txt
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# AWS (just in case someone puts credentials here)
+.aws/
+aws-credentials.txt
+
+# Coverage
+coverage/
+*.lcov
+
+# Terraform
+*.tfstate
+*.tfstate.*
+**/.terraform/*

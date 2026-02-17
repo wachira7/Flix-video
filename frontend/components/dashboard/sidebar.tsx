@@ -50,30 +50,30 @@ export function Sidebar() {
   const [mounted, setMounted] = useState(false)
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null)
 
-  useEffect(() => {
-    setMounted(true)
-    const currentUser = getUser()
-    setUser(currentUser)
-    setAvatarUrl(currentUser?.avatar_url || null)
+    useEffect(() => {
+      setMounted(true)
+      const currentUser = getUser()
+      setUser(currentUser)
+      setAvatarUrl(currentUser?.avatar_url || null)
 
-    // Fetch subscription plan
-  const fetchSubscription = async () => {
-    try {
-      const response = await subscriptionAPI.getMySubscription()
-      setSubscriptionPlan(response.subscription?.plan_type || 'free')
-    } catch (error) {
-      setSubscriptionPlan('free')
-    }
-  }
-  fetchSubscription()
+      // Fetch subscription plan
+      const fetchSubscription = async () => {
+        try {
+          const response = await subscriptionAPI.getMySubscription()
+          setSubscriptionPlan(response.subscription?.plan_type || 'free')
+        } catch (error) {
+          setSubscriptionPlan('free')
+        }
+      }
+      fetchSubscription()
 
-    // Subscribe to avatar updates
-    const unsubscribe = avatarEvents.subscribe((newAvatarUrl) => {
-      setAvatarUrl(newAvatarUrl)
-    })
+      // Subscribe to avatar updates
+      const unsubscribe = avatarEvents.subscribe((newAvatarUrl) => {
+        setAvatarUrl(newAvatarUrl)
+      })
 
-    return () => unsubscribe()
-  }, [])
+      return () => unsubscribe()
+    }, [])
 
   if (!mounted) {
     return (

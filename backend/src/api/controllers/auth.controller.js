@@ -113,7 +113,6 @@ const register = async (req, res) => {
     });
   }
 };
-
 // @desc    Login user
 // @route   POST /api/auth/login
 // @access  Public
@@ -128,9 +127,13 @@ const login = async (req, res) => {
       });
     }
 
-    // Check user exists
+    // Check user exists + GET PROFILE DATA
     const result = await global.pgPool.query(
-      'SELECT id, email, password_hash, role, status FROM users WHERE email = $1',
+      `SELECT u.id, u.email, u.password_hash, u.role, u.status,
+              up.username, up.full_name, up.avatar_url
+       FROM users u
+       LEFT JOIN user_profiles up ON u.id = up.user_id
+       WHERE u.email = $1`,
       [email.toLowerCase()]
     );
 
@@ -180,7 +183,10 @@ const login = async (req, res) => {
       user: {
         id: user.id,
         email: user.email,
-        role: user.role
+        role: user.role,
+        username: user.username,
+        full_name: user.full_name,
+        avatar_url: user.avatar_url  // INCLUDES AVATAR!
       },
       token
     });
