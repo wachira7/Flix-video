@@ -1,5 +1,5 @@
-// utils/cache-helper.js
-const { redisClient } = require('../src/config/cache');
+// backend/src/utils/cache-helper.js
+const { redisClient } = require('../config/cache');
 
 // Get from cache
 const getCache = async (key) => {
