@@ -31,7 +31,7 @@ jobs:
       - name: Deploy to Vercel
         run: |
           vercel --token ${{ secrets.VERCEL_TOKEN }} \
-                 --project-id ${{ secrets.VERCEL_PROJECT_ID }} \
+                 --projectId ${{ secrets.VERCEL_PROJECT_ID }} \
                  --prod
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
