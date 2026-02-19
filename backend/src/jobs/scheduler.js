@@ -1,13 +1,6 @@
 // src/jobs/scheduler.js
 const { CronJob } = require('cron');
-const {
-  cryptoPaymentQueue,
-  analyticsQueue,
-  cleanupQueue,
-  recommendationQueue,
-  notificationQueue,
-  exchangeRateQueue
-} = require('./queues');
+const { cryptoPaymentQueue, analyticsQueue, cleanupQueue, recommendationQueue, notificationQueue, exchangeRateQueue } = require('./queues');
 
 /**
  * Schedule all background jobs

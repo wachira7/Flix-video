@@ -2,10 +2,7 @@
 const { Worker } = require('bullmq');
 const aiService = require('../services/ai.service');
 
-const connection = {
-  host: process.env.REDIS_HOST || 'localhost',
-  port: process.env.REDIS_PORT || 6379
-};
+const { connection } = require('./queues');
 
 // Worker to refresh AI recommendations for active users
 const recommendationWorker = new Worker(
