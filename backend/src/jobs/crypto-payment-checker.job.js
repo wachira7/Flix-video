@@ -1,10 +1,8 @@
+// src/jobs/crypto-payment-checker.job.js
 const { Worker } = require('bullmq');
 const cryptoService = require('../integrations/crypto/nowpayments');
 
-const connection = {
-  host: process.env.REDIS_HOST || 'localhost',
-  port: process.env.REDIS_PORT || 6379
-};
+const { connection } = require('./queues');
 
 // Worker to check pending crypto payments
 const cryptoPaymentWorker = new Worker(

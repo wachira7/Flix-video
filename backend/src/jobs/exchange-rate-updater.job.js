@@ -2,10 +2,7 @@
 const { Worker } = require('bullmq');
 const axios = require('axios');
 
-const connection = {
-  host: process.env.REDIS_HOST || 'localhost',
-  port: process.env.REDIS_PORT || 6379
-};
+const { connection } = require('./queues');
 
 // Multiple API sources (fallback strategy)
 const API_SOURCES = [

@@ -1,9 +1,11 @@
 //backend/src/jobs/queues.js
 const { Queue } = require('bullmq');
 
+// Parse REDIS_URL for BullMQ connection
+const REDIS_URL = process.env.REDIS_URL || 'redis://localhost:6379';
+
 const connection = {
-  host: process.env.REDIS_HOST || 'localhost',
-  port: process.env.REDIS_PORT || 6379
+  url: REDIS_URL
 };
 
 // Create queues
@@ -22,5 +24,6 @@ module.exports = {
   cleanupQueue,
   recommendationQueue,
   notificationQueue,
-  exchangeRateQueue  
+  exchangeRateQueue,
+  connection  // Export connection for workers  
 };

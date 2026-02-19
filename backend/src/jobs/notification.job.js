@@ -1,9 +1,7 @@
+// src/jobs/notification.job.js
 const { Worker } = require('bullmq');
 
-const connection = {
-  host: process.env.REDIS_HOST || 'localhost',
-  port: process.env.REDIS_PORT || 6379
-};
+const { connection } = require('./queues');
 
 // Worker to send notifications
 const notificationWorker = new Worker(
