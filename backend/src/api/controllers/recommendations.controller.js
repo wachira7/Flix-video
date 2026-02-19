@@ -1,7 +1,7 @@
 //backend/src/api/controllers/recommendations.controller.js
 const { HTTP_STATUS, ERROR_MESSAGES } = require('../../utils/constants');
 const { generateRecommendations, getProviderStatus } = require('../../services/ai.service');
-const { getCache, setCache } = require('../../utils/cache-helper');
+const { getCache, setCache } = require('../../config/cache');
 
 // Cache expiry: 24 hours (recommendations don't change often)
 const CACHE_EXPIRY = 86400;
@@ -121,7 +121,7 @@ const clearMyRecommendations = async (req, res) => {
     const userId = req.user.id;
     const cacheKey = `recommendations:${userId}`;
     
-    const { deleteCache } = require('../../utils/cache-helper');
+    const { deleteCache } = require('../../config/cache');
     await deleteCache(cacheKey);
 
     res.json({

@@ -2,9 +2,9 @@
 const redis = require('redis');
 const REDIS_URL = process.env.REDIS_URL || 'redis://localhost:6379';
 
-// Create Redis client with retry strategy
+// Create Redis client
 const redisClient = redis.createClient({
-  url: REDIS_URL || 'redis://localhost:6379',
+  url: REDIS_URL,
   socket: {
     reconnectStrategy: (retries) => {
       if (retries > 10) {
@@ -39,14 +39,80 @@ redisClient.on('end', () => {
   console.log('⚠️  Redis: Connection closed');
 });
 
-// Connect
-redisClient.connect()
-  .then(() => console.log('✅ Redis connection established'))
-  .catch((err) => {
+// Connect function (called from server.js)
+const connectRedis = async () => {
+  try {
+    await redisClient.connect();
+    console.log('✅ Redis connection established');
+  } catch (err) {
     console.error('❌ Redis connection failed:', err.message);
-    // Don't crash the app if Redis is down
-    process.exit(0); // Or handle gracefully
-  });
+  }
+};
+
+// ============ CACHE UTILITY FUNCTIONS ============
+
+// Get from cache
+const getCache = async (key) => {
+  try {
+    if (!redisClient.isReady) {
+      console.warn('⚠️ Redis not ready, skipping cache get');
+      return null;
+    }
+    const data = await redisClient.get(key);
+    return data ? JSON.parse(data) : null;
+  } catch (error) {
+    console.error('Cache get error:', error);
+    return null;
+  }
+};
+
+// Set cache with expiry (default 1 hour)
+const setCache = async (key, value, expirySeconds = 3600) => {
+  try {
+    if (!redisClient.isReady) {
+      console.warn('⚠️ Redis not ready, skipping cache set');
+      return false;
+    }
+    await redisClient.setEx(key, expirySeconds, JSON.stringify(value));
+    return true;
+  } catch (error) {
+    console.error('Cache set error:', error);
+    return false;
+  }
+};
+
+// Delete from cache
+const deleteCache = async (key) => {
+  try {
+    if (!redisClient.isReady) {
+      console.warn('⚠️ Redis not ready, skipping cache delete');
+      return false;
+    }
+    await redisClient.del(key);
+    return true;
+  } catch (error) {
+    console.error('Cache delete error:', error);
+    return false;
+  }
+};
+
+// Clear all cache with pattern
+const clearCachePattern = async (pattern) => {
+  try {
+    if (!redisClient.isReady) {
+      console.warn('⚠️ Redis not ready, skipping cache clear');
+      return false;
+    }
+    const keys = await redisClient.keys(pattern);
+    if (keys.length > 0) {
+      await redisClient.del(keys);
+    }
+    return true;
+  } catch (error) {
+    console.error('Cache clear error:', error);
+    return false;
+  }
+};
 
 // Graceful shutdown
 process.on('SIGTERM', async () => {
@@ -55,5 +121,10 @@ process.on('SIGTERM', async () => {
 });
 
 module.exports = {
-  redisClient
+  redisClient,
+  connectRedis,
+  getCache,
+  setCache,
+  deleteCache,
+  clearCachePattern
 };

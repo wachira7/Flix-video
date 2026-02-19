@@ -1,6 +1,6 @@
 const axios = require('axios');
 const { HTTP_STATUS, ERROR_MESSAGES } = require('../../utils/constants');
-const { getCache, setCache } = require('../../utils/cache-helper');
+const { getCache, setCache } = require('../../config/cache');
 
 const TMDB_API_KEY = process.env.TMDB_API_KEY;
 const TMDB_BASE_URL = process.env.TMDB_API_BASE_URL || 'https://api.themoviedb.org/3';
