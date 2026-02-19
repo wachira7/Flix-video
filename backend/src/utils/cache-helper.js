@@ -1,39 +1,13 @@
-const redis = require('redis');
-
-let redisClient = null;
-
-// Initialize Redis client
-const initRedis = async () => {
-  if (redisClient) return redisClient;
-
-  try {
-    redisClient = redis.createClient({
-      host: process.env.REDIS_HOST || 'localhost',
-      port: process.env.REDIS_PORT || 6379,
-      password: process.env.REDIS_PASSWORD || undefined
-    });
-
-    redisClient.on('error', (err) => {
-      console.error('Redis Client Error:', err);
-    });
-
-    redisClient.on('connect', () => {
-      console.log('✅ Redis connected');
-    });
-
-    await redisClient.connect();
-    return redisClient;
-  } catch (error) {
-    console.error('Redis initialization failed:', error);
-    return null;
-  }
-};
+// utils/cache-helper.js
+const { redisClient } = require('../src/config/cache');
 
 // Get from cache
 const getCache = async (key) => {
   try {
-    if (!redisClient) await initRedis();
-    if (!redisClient) return null;
+    if (!redisClient.isReady) {
+      console.warn('⚠️ Redis not ready, skipping cache get');
+      return null;
+    }
 
     const data = await redisClient.get(key);
     return data ? JSON.parse(data) : null;
@@ -46,8 +20,10 @@ const getCache = async (key) => {
 // Set cache with expiry (default 1 hour)
 const setCache = async (key, value, expirySeconds = 3600) => {
   try {
-    if (!redisClient) await initRedis();
-    if (!redisClient) return false;
+    if (!redisClient.isReady) {
+      console.warn('⚠️ Redis not ready, skipping cache set');
+      return false;
+    }
 
     await redisClient.setEx(key, expirySeconds, JSON.stringify(value));
     return true;
@@ -60,8 +36,10 @@ const setCache = async (key, value, expirySeconds = 3600) => {
 // Delete from cache
 const deleteCache = async (key) => {
   try {
-    if (!redisClient) await initRedis();
-    if (!redisClient) return false;
+    if (!redisClient.isReady) {
+      console.warn('⚠️ Redis not ready, skipping cache delete');
+      return false;
+    }
 
     await redisClient.del(key);
     return true;
@@ -74,8 +52,10 @@ const deleteCache = async (key) => {
 // Clear all cache with pattern
 const clearCachePattern = async (pattern) => {
   try {
-    if (!redisClient) await initRedis();
-    if (!redisClient) return false;
+    if (!redisClient.isReady) {
+      console.warn('⚠️ Redis not ready, skipping cache clear');
+      return false;
+    }
 
     const keys = await redisClient.keys(pattern);
     if (keys.length > 0) {
@@ -89,7 +69,6 @@ const clearCachePattern = async (pattern) => {
 };
 
 module.exports = {
-  initRedis,
   getCache,
   setCache,
   deleteCache,
