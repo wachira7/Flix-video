@@ -36,6 +36,10 @@ async function startServer() {
     await mongoClient.db().command({ ping: 1 });
     console.log('✅ MongoDB connected');
 
+    // Connect to Redis
+    const { connectRedis } = require('./src/config/cache');
+    await connectRedis();
+
     console.log('');
 
     // Make connections available globally
