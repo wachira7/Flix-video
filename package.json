@@ -1,4 +1,10 @@
 {
+  "name": "flixvideo",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "cd backend && node server.js",
+    "dev": "cd backend && yarn dev"
+  },
   "dependencies": {
     "bullmq": "^5.66.4"
   }
