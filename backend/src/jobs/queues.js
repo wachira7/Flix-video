@@ -4,9 +4,17 @@ const { Queue } = require('bullmq');
 // Parse REDIS_URL for BullMQ connection
 const REDIS_URL = process.env.REDIS_URL || 'redis://localhost:6379';
 
-const connection = {
-  url: REDIS_URL
-};
+// BullMQ connection with TLS support for Upstash
+const connection = REDIS_URL.startsWith('rediss://') 
+  ? {
+      url: REDIS_URL,
+      tls: {
+        rejectUnauthorized: false  // Required for Upstash/Render
+      }
+    }
+  : {
+      url: REDIS_URL  // Local development (no TLS)
+    };
 
 // Create queues
 const cryptoPaymentQueue = new Queue('crypto-payment-checker', { connection });

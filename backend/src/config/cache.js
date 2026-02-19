@@ -9,17 +9,31 @@ console.log('🔍 DEBUG: Environment =', process.env.NODE_ENV);
 // Create Redis client
 const redisClient = redis.createClient({
   url: REDIS_URL,
-  socket: {
-    reconnectStrategy: (retries) => {
-      if (retries > 10) {
-        console.error('❌ Redis: Too many retries, giving up');
-        return new Error('Too many retries');
+  socket: REDIS_URL.startsWith('rediss://') 
+    ? {
+        tls: true,
+        rejectUnauthorized: false,  // Required for Upstash
+        reconnectStrategy: (retries) => {
+          if (retries > 10) {
+            console.error('❌ Redis: Too many retries, giving up');
+            return new Error('Too many retries');
+          }
+          const delay = Math.min(retries * 50, 2000);
+          console.log(`🔄 Redis: Reconnecting in ${delay}ms...`);
+          return delay;
+        }
       }
-      const delay = Math.min(retries * 50, 2000);
-      console.log(`🔄 Redis: Reconnecting in ${delay}ms...`);
-      return delay;
-    }
-  }
+    : {
+        reconnectStrategy: (retries) => {
+          if (retries > 10) {
+            console.error('❌ Redis: Too many retries, giving up');
+            return new Error('Too many retries');
+          }
+          const delay = Math.min(retries * 50, 2000);
+          console.log(`🔄 Redis: Reconnecting in ${delay}ms...`);
+          return delay;
+        }
+      }
 });
 
 // Event handlers
