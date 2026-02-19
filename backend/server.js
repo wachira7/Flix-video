@@ -74,7 +74,7 @@ async function startServer() {
     require('./src/sockets/watchParty.socket')(io);
 
     // Start server
-    server.listen(PORT, async () => {
+    server.listen(PORT, '0.0.0.0', async () => {
       console.log('╔════════════════════════════════════════╗');
       console.log('║   🎬 FlixVideo API Server Running    ║');
       console.log('╚════════════════════════════════════════╝');
