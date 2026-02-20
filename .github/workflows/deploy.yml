@@ -1,3 +1,4 @@
+# .github/workflows/deploy.yml
 name: Deploy FlixVideo
 
 on:
@@ -10,8 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Trigger Render Deploy
-        run: |
-          curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK }}
+        run: curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK }}
 
   deploy-frontend:
     name: Deploy Frontend to Vercel
@@ -19,15 +19,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20.x'
-
-      - name: Install Vercel CLI
-        run: npm install -g vercel
-
       - name: Deploy to Vercel
-        run: vercel --token ${{ secrets.VERCEL_TOKEN }} --prod --yes
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          vercel-args: '--prod'
+          working-directory: ./frontend
