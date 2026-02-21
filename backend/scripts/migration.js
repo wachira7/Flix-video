@@ -10,6 +10,7 @@ const pool = new Pool({
     ? { rejectUnauthorized: false }
     : false,
 });
+
 async function runMigrations() {
   const client = await pool.connect();
   
@@ -27,8 +28,17 @@ async function runMigrations() {
       console.log(`📄 Running: ${file}`);
       const sql = fs.readFileSync(path.join(migrationsDir, file), 'utf8');
       
-      await client.query(sql);
-      console.log(`✅ Completed: ${file}\n`);
+      try {
+        await client.query(sql);
+        console.log(`✅ Completed: ${file}\n`);
+      } catch (error) {
+        if (error.code === '42P07' || error.code === '42710') {
+          console.log(`⚠️  Skipped (already exists): ${file}\n`);
+        } else {
+          console.error(`❌ Migration failed: ${error.message}`);
+          throw error;
+        }
+      }
     }
     
     console.log('🎉 All migrations completed successfully!');
