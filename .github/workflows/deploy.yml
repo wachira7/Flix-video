@@ -5,9 +5,30 @@ on:
     branches: [main]
 
 jobs:
+  run-migrations:
+    name: Run Database Migrations
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+
+      - name: Install dependencies
+        run: cd backend && yarn install --frozen-lockfile
+
+      - name: Run Migrations
+        run: cd backend && node scripts/migration.js
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          NODE_ENV: production
+
   deploy-backend:
     name: Deploy Backend to Render
     runs-on: ubuntu-latest
+    needs: run-migrations
     steps:
       - name: Trigger Render Deploy
         run: curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK }}
