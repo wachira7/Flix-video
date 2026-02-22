@@ -66,7 +66,7 @@ export default function VerifyEmailPage() {
             <p className="text-gray-500 text-sm">Redirecting to login in 3 seconds...</p>
             <Button 
               onClick={() => router.push('/login')}
-              className="w-full bg-gradient-to-r from-purple-700 to-fuchsia-600"
+              className="w-full bg-linear-to-r from-purple-700 to-fuchsia-600"
             >
               Continue to Login
             </Button>
