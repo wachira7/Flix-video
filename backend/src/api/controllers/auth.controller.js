@@ -208,7 +208,7 @@ const googleCallback = async (req, res) => {
     const token = generateToken(req.user.id);
 
     // Redirect to frontend with token
-    res.redirect(`${FRONTEND_URL}/auth/callback?token=${token}`);
+    res.redirect(`${FRONTEND_URL}/callback?token=${token}`);
   } catch (error) {
     console.error('Google callback error:', error);
     res.redirect(`${FRONTEND_URL}/auth/error?message=Authentication failed`);
