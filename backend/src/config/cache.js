@@ -2,9 +2,6 @@
 const redis = require('redis');
 const REDIS_URL = process.env.REDIS_URL || 'redis://localhost:6379';
 
-// DEBUG: Log what URL we're using
-console.log('🔍 DEBUG: REDIS_URL =', REDIS_URL);
-console.log('🔍 DEBUG: Environment =', process.env.NODE_ENV);
 
 // Create Redis client
 const redisClient = redis.createClient({
