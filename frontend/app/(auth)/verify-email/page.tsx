@@ -14,35 +14,38 @@ export default function VerifyEmailPage() {
   const [message, setMessage] = useState('')
 
   useEffect(() => {
-    const token = searchParams.get('token')
-    
-    if (!token) {
-      setStatus('error')
-      setMessage('Invalid verification link')
-      return
-    }
+  const token = searchParams.get('token')
+  
+  if (!token) {
+    setStatus('error')
+    setMessage('Invalid verification link')
+    return
+  }
 
-    // Verify email
-    const verifyEmail = async () => {
-      try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/verify-email/${token}`)
-        const data = await response.json()
-        
-        if (response.ok) {
-          setStatus('success')
-          setMessage('Email verified successfully!')
-        } else {
-          setStatus('error')
-          setMessage(data.message || 'Verification failed')
-        }
-      } catch (error) {
+  const verifyEmail = async () => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/verify-email/${token}`)
+      const data = await response.json()
+      
+      if (response.ok) {
+        setStatus('success')
+        setMessage('Email verified successfully!')
+        // Auto redirect to login after 3 seconds
+        setTimeout(() => {
+          router.push('/login')
+        }, 3000)
+      } else {
         setStatus('error')
-        setMessage('Verification failed. Please try again.')
+        setMessage(data.message || 'Verification failed')
       }
+    } catch (error) {
+      setStatus('error')
+      setMessage('Verification failed. Please try again.')
     }
+  }
 
-    verifyEmail()
-  }, [searchParams])
+  verifyEmail()
+}, [searchParams])
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
@@ -60,6 +63,7 @@ export default function VerifyEmailPage() {
             <CheckCircle className="w-16 h-16 mx-auto mb-4 text-green-500" />
             <h1 className="text-2xl font-bold text-white mb-2">Email Verified!</h1>
             <p className="text-gray-400 mb-6">{message}</p>
+            <p className="text-gray-500 text-sm">Redirecting to login in 3 seconds...</p>
             <Button 
               onClick={() => router.push('/login')}
               className="w-full bg-gradient-to-r from-purple-700 to-fuchsia-600"
