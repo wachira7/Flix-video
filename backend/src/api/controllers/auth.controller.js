@@ -85,8 +85,9 @@ const register = async (req, res) => {
     );
 
     // Send verification email (AFTER defining user)
+    const verificationUrl = `${FRONTEND_URL}/verify-email?token=${verificationToken}`;
     const { sendVerificationEmail } = require('../../services/email.service');
-    await sendVerificationEmail(user.email, verificationToken);
+    await sendVerificationEmail(user.email, verificationUrl);
 
     // Send welcome email
     const { sendWelcomeEmail } = require('../../services/email.service');
@@ -335,7 +336,8 @@ const resendVerification = async (req, res) => {
     
     // Send verification email
     const { sendVerificationEmail } = require('../../services/email.service');
-    await sendVerificationEmail(user.email, token);
+    const verificationUrl = `${FRONTEND_URL}/verify-email?token=${token}`;
+    await sendVerificationEmail(user.email, verificationUrl);
     
     res.json({ 
       success: true, 
@@ -442,7 +444,7 @@ const forgotPassword = async (req, res) => {
     );
 
     // Create reset URL
-    const resetUrl = `${FRONTEND_URL}/auth/reset-password?token=${resetToken}`;
+    const resetUrl = `${FRONTEND_URL}/reset-password?token=${resetToken}`;
 
     // Send email
     const { sendPasswordResetEmail } = require('../../services/email.service');
