@@ -45,7 +45,6 @@ uploads/temp/*
 !uploads/temp/.gitkeep
 
 # Database backups
-*.sql
 *.sqlite
 *.db
 
