@@ -1,4 +1,5 @@
-//frontend/app/(auth)/callback/page.tsx
+// This page is the callback URL for OAuth providers. It receives the token from the server and stores it in localStorage and cookies, then redirects to the dashboard.
+//./app/(auth)/callback/page.tsx
 "use client"
 
 import { useEffect } from "react"
@@ -17,17 +18,22 @@ export default function CallbackPage() {
       return
     }
 
-    // Store token and user info
+    // Store token
     localStorage.setItem('token', token)
     document.cookie = `token=${token}; path=/; max-age=2592000; SameSite=Strict`
 
-    // Decode JWT to get user role (without verifying - just for redirect)
+    // Decode JWT and store user object (same as email/password login)
     try {
       const payload = JSON.parse(atob(token.split('.')[1]))
-      router.push('/dashboard')
+      localStorage.setItem('user', JSON.stringify({
+        id: payload.id,
+        role: payload.role || 'user'
+      }))
     } catch {
-      router.push('/dashboard')
+      // ignore decode error
     }
+
+    router.push('/dashboard')
   }, [searchParams])
 
   return (
