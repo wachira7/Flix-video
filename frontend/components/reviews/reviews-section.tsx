@@ -5,7 +5,6 @@ import { useState, useEffect } from "react"
 import { reviewsAPI } from "@/lib/api/reviews"
 import { ReviewCard } from "./review-card"
 import { ReviewForm } from "./review-form"
-//import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Skeleton } from "@/components/ui/skeleton"
 import { MessageSquare } from "lucide-react"
@@ -21,11 +20,19 @@ export function ReviewsSection({ contentType, contentId, title }: ReviewsSection
   const [reviews, setReviews] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [sortBy, setSortBy] = useState<"newest" | "oldest" | "most_liked">("newest")
-  const user = getUser()
+  const [mounted, setMounted] = useState(false)
+  const [user, setUser] = useState<any>(null)
 
   useEffect(() => {
-    fetchReviews()
-  }, [contentType, contentId, sortBy])
+    setMounted(true)
+    setUser(getUser())
+  }, [])
+
+  useEffect(() => {
+    if (mounted) {
+      fetchReviews()
+    }
+  }, [contentType, contentId, sortBy, mounted])
 
   const fetchReviews = async () => {
     setLoading(true)
@@ -33,15 +40,14 @@ export function ReviewsSection({ contentType, contentId, title }: ReviewsSection
       const response = await reviewsAPI.getReviews(contentType, contentId)
       let reviewsList = response.reviews || []
 
-      // Sort reviews
       switch (sortBy) {
         case "newest":
-          reviewsList.sort((a: any, b: any) => 
+          reviewsList.sort((a: any, b: any) =>
             new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
           )
           break
         case "oldest":
-          reviewsList.sort((a: any, b: any) => 
+          reviewsList.sort((a: any, b: any) =>
             new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
           )
           break
@@ -87,7 +93,7 @@ export function ReviewsSection({ contentType, contentId, title }: ReviewsSection
           </Select>
 
           {/* Write Review Button */}
-          {user && !userReview && (
+          {mounted && user && !userReview && (
             <ReviewForm
               contentType={contentType}
               contentId={contentId}
@@ -110,7 +116,7 @@ export function ReviewsSection({ contentType, contentId, title }: ReviewsSection
           <MessageSquare className="w-16 h-16 text-gray-600 mx-auto mb-4" />
           <h3 className="text-xl font-semibold text-white mb-2">No reviews yet</h3>
           <p className="text-gray-400 mb-6">Be the first to review {title}!</p>
-          {user && (
+          {mounted && user && (
             <ReviewForm
               contentType={contentType}
               contentId={contentId}
