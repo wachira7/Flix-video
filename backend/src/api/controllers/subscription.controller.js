@@ -2,6 +2,7 @@
 const { HTTP_STATUS, ERROR_MESSAGES } = require('../../utils/constants');
 const { PLANS, getPlan, isValidUpgrade, isValidDowngrade } = require('../../config/plans');
 const { getUserSubscription } = require('../middlewares/subscription.middleware');
+const { subscriptionChanges, subscriptionsByTier } = require('../config/metrics');
 
 // @desc    Get all subscription plans
 // @route   GET /api/subscriptions/plans
@@ -138,6 +139,10 @@ const upgradeSubscription = async (req, res) => {
        RETURNING id`,
       [userId, planId]
     );
+
+    // Increment subscription changes metric
+    subscriptionChanges.inc({ from_tier: currentPlan, to_tier: plan_type });
+    subscriptionsByTier.inc({ tier: plan_type });
 
     const subscriptionId = newSubResult.rows[0].id;
 

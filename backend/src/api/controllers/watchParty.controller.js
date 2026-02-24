@@ -1,4 +1,7 @@
+// backend/src/api/controllers/watchParty.controller.js
 const { HTTP_STATUS, ERROR_MESSAGES } = require('../../utils/constants');
+const { watchPartiesTotal, watchPartyParticipants } = require('../config/metrics');
+
 
 // Helper to normalize content type
 const normalizeContentType = (type) => {
@@ -62,6 +65,9 @@ const createWatchParty = async (req, res) => {
        VALUES ($1, $2, true, true)`,
       [party.id, userId]
     );
+
+    watchPartiesTotal.inc();
+    watchPartyParticipants.inc({ partyCode });
 
     res.status(HTTP_STATUS.CREATED).json({
       success: true,
@@ -144,6 +150,8 @@ const joinWatchParty = async (req, res) => {
       [party.id]
     );
 
+    watchPartyParticipants.inc({ partyCode });
+
     res.json({
       success: true,
       message: 'Joined watch party successfully',
@@ -185,6 +193,8 @@ const leaveWatchParty = async (req, res) => {
         error: 'You are not in this watch party'
       });
     }
+
+    watchPartyParticipants.dec({ partyCode: result.rows[0].party_code });
 
     res.json({
       success: true,

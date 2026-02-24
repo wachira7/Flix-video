@@ -10,7 +10,7 @@ function startScheduler() {
 
   // 1. Crypto Payment Checker - Every 5 minutes
   const cryptoPaymentJob = new CronJob(
-    '*/5 * * * *',
+    '*/90 * * * *',
     async () => {
       console.log('🪙 Triggering crypto payment check...');
       await cryptoPaymentQueue.add('check-payments', {}, {
@@ -121,7 +121,7 @@ function startScheduler() {
 
   console.log('✅ Job scheduler started!');
   console.log('📅 Scheduled jobs:');
-  console.log('   🪙 Crypto payments: Every 5 minutes');
+  console.log('   🪙 Crypto payments: Every 90 minutes');
   console.log('   📊 Analytics: Daily at 1 AM UTC');
   console.log('   🧹 Cleanup: Weekly on Sunday at 2 AM UTC');
   console.log('   🤖 Recommendations: Daily at 3 AM UTC');

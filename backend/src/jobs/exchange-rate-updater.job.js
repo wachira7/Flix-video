@@ -175,7 +175,11 @@ const exchangeRateWorker = new Worker(
       throw error;
     }
   },
-  { connection }
+  { connection,
+    stalledInterval: 300000,  // Check for stalled jobs every 5 min (default is 30s)
+    drainDelay: 30,           // Wait 30s when queue empty before polling again
+    lockDuration: 60000,      // Set lock duration to 60s to allow for longer processing time, especially if API calls are slow
+   }
 );
 
 exchangeRateWorker.on('completed', (job) => {

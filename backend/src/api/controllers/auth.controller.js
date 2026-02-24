@@ -1,14 +1,8 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const {
-  USER_ROLES,
-  USER_STATUS,
-  TOKEN_EXPIRY,
-  HTTP_STATUS,
-  ERROR_MESSAGES,
-  SUCCESS_MESSAGES,
-  PASSWORD_REQUIREMENTS
-} = require('../../utils/constants');
+const { USER_ROLES, USER_STATUS, TOKEN_EXPIRY, HTTP_STATUS, ERROR_MESSAGES, SUCCESS_MESSAGES, PASSWORD_REQUIREMENTS } = require('../../utils/constants');
+const { newRegistrations, registrationsByMethod, failedLogins } = require('../config/metrics');
+
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-this-in-production';
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || TOKEN_EXPIRY.ACCESS_TOKEN;
@@ -96,6 +90,10 @@ const register = async (req, res) => {
     // Generate token
     const token = generateToken(user.id);
 
+    // Update metrics
+    newRegistrations.inc();
+    registrationsByMethod.inc({ method: 'email' });
+
     res.status(HTTP_STATUS.CREATED).json({
       success: true,
       message: SUCCESS_MESSAGES.REGISTRATION_SUCCESS,
@@ -164,6 +162,7 @@ const login = async (req, res) => {
     const isMatch = await bcrypt.compare(password, user.password_hash);
 
     if (!isMatch) {
+      failedLogins.inc(); // Update metrics
       return res.status(HTTP_STATUS.UNAUTHORIZED).json({ 
         error: ERROR_MESSAGES.INVALID_CREDENTIALS 
       });
@@ -206,6 +205,15 @@ const googleCallback = async (req, res) => {
   try {
     // User authenticated by Passport
     const token = generateToken(req.user.id);
+
+    newRegistrations.inc();
+    registrationsByMethod.inc({ method: 'google' });
+    
+    // Update last login
+    await global.pgPool.query(
+      'UPDATE users SET last_login_at = NOW(), last_login_ip = $1 WHERE id = $2',
+      [req.ip, req.user.id]
+    );
 
     // Redirect to frontend with token
     res.redirect(`${FRONTEND_URL}/callback?token=${token}`);

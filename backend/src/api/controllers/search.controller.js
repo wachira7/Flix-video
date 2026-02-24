@@ -1,7 +1,8 @@
+// backend/src/api/controllers/search.controller.js
 const axios = require('axios');
 const { HTTP_STATUS, ERROR_MESSAGES } = require('../../utils/constants');
 const { getCache, setCache } = require('../../config/cache');
-
+const { searchesTotal } = require('../config/metrics');
 const TMDB_API_KEY = process.env.TMDB_API_KEY;
 const TMDB_BASE_URL = process.env.TMDB_API_BASE_URL || 'https://api.themoviedb.org/3';
 
@@ -44,6 +45,9 @@ const searchMulti = async (req, res) => {
 
     // Fetch from TMDB
     const data = await tmdbRequest('/search/multi', { query, page });
+
+    // Increment total searches metric
+    searchesTotal.inc();
     
     // Cache the result
     await setCache(cacheKey, data, CACHE_EXPIRY);

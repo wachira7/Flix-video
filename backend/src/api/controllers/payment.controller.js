@@ -3,6 +3,8 @@ const { HTTP_STATUS, ERROR_MESSAGES } = require('../../utils/constants');
 const stripeService = require('../../integrations/stripe');
 const mpesaService = require('../../integrations/mpesa');
 const cryptoService = require('../../integrations/crypto/nowpayments');
+const { paymentsTotal, failedPayments, revenueTotal } = require('../config/metrics');
+
 
 // =============================================================================
 // STRIPE ENDPOINTS
@@ -51,6 +53,26 @@ const createStripeCheckout = async (req, res) => {
       'UPDATE payments SET stripe_session_id = $1 WHERE id = $2',
       [session.session_id, paymentId]
     );
+
+    // Update payment status
+    await global.pgPool.query(
+      `UPDATE payments 
+       SET status = 'pending', 
+           stripe_session_id = $1
+       WHERE id = $2`,
+      [session.session_id, paymentId]
+    );
+
+    // Update user's plan type
+    if (plan_type) {
+      await global.pgPool.query(
+        'UPDATE users SET plan_type = $1 WHERE id = $2',
+        [plan_type, userId]
+      );
+    }
+
+    paymentsTotal.inc({ status: 'succeeded', provider: 'stripe' });
+    revenueTotal.inc({ provider: 'stripe' }, session.amount_total / 100);
 
     res.status(HTTP_STATUS.CREATED).json({
       success: true,
@@ -106,6 +128,9 @@ const stripeWebhook = async (req, res) => {
       console.log(`✅ Stripe payment ${paymentId} completed!`);
     }
 
+    paymentsTotal.inc({ status: 'succeeded', provider: 'stripe' });
+    revenueTotal.inc({ provider: 'stripe' }, session.amount_total / 100);
+
     // Handle payment_intent.payment_failed
     if (event.type === 'payment_intent.payment_failed') {
       const paymentIntent = event.data.object;
@@ -126,6 +151,10 @@ const stripeWebhook = async (req, res) => {
 
       console.log(`❌ Stripe payment failed: ${paymentIntent.id}`);
     }
+
+    // Increment failed payments metric
+    failedPayments.inc({ provider: 'stripe' });
+    paymentsTotal.inc({ status: 'failed', provider: 'stripe' });
 
     res.json({ received: true });
 
@@ -302,6 +331,14 @@ const mpesaCallback = async (req, res) => {
 
       console.log(`✅ M-Pesa payment ${checkoutRequestId} completed!`);
 
+      // Increment revenue metric
+      paymentsTotal.inc({ status: 'succeeded', provider: 'mpesa' });
+      revenueTotal.inc({ provider: 'mpesa' }, payload.amount);
+
+      // Send success response
+      res.json({ ResultCode: 0, ResultDesc: 'Success' });
+
+
     } else {
       // Payment failed
       await global.pgPool.query(
@@ -327,6 +364,9 @@ const mpesaCallback = async (req, res) => {
 
       console.log(`❌ M-Pesa payment ${checkoutRequestId} failed: ${resultDesc}`);
     }
+
+    failedPayments.inc({ provider: 'mpesa' });
+    paymentsTotal.inc({ status: 'failed', provider: 'mpesa' });
 
     res.json({ ResultCode: 0, ResultDesc: 'Success' });
 
@@ -510,12 +550,19 @@ const cryptoWebhook = async (req, res) => {
         ['succeeded', paymentId]
       );
       console.log(`✅ Crypto payment ${paymentId} completed!`);
-    } else if (['failed', 'expired', 'refunded'].includes(paymentStatus)) {
+      paymentsTotal.inc({ status: 'succeeded', provider: 'crypto' });
+      revenueTotal.inc({ provider: 'crypto' }, payload.price_amount);
+    } 
+      
+    
+    else if (['failed', 'expired', 'refunded'].includes(paymentStatus)) {
       await global.pgPool.query(
         'UPDATE payments SET status = $1, failed_at = NOW() WHERE id = $2',
         ['failed', paymentId]
       );
       console.log(`❌ Crypto payment ${paymentId} ${paymentStatus}`);
+      paymentsTotal.inc({ status: 'failed', provider: 'crypto' });
+      failedPayments.inc({ provider: 'crypto' });
     }
 
     res.json({ success: true });

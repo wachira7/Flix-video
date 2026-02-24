@@ -1,4 +1,5 @@
 const { HTTP_STATUS, ERROR_MESSAGES } = require('../../utils/constants');
+const { reviewsTotal } = require('../config/metrics');
 
 // Helper to convert 'tv' to 'tv_show' for database
 const normalizeContentType = (type) => {
@@ -50,6 +51,9 @@ const createReview = async (req, res) => {
        RETURNING *`,
       [userId, dbContentType, contentId, title || null, content, contains_spoilers, is_public]
     );
+
+      // Update metrics
+    reviewsTotal.inc();
 
     res.status(HTTP_STATUS.CREATED).json({
       success: true,

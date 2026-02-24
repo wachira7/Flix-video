@@ -1,3 +1,4 @@
+//./src/jobs/queues.js
 const { Queue } = require('bullmq');
 
 const REDIS_URL = process.env.REDIS_URL || 'redis://localhost:6379';
@@ -19,13 +20,23 @@ const parseRedisUrl = (url) => {
 
 const connection = parseRedisUrl(REDIS_URL);
 
+// Default options for all queues - reduces Redis command usage
+const defaultQueueOptions = {
+  connection,
+  defaultJobOptions: {
+    removeOnComplete: 5,  // Keep only last 5 completed jobs (was 10-30)
+    removeOnFail: 3,      // Keep only last 3 failed jobs (was 5)
+    attempts: 2           // Retry twice max on failure
+  }
+};
+
 // Create queues
-const cryptoPaymentQueue = new Queue('crypto-payment-checker', { connection });
-const analyticsQueue = new Queue('analytics', { connection });
-const cleanupQueue = new Queue('cleanup', { connection });
-const recommendationQueue = new Queue('recommendations', { connection });
-const notificationQueue = new Queue('notifications', { connection });
-const exchangeRateQueue = new Queue('exchange-rates', { connection });
+const cryptoPaymentQueue = new Queue('crypto-payment-checker', defaultQueueOptions);
+const analyticsQueue = new Queue('analytics', defaultQueueOptions);
+const cleanupQueue = new Queue('cleanup', defaultQueueOptions);
+const recommendationQueue = new Queue('recommendations', defaultQueueOptions);
+const notificationQueue = new Queue('notifications', defaultQueueOptions);
+const exchangeRateQueue = new Queue('exchange-rates', defaultQueueOptions);
 
 console.log('Job queues created');
 
@@ -36,5 +47,5 @@ module.exports = {
   recommendationQueue,
   notificationQueue,
   exchangeRateQueue,
-  connection, // Export connection for workers
+  connection, 
 };

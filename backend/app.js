@@ -6,6 +6,7 @@ const morgan = require('morgan');
 const compression = require('compression');
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpec = require('./src/config/swagger');
+const { metricsMiddleware, metricsHandler } = require('./src/config/metrics');
 
 const app = express();
 
@@ -15,7 +16,7 @@ app.use(cors());
 app.use(compression());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(morgan('dev'));
+app.use(morgan('dev'));app.use(metricsMiddleware);
 
 // Initialize Passport
 const passport = require('./src/config/passport');
@@ -94,6 +95,8 @@ app.get('/health', (req, res) => {
     environment: process.env.NODE_ENV || 'development'
   });
 });
+
+app.get('/metrics', metricsHandler);
 
 // API routes placeholder
 app.get('/api', (req, res) => {

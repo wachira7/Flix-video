@@ -1,5 +1,6 @@
 // backend/src/api/controllers/favorites.controller.js
 const { HTTP_STATUS, ERROR_MESSAGES, SUCCESS_MESSAGES } = require('../../utils/constants');
+const { favoritesTotal } = require('../config/metrics');
 
 // Helper to convert 'tv' to 'tv_show' for database
 const normalizeContentType = (type) => {
@@ -45,6 +46,8 @@ const addFavorite = async (req, res) => {
       [userId, dbContentType, contentId]
     );
 
+    favoritesTotal.inc({ content_type: contentType }); 
+    
     res.status(HTTP_STATUS.CREATED).json({
       success: true,
       message: 'Added to favorites',

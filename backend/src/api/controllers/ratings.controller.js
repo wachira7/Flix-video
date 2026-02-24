@@ -1,5 +1,7 @@
 // backend/src/api/controllers/ratings.controller.js
 const { HTTP_STATUS, ERROR_MESSAGES } = require('../../utils/constants');
+const { ratingsTotal } = require('../config/metrics');
+
 
 // Helper to convert 'tv' to 'tv_show' for database
 const normalizeContentType = (type) => {
@@ -55,7 +57,19 @@ const rateContent = async (req, res) => {
          RETURNING *`,
         [userId, dbContentType, contentId, rating]
       );
+        ratingsTotal.inc(); // Update metrics
     }
+
+    if (review) {
+      // Update review
+      await global.pgPool.query(
+        `UPDATE ratings 
+         SET review = $1, updated_at = NOW()
+         WHERE user_id = $2 AND content_type = $3 AND content_id = $4`,
+        [review, userId, dbContentType, contentId]
+      );
+    }
+    
 
     res.status(existing.rows.length > 0 ? HTTP_STATUS.OK : HTTP_STATUS.CREATED).json({
       success: true,

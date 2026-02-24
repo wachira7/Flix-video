@@ -1,5 +1,6 @@
 // backend/src/api/controllers/watchlist.controller.js
 const { HTTP_STATUS, ERROR_MESSAGES } = require('../../utils/constants');
+const { watchlistAdds } = require('../config/metrics');
 
 // Helper to convert 'tv' to 'tv_show' for database
 const normalizeContentType = (type) => {
@@ -44,6 +45,8 @@ const addToWatchlist = async (req, res) => {
       [userId, dbContentType, contentId]
     );
 
+    watchlistAdds.labels(contentType).inc();
+
     res.status(HTTP_STATUS.CREATED).json({
       success: true,
       message: 'Added to watchlist',
@@ -78,6 +81,8 @@ const removeFromWatchlist = async (req, res) => {
         error: 'Item not found in watchlist'
       });
     }
+
+    watchlistAdds.labels(contentType).dec();
 
     res.json({
       success: true,

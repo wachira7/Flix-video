@@ -2,6 +2,7 @@
 const { HTTP_STATUS, ERROR_MESSAGES } = require('../../utils/constants');
 const { generateRecommendations, getProviderStatus } = require('../../services/ai.service');
 const { getCache, setCache } = require('../../config/cache');
+const { recommendationsServed } = require('../config/metrics');
 
 // Cache expiry: 24 hours (recommendations don't change often)
 const CACHE_EXPIRY = 86400;
@@ -48,6 +49,9 @@ const generateUserRecommendations = async (req, res) => {
       tokens_used: aiResponse.tokens_used,
       cost_estimate: aiResponse.cost_estimate
     }, CACHE_EXPIRY);
+
+    // Increment recommendations served metric
+    recommendationsServed.inc();
 
     res.json({
       success: true,
