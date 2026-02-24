@@ -2,7 +2,7 @@
 const { HTTP_STATUS, ERROR_MESSAGES } = require('../../utils/constants');
 const { PLANS, getPlan, isValidUpgrade, isValidDowngrade } = require('../../config/plans');
 const { getUserSubscription } = require('../middlewares/subscription.middleware');
-const { subscriptionChanges, subscriptionsByTier } = require('../config/metrics');
+const { subscriptionChanges, subscriptionsByTier } = require('../../config/metrics');
 
 // @desc    Get all subscription plans
 // @route   GET /api/subscriptions/plans

@@ -1,6 +1,6 @@
 // backend/src/api/controllers/watchlist.controller.js
 const { HTTP_STATUS, ERROR_MESSAGES } = require('../../utils/constants');
-const { watchlistAdds } = require('../config/metrics');
+const { watchlistAdds } = require('../../config/metrics');
 
 // Helper to convert 'tv' to 'tv_show' for database
 const normalizeContentType = (type) => {

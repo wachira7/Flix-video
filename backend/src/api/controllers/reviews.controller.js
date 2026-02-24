@@ -1,5 +1,5 @@
 const { HTTP_STATUS, ERROR_MESSAGES } = require('../../utils/constants');
-const { reviewsTotal } = require('../config/metrics');
+const { reviewsTotal } = require('../../config/metrics');
 
 // Helper to convert 'tv' to 'tv_show' for database
 const normalizeContentType = (type) => {

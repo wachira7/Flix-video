@@ -1,6 +1,6 @@
 // backend/src/api/controllers/ratings.controller.js
 const { HTTP_STATUS, ERROR_MESSAGES } = require('../../utils/constants');
-const { ratingsTotal } = require('../config/metrics');
+const { ratingsTotal } = require('../../config/metrics');
 
 
 // Helper to convert 'tv' to 'tv_show' for database

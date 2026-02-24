@@ -1,3 +1,4 @@
+//backend/src/config/metrics.js
 const client = require('prom-client');
 
 // Collect default metrics

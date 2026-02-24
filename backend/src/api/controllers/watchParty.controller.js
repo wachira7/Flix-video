@@ -1,6 +1,6 @@
 // backend/src/api/controllers/watchParty.controller.js
 const { HTTP_STATUS, ERROR_MESSAGES } = require('../../utils/constants');
-const { watchPartiesTotal, watchPartyParticipants } = require('../config/metrics');
+const { watchPartiesTotal, watchPartyParticipants } = require('../../config/metrics');
 
 
 // Helper to normalize content type

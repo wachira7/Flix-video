@@ -3,7 +3,7 @@ const { HTTP_STATUS, ERROR_MESSAGES } = require('../../utils/constants');
 const stripeService = require('../../integrations/stripe');
 const mpesaService = require('../../integrations/mpesa');
 const cryptoService = require('../../integrations/crypto/nowpayments');
-const { paymentsTotal, failedPayments, revenueTotal } = require('../config/metrics');
+const { paymentsTotal, failedPayments, revenueTotal } = require('../../config/metrics');
 
 
 // =============================================================================

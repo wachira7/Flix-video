@@ -1,7 +1,7 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { USER_ROLES, USER_STATUS, TOKEN_EXPIRY, HTTP_STATUS, ERROR_MESSAGES, SUCCESS_MESSAGES, PASSWORD_REQUIREMENTS } = require('../../utils/constants');
-const { newRegistrations, registrationsByMethod, failedLogins } = require('../config/metrics');
+const { newRegistrations, registrationsByMethod, failedLogins } = require('../../config/metrics');
 
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-this-in-production';
