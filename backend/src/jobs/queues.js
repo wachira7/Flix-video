@@ -1,5 +1,6 @@
 //./src/jobs/queues.js
-const { Queue } = require('bullmq');
+const { Queue, Worker } = require('bullmq');
+const IORedis = require('ioredis');
 
 const REDIS_URL = process.env.REDIS_URL || 'redis://localhost:6379';
 
@@ -18,11 +19,16 @@ const parseRedisUrl = (url) => {
   };
 };
 
-const connection = parseRedisUrl(REDIS_URL);
+// Create ONE shared connection for all queues
+const sharedConnection = new IORedis(parseRedisUrl(REDIS_URL));
+
+// Create ONE shared connection for all workers  
+const workerConnection = new IORedis(parseRedisUrl(REDIS_URL));
+
 
 // Default options for all queues - reduces Redis command usage
 const defaultQueueOptions = {
-  connection,
+  connection: sharedConnection,  // Use the shared connection for all queues
   defaultJobOptions: {
     removeOnComplete: 5,  // Keep only last 5 completed jobs (was 10-30)
     removeOnFail: 3,      // Keep only last 3 failed jobs (was 5)
@@ -47,5 +53,5 @@ module.exports = {
   recommendationQueue,
   notificationQueue,
   exchangeRateQueue,
-  connection, 
+  connection : workerConnection // Export the worker connection for use in workers, 
 };
