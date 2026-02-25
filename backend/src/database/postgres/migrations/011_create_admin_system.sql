@@ -1,3 +1,5 @@
+-- -- Migration 011: Create Admin System
+-- Description: Adds admin capabilities and activity tracking
 -- Admin System Migration
 -- Adds admin capabilities and activity tracking
 

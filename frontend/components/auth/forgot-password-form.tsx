@@ -94,7 +94,7 @@ export function ForgotPasswordForm() {
                   id="email"
                   type="email"
                   {...register("email")}
-                  className="pl-10"
+                  className="pl-10 text-gray-950"
                   placeholder="Enter your email"
                 />
               </div>

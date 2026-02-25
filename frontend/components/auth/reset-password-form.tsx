@@ -65,7 +65,7 @@ export function ResetPasswordForm() {
     try {
       await axios.post(`${API_URL}/api/auth/reset-password`, {
         token,
-        password: data.password,
+        newPassword: data.password,
       })
 
       toast.success("Password reset successful! Please login with your new password.")
@@ -136,7 +136,7 @@ export function ResetPasswordForm() {
                   id="password"
                   type={showPassword ? "text" : "password"}
                   {...register("password")}
-                  className="pl-10 pr-10"
+                  className="pl-10 text-gray-950"
                   placeholder="Enter new password"
                 />
                 <button
@@ -177,7 +177,7 @@ export function ResetPasswordForm() {
                   id="confirmPassword"
                   type={showConfirmPassword ? "text" : "password"}
                   {...register("confirmPassword")}
-                  className="pl-10 pr-10"
+                  className="pl-10 text-gray-950"
                   placeholder="Confirm new password"
                 />
                 <button

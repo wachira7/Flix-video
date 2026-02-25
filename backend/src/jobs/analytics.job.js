@@ -22,9 +22,9 @@ const analyticsWorker = new Worker(
 
       // Active users (logged in today)
       const activeUsers = await global.pgPool.query(
-        `SELECT COUNT(DISTINCT user_id) as active_users
-         FROM user_sessions
-         WHERE DATE(last_activity) = $1`,
+        `SELECT COUNT(*) as active_users
+         FROM users
+         WHERE DATE(last_login_at) = $1`,
         [today]
       );
 

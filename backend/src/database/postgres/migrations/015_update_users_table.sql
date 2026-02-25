@@ -1,3 +1,5 @@
+--migration 015_update_users_table.sql
+-- This migration adds missing authentication-related columns to the users table
 -- Migration 015: Add missing auth columns to users table
 ALTER TABLE users ADD COLUMN IF NOT EXISTS verification_token VARCHAR(255);
 ALTER TABLE users ADD COLUMN IF NOT EXISTS verification_token_expires TIMESTAMP WITH TIME ZONE;

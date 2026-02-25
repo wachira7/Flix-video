@@ -1,3 +1,4 @@
+// src/api/controllers/admin.controller.js
 const { HTTP_STATUS, ERROR_MESSAGES } = require('../../utils/constants');
 const { logAdminActivity } = require('../middlewares/admin.middleware');
 

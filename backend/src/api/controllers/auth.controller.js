@@ -1,3 +1,4 @@
+// src/api/controllers/auth.controller.js
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { USER_ROLES, USER_STATUS, TOKEN_EXPIRY, HTTP_STATUS, ERROR_MESSAGES, SUCCESS_MESSAGES, PASSWORD_REQUIREMENTS } = require('../../utils/constants');
