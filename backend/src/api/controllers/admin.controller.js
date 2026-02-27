@@ -101,7 +101,7 @@ const getAllUsers = async (req, res) => {
       query += ' AND u.is_admin = true';
     }
 
-    // Role filter ← ADD THIS
+    // Role filter 
     if (role === 'admin') {
       query += ' AND u.is_admin = true';
     } else if (role === 'moderator') {
@@ -456,7 +456,7 @@ const getAllPayments = async (req, res) => {
     }
 
     // Get total count
-    const countQuery = query.replace(/SELECT.*FROM/, 'SELECT COUNT(*) FROM');
+    const countQuery = query.replace(/SELECT[\s\S]*?FROM/, 'SELECT COUNT(*) FROM');
     const countResult = await global.pgPool.query(countQuery, params);
     const total = parseInt(countResult.rows[0].count);
 
