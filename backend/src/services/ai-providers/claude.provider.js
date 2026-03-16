@@ -19,7 +19,7 @@ class ClaudeProvider extends BaseAIProvider {
 
     try {
       const message = await this.client.messages.create({
-        model: 'claude-3-5-haiku-20241022',
+        model:'claude-haiku-4-5-20251001',
         max_tokens: 2000,
         temperature: 0.7,
         system: `You are an expert movie and TV show recommendation engine. You analyze user preferences and provide personalized recommendations with detailed explanations. Always respond in valid JSON format.`,
@@ -52,7 +52,7 @@ class ClaudeProvider extends BaseAIProvider {
         summary: response.summary || '',
         tokens_used: message.usage.input_tokens + message.usage.output_tokens,
         cost_estimate: this.calculateCost(message.usage.input_tokens, message.usage.output_tokens),
-        model: 'claude-3-5-haiku-20241022'
+        model: 'claude-haiku-4-5-20251001'
       };
 
     } catch (error) {
