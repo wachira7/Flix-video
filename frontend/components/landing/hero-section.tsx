@@ -1,3 +1,4 @@
+//src/components/landing/hero-section.tsx
 "use client"
 
 import { Button } from "@/components/ui/button"
@@ -135,7 +136,7 @@ export function HeroSection() {
             className="flex items-center justify-center gap-2 pt-8 text-sm text-muted-foreground"
           >
             <TrendingUp className="w-4 h-4" />
-            <span>Join thousands of happy viewers today</span>
+            <span>Hey you! Join other happy viewers today</span>
           </motion.div>
         </div>
       </div>

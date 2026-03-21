@@ -121,7 +121,7 @@ export function DevicesSection() {
             Available on iOS, Android, Web, Smart TVs, and more
           </p>
           <p className="text-sm font-semibold">
-            Download on your favorite platform today
+            the app to be on appstore and playstore soon!
           </p>
         </div>
       </div>

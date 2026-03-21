@@ -15,7 +15,7 @@ const stats = [
     value: 10000,
     suffix: '+',
     label: 'Movies & TV Shows',
-    description: 'Extensive content library',
+    description: 'Extensive content TMDB database',
   },
   {
     icon: Users,
@@ -26,7 +26,7 @@ const stats = [
   },
   {
     icon: Star,
-    value: 4.9,
+    value: 4.5,
     suffix: '/5',
     label: 'User Rating',
     description: 'Highly rated platform',

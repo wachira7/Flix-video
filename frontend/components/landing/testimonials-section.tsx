@@ -91,11 +91,11 @@ export function TestimonialsSection() {
       <div className="container mx-auto px-4">
         <div ref={headerRef} className="text-center max-w-3xl mx-auto mb-12">
           <h2 className="text-4xl md:text-5xl font-bold mb-4">
-            Loved by
-            <span className="gradient-text"> Thousands</span>
+            Built for
+            <span className="gradient-text"> Every Viewer</span>
           </h2>
           <p className="text-xl text-muted-foreground">
-            See what our users have to say about their experience
+             From movie enthusiasts to families..FlixVideo has something for everyone.
           </p>
         </div>
 

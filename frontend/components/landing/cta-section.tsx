@@ -61,7 +61,7 @@ export function CTASection() {
           viewport={{ once: true }}
           className="mt-6 text-pretty text-lg text-white/90 sm:text-xl"
         >
-          Join millions of users enjoying unlimited entertainment with AI-powered recommendations.
+          Join other users enjoying unlimited entertainment with AI-powered recommendations.
         </motion.p>
 
         <motion.div

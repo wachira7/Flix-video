@@ -1,3 +1,4 @@
+//src/components/landing/features-section.tsx
 'use client';
 
 import { useRef, useEffect } from 'react';
