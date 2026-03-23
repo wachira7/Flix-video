@@ -1,6 +1,7 @@
 // src/jobs/recommendation.job.js
 const { Worker } = require('bullmq');
 const aiService = require('../services/ai.service');
+const logger = require('../utils/logger');
 
 const { connection } = require('./queues');
 
@@ -8,7 +9,7 @@ const { connection } = require('./queues');
 const recommendationWorker = new Worker(
   'recommendations',
   async (job) => {
-    console.log('🤖 Refreshing AI recommendations...');
+    logger.info('🤖 Refreshing AI recommendations...');
 
     try {
       // Get active users (logged in within last 7 days)
@@ -17,10 +18,10 @@ const recommendationWorker = new Worker(
          FROM users u
          JOIN user_sessions us ON u.id = us.user_id
          WHERE us.last_activity > NOW() - INTERVAL '7 days'
-         LIMIT 100`  // Process in batches
+         LIMIT 100`  
       );
 
-      console.log(`Found ${result.rows.length} active users`);
+      logger.info(`Found ${result.rows.length} active users`);
 
       let generated = 0;
       let failed = 0;
@@ -33,7 +34,7 @@ const recommendationWorker = new Worker(
           const cached = await redisClient.get(cacheKey);
 
           if (cached) {
-            console.log(`⏭️  Skipping user ${user.id} - recommendations still fresh`);
+            logger.info(`⏭️  Skipping user ${user.id} - recommendations still fresh`);
             continue;
           }
 
@@ -44,11 +45,11 @@ const recommendationWorker = new Worker(
             // Cache for 24 hours
             await redisClient.setex(cacheKey, 86400, JSON.stringify(recommendations));
             generated++;
-            console.log(`✅ Generated recommendations for user ${user.id}`);
+            logger.info(`✅ Generated recommendations for user ${user.id}`);
           }
 
         } catch (error) {
-          console.error(`Error generating recommendations for user ${user.id}:`, error.message);
+          logger.error(`Error generating recommendations for user ${user.id}:`, error.message);
           failed++;
         }
 
@@ -71,11 +72,11 @@ const recommendationWorker = new Worker(
 );
 
 recommendationWorker.on('completed', (job) => {
-  console.log(`✅ Recommendations refresh completed:`, job.returnvalue);
+  logger.info(`✅ Recommendations refresh completed:`, job.returnvalue);
 });
 
 recommendationWorker.on('failed', (job, err) => {
-  console.error(`❌ Recommendations refresh failed:`, err.message);
+  logger.error(`❌ Recommendations refresh failed:`, err.message);
 });
 
 module.exports = recommendationWorker;

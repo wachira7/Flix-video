@@ -1,5 +1,7 @@
 // src/api/controllers/notification.controller.js
 const { HTTP_STATUS, ERROR_MESSAGES } = require('../../utils/constants');
+const logger = require('../../utils/logger');
+const Notification = require('../../models/notification.model');
 
 // @desc    Get user notifications
 // @route   GET /api/notifications
@@ -9,30 +11,16 @@ const getUserNotifications = async (req, res) => {
     const userId = req.user.id;
     const { limit = 20, unread_only = false } = req.query;
 
-    let query = `
-      SELECT * FROM notifications 
-      WHERE user_id = $1
-    `;
-    const params = [userId];
-
-    if (unread_only === 'true') {
-      query += ` AND read = false`;
-    }
-
-    query += ` ORDER BY created_at DESC LIMIT $2`;
-    params.push(limit);
-
-    const result = await global.pgPool.query(query, params);
-
-    res.json({
-      success: true,
-      notifications: result.rows
+    const notifications = await Notification.getByUser(userId, {
+      limit: parseInt(limit),
+      unreadOnly: unread_only === 'true'
     });
+
+    res.json({ success: true, notifications });
   } catch (error) {
-    console.error('Get notifications error:', error);
+    logger.error('Get notifications error', { error: error.message });
     res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
-      success: false,
-      error: ERROR_MESSAGES.SERVER_ERROR
+      success: false, error: ERROR_MESSAGES.SERVER_ERROR
     });
   }
 };
@@ -43,21 +31,12 @@ const getUserNotifications = async (req, res) => {
 const getUnreadCount = async (req, res) => {
   try {
     const userId = req.user.id;
-
-    const result = await global.pgPool.query(
-      'SELECT COUNT(*) as count FROM notifications WHERE user_id = $1 AND read = false',
-      [userId]
-    );
-
-    res.json({
-      success: true,
-      count: parseInt(result.rows[0].count)
-    });
+    const count = await Notification.getUnreadCount(userId);
+    res.json({ success: true, count });
   } catch (error) {
-    console.error('Get unread count error:', error);
+    logger.error('Get unread count error', { error: error.message });
     res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
-      success: false,
-      error: ERROR_MESSAGES.SERVER_ERROR
+      success: false, error: ERROR_MESSAGES.SERVER_ERROR
     });
   }
 };
@@ -70,30 +49,19 @@ const markAsRead = async (req, res) => {
     const { notificationId } = req.params;
     const userId = req.user.id;
 
-    const result = await global.pgPool.query(
-      `UPDATE notifications 
-       SET read = true, read_at = NOW()
-       WHERE id = $1 AND user_id = $2
-       RETURNING *`,
-      [notificationId, userId]
-    );
+    const notification = await Notification.markAsRead(notificationId, userId);
 
-    if (result.rows.length === 0) {
+    if (!notification) {
       return res.status(HTTP_STATUS.NOT_FOUND).json({
-        success: false,
-        error: 'Notification not found'
+        success: false, error: 'Notification not found'
       });
     }
 
-    res.json({
-      success: true,
-      notification: result.rows[0]
-    });
+    res.json({ success: true, notification });
   } catch (error) {
-    console.error('Mark as read error:', error);
+    logger.error('Mark as read error', { error: error.message });
     res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
-      success: false,
-      error: ERROR_MESSAGES.SERVER_ERROR
+      success: false, error: ERROR_MESSAGES.SERVER_ERROR
     });
   }
 };
@@ -104,23 +72,12 @@ const markAsRead = async (req, res) => {
 const markAllAsRead = async (req, res) => {
   try {
     const userId = req.user.id;
-
-    await global.pgPool.query(
-      `UPDATE notifications 
-       SET read = true, read_at = NOW()
-       WHERE user_id = $1 AND read = false`,
-      [userId]
-    );
-
-    res.json({
-      success: true,
-      message: 'All notifications marked as read'
-    });
+    await Notification.markAllAsRead(userId);
+    res.json({ success: true, message: 'All notifications marked as read' });
   } catch (error) {
-    console.error('Mark all as read error:', error);
+    logger.error('Mark all as read error', { error: error.message });
     res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
-      success: false,
-      error: ERROR_MESSAGES.SERVER_ERROR
+      success: false, error: ERROR_MESSAGES.SERVER_ERROR
     });
   }
 };
@@ -133,46 +90,30 @@ const deleteNotification = async (req, res) => {
     const { notificationId } = req.params;
     const userId = req.user.id;
 
-    const result = await global.pgPool.query(
-      'DELETE FROM notifications WHERE id = $1 AND user_id = $2 RETURNING *',
-      [notificationId, userId]
-    );
+    const result = await Notification.delete(notificationId, userId);
 
-    if (result.rows.length === 0) {
+    if (result.deletedCount === 0) {
       return res.status(HTTP_STATUS.NOT_FOUND).json({
-        success: false,
-        error: 'Notification not found'
+        success: false, error: 'Notification not found'
       });
     }
 
-    res.json({
-      success: true,
-      message: 'Notification deleted'
-    });
+    res.json({ success: true, message: 'Notification deleted' });
   } catch (error) {
-    console.error('Delete notification error:', error);
+    logger.error('Delete notification error', { error: error.message });
     res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
-      success: false,
-      error: ERROR_MESSAGES.SERVER_ERROR
+      success: false, error: ERROR_MESSAGES.SERVER_ERROR
     });
   }
 };
 
 // @desc    Create notification (internal use)
-// @route   N/A (called from other controllers)
 // @access  Internal
 const createNotification = async (userId, type, title, message, data = {}) => {
   try {
-    const result = await global.pgPool.query(
-      `INSERT INTO notifications (user_id, type, title, message, data, created_at)
-       VALUES ($1, $2, $3, $4, $5, NOW())
-       RETURNING *`,
-      [userId, type, title, message, JSON.stringify(data)]
-    );
-
-    return result.rows[0];
+    return await Notification.create({ userId, type, title, message, data });
   } catch (error) {
-    console.error('Create notification error:', error);
+    logger.error('Create notification error', { error: error.message, userId, type });
     throw error;
   }
 };

@@ -1,5 +1,6 @@
-// src/jobs/analytics.job.js
+// src/jobs/cleanup.job.js
 const { Worker } = require('bullmq');
+const logger = require('../utils/logger');
 
 const { connection } = require('./queues');
 
@@ -7,7 +8,7 @@ const { connection } = require('./queues');
 const cleanupWorker = new Worker(
   'cleanup',
   async (job) => {
-    console.log('🧹 Running cleanup job...');
+    logger.info('🧹 Running cleanup job...');
 
     try {
       let totalDeleted = 0;
@@ -18,7 +19,7 @@ const cleanupWorker = new Worker(
          WHERE last_activity < NOW() - INTERVAL '30 days'
          RETURNING id`
       );
-      console.log(`🗑️  Deleted ${sessions.rowCount} expired sessions`);
+      logger.info(`🗑️  Deleted ${sessions.rowCount} expired sessions`);
       totalDeleted += sessions.rowCount;
 
       // 2. Delete old activity logs (older than 90 days)
@@ -27,7 +28,7 @@ const cleanupWorker = new Worker(
          WHERE created_at < NOW() - INTERVAL '90 days'
          RETURNING id`
       );
-      console.log(`🗑️  Deleted ${activityLogs.rowCount} old activity logs`);
+      logger.info(`🗑️  Deleted ${activityLogs.rowCount} old activity logs`);
       totalDeleted += activityLogs.rowCount;
 
       // 3. Delete failed payments (older than 30 days)
@@ -37,7 +38,7 @@ const cleanupWorker = new Worker(
          AND created_at < NOW() - INTERVAL '30 days'
          RETURNING id`
       );
-      console.log(`🗑️  Deleted ${failedPayments.rowCount} old failed payments`);
+      logger.info(`🗑️  Deleted ${failedPayments.rowCount} old failed payments`);
       totalDeleted += failedPayments.rowCount;
 
       // 4. Archive old watch party data (older than 60 days)
@@ -48,7 +49,7 @@ const cleanupWorker = new Worker(
          AND status = 'ended'
          RETURNING id`
       );
-      console.log(`📦 Archived ${oldParties.rowCount} old watch parties`);
+      logger.info(`📦 Archived ${oldParties.rowCount} old watch parties`);
 
       // 5. Clean Redis expired keys
       const { redisClient } = require('../config/cache');
@@ -63,7 +64,7 @@ const cleanupWorker = new Worker(
           redisDeleted++;
         }
       }
-      console.log(`🗑️  Cleaned ${redisDeleted} Redis keys`);
+      logger.info(`🗑️  Cleaned ${redisDeleted} Redis keys`);
 
       return {
         sessions: sessions.rowCount,
@@ -87,11 +88,11 @@ const cleanupWorker = new Worker(
 );
 
 cleanupWorker.on('completed', (job) => {
-  console.log(`✅ Cleanup completed:`, job.returnvalue);
+  logger.info(`✅ Cleanup completed:`, job.returnvalue);
 });
 
 cleanupWorker.on('failed', (job, err) => {
-  console.error(`❌ Cleanup failed:`, err.message);
+  logger.error(`❌ Cleanup failed:`, err.message);
 });
 
 module.exports = cleanupWorker;

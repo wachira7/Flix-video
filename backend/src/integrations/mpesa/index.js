@@ -1,5 +1,7 @@
 //backend/src/integrations/mpesa/index.js
 const axios = require('axios');
+const logger = require('../../utils/logger');
+
 
 /**
  * Get M-Pesa Access Token
@@ -22,7 +24,7 @@ const getAccessToken = async () => {
     return response.data.access_token;
 
   } catch (error) {
-    console.error('M-Pesa auth error:', error.response?.data || error.message);
+    logger.error('M-Pesa auth error:', error.response?.data || error.message);
     throw new Error('Failed to get M-Pesa access token');
   }
 };
@@ -102,7 +104,7 @@ const initiateSTKPush = async (phoneNumber, amount, accountReference, transactio
     };
 
   } catch (error) {
-    console.error('M-Pesa STK Push error:', error.response?.data || error.message);
+    logger.error('M-Pesa STK Push error:', error.response?.data || error.message);
     throw new Error(error.response?.data?.errorMessage || 'Failed to initiate M-Pesa payment');
   }
 };
@@ -142,7 +144,7 @@ const querySTKPushStatus = async (checkoutRequestId) => {
     };
 
   } catch (error) {
-    console.error('M-Pesa query error:', error.response?.data || error.message);
+    logger.error('M-Pesa query error:', error.response?.data || error.message);
     throw new Error('Failed to query M-Pesa status');
   }
 };

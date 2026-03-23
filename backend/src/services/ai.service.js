@@ -1,6 +1,8 @@
 //backend/src/services/ai.service.js
 const OpenAIProvider = require('./ai-providers/openai.provider');
 const ClaudeProvider = require('./ai-providers/claude.provider');
+const logger = require('../../utils/logger');
+const AIConversation = require('../models/aiConversation.model');
 
 // Initialize providers
 const openaiProvider = new OpenAIProvider(process.env.OPENAI_API_KEY);
@@ -49,19 +51,19 @@ const generateRecommendations = async (userData) => {
   
   for (const provider of providers) {
     try {
-      console.log(`Attempting AI recommendations with ${provider.getName()}...`);
+      logger.info(`Attempting AI recommendations with ${provider.getName()}...`);
       const result = await provider.generateRecommendations(prompt);
-      console.log(`✅ Success with ${provider.getName()}! Tokens: ${result.tokens_used}, Cost: $${result.cost_estimate}`);
+      logger.info(`✅ Success with ${provider.getName()}! Tokens: ${result.tokens_used}, Cost: $${result.cost_estimate}`);
       return result;
     } catch (error) {
-      console.error(`❌ ${provider.getName()} failed:`, error.message);
+      logger.error(`❌ ${provider.getName()} failed:`, error.message);
       errors.push({
         provider: provider.getName(),
         error: error.message
       });
       
       if (providers.indexOf(provider) < providers.length - 1) {
-        console.log(`Falling back to next provider...`);
+        logger.info(`Falling back to next provider...`);
       }
     }
   }
@@ -181,7 +183,75 @@ const getProviderStatus = () => {
   };
 };
 
+/**
+ * Chat with AI and persist conversation to MongoDB
+ */
+const chat = async (userId, sessionId, userMessage, context = {}) => {
+  const providers = getAvailableProviders();
+ 
+  if (providers.length === 0) {
+    throw new Error('No AI providers configured.');
+  }
+ 
+  // Load or create conversation
+  let conversation = await AIConversation.getBySession(sessionId);
+  if (!conversation) {
+    conversation = await AIConversation.create({
+      userId,
+      sessionId,
+      provider: providers[0].getName(),
+      context
+    });
+  }
+ 
+  // Get recent messages for context window (last 10)
+  const recentMessages = await AIConversation.getRecentMessages(sessionId, 10);
+ 
+  // Save user message
+  await AIConversation.addMessage(sessionId, {
+    role: 'user',
+    content: userMessage
+  });
+ 
+  // Build messages array for AI provider
+  const messages = [
+    ...recentMessages.map(m => ({ role: m.role, content: m.content })),
+    { role: 'user', content: userMessage }
+  ];
+ 
+  // Call AI provider with fallback
+  const errors = [];
+  for (const provider of providers) {
+    try {
+      const result = await provider.chat(messages, context);
+ 
+      // Save assistant response
+      await AIConversation.addMessage(sessionId, {
+        role: 'assistant',
+        content: result.content,
+        tokensUsed: result.tokens_used || 0
+      });
+ 
+      return {
+        sessionId,
+        response: result.content,
+        provider: provider.getName(),
+        tokens_used: result.tokens_used
+      };
+ 
+    } catch (error) {
+      errors.push({ provider: provider.getName(), error: error.message });
+      if (providers.indexOf(provider) < providers.length - 1) {
+        logger.info('Falling back to next AI provider...');
+      }
+    }
+  }
+ 
+  throw new Error(`All AI providers failed: ${JSON.stringify(errors)}`);
+};
+
 module.exports = {
   generateRecommendations,
-  getProviderStatus
+  getProviderStatus,
+  chat
 };

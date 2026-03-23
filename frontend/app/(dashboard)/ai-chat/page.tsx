@@ -1,314 +1,410 @@
-// frontend/app/(dashboard)/ai-chat/page.tsx
-
 "use client"
 
-import { useState, useEffect } from "react"
-import { recommendationsAPI, type Recommendation } from "@/lib/api/recommendations"
+import { useState, useEffect, useRef } from "react"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
+import { ScrollArea } from "@/components/ui/scroll-area"
 import { Skeleton } from "@/components/ui/skeleton"
-import { Alert, AlertDescription } from "@/components/ui/alert"
 import { toast } from "sonner"
-import { Brain, Sparkles, RefreshCw, Trash2, Clock, TrendingUp, AlertCircle, CheckCircle2, Zap } from "lucide-react"
-import { RecommendationCard } from "@/components/ai/recommendation-card"
+import { Brain, Send, Plus, Trash2, MessageSquare, Bot, User, Sparkles, AlertCircle, CheckCircle2 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
+import { apiClient } from "@/lib/api/client"
+import { v4 as uuidv4 } from "uuid"
 
+// ── Types ──────────────────────────────────────────────────────────
+interface Message {
+  role: "user" | "assistant"
+  content: string
+  timestamp: Date
+  tokensUsed?: number
+}
+
+interface Conversation {
+  sessionId: string
+  messages: Message[]
+  provider: string
+  createdAt: string
+  updatedAt: string
+}
+
+// ── AI API helpers ────────────────────────────────────────────────
+const aiAPI = {
+  async sendMessage(message: string, sessionId: string) {
+    const response = await apiClient.post("/api/ai/chat", { message, session_id: sessionId })
+    return response.data
+  },
+  async getConversations() {
+    const response = await apiClient.get("/api/ai/conversations")
+    return response.data
+  },
+  async getConversation(sessionId: string) {
+    const response = await apiClient.get(`/api/ai/conversations/${sessionId}`)
+    return response.data
+  },
+  async deleteConversation(sessionId: string) {
+    const response = await apiClient.delete(`/api/ai/conversations/${sessionId}`)
+    return response.data
+  },
+  async getStatus() {
+    const response = await apiClient.get("/api/ai/status")
+    return response.data
+  },
+}
+
+// ── Component ─────────────────────────────────────────────────────
 export default function AIChatPage() {
-  const [recommendations, setRecommendations] = useState<Recommendation[]>([])
-  const [summary, setSummary] = useState<string>("")
+  const [messages, setMessages] = useState<Message[]>([])
+  const [input, setInput] = useState("")
   const [loading, setLoading] = useState(false)
-  const [initialLoading, setInitialLoading] = useState(true)
-  const [cached, setCached] = useState(false)
-  const [generatedAt, setGeneratedAt] = useState<string>("")
-  const [stats, setStats] = useState<any>(null)
+  const [sessionId, setSessionId] = useState<string>(() => uuidv4())
+  const [conversations, setConversations] = useState<any[]>([])
   const [aiStatus, setAiStatus] = useState<any>(null)
+  const [loadingHistory, setLoadingHistory] = useState(true)
+  const [provider, setProvider] = useState<string>("claude")
+  const scrollRef = useRef<HTMLDivElement>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     checkAIStatus()
-    loadCachedRecommendations()
+    loadConversations()
   }, [])
+
+  // Auto scroll to bottom on new messages
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight
+    }
+  }, [messages])
 
   const checkAIStatus = async () => {
     try {
-      const response = await recommendationsAPI.getStatus()
+      const response = await aiAPI.getStatus()
       setAiStatus(response.ai_providers)
     } catch (error) {
-      console.error('Failed to check AI status:', error)
+      console.error("Failed to check AI status:", error)
     }
   }
 
-  const loadCachedRecommendations = async () => {
+  const loadConversations = async () => {
     try {
-      const response = await recommendationsAPI.getMy()
-      setRecommendations(response.recommendations)
-      setSummary(response.summary)
-      setCached(true)
-      setGeneratedAt(response.generated_at)
-      setStats(response.stats)
-    } catch (error: any) {
-      // No cached recommendations - that's okay
-      if (error.response?.status !== 404) {
-        console.error('Load cached error:', error)
-      }
+      const response = await aiAPI.getConversations()
+      setConversations(response.conversations || [])
+    } catch (error) {
+      console.error("Failed to load conversations:", error)
     } finally {
-      setInitialLoading(false)
+      setLoadingHistory(false)
     }
   }
 
-  const generateRecommendations = async () => {
-    setLoading(true)
+  const loadConversation = async (sid: string) => {
     try {
-      const response = await recommendationsAPI.generate()
-      setRecommendations(response.recommendations)
-      setSummary(response.summary)
-      setCached(false)
-      setGeneratedAt(response.generated_at)
-      setStats(response.stats)
-      
-      toast.success(
-        response.cached 
-          ? "Loaded cached recommendations" 
-          : "AI recommendations generated!"
+      const response = await aiAPI.getConversation(sid)
+      const conv: Conversation = response.conversation
+      setSessionId(sid)
+      setMessages(
+        conv.messages.map((m: any) => ({
+          role: m.role,
+          content: m.content,
+          timestamp: new Date(m.timestamp),
+          tokensUsed: m.tokensUsed,
+        }))
       )
-    } catch (error: any) {
-      console.error('Generate error:', error)
-      
-      const errorMsg = error.response?.data?.error || 'Failed to generate recommendations'
-      
-      if (errorMsg.includes('Not enough viewing data')) {
-        toast.error('Add some favorites or ratings first!', {
-          description: 'The AI needs your viewing history to make personalized recommendations.'
-        })
-      } else if (errorMsg.includes('limit reached')) {
-        toast.error('Daily limit reached!', {
-          description: 'Upgrade to Premium for unlimited AI recommendations.'
-        })
-      } else if (errorMsg.includes('AI service not configured')) {
-        toast.error('AI service unavailable', {
-          description: 'The AI recommendation service is currently unavailable.'
-        })
-      } else {
-        toast.error('Failed to generate recommendations', {
-          description: errorMsg
-        })
+    } catch (error) {
+      toast.error("Failed to load conversation")
+    }
+  }
+
+  const startNewChat = () => {
+    setSessionId(uuidv4())
+    setMessages([])
+    inputRef.current?.focus()
+  }
+
+  const sendMessage = async () => {
+    if (!input.trim() || loading) return
+
+    const userMessage: Message = {
+      role: "user",
+      content: input.trim(),
+      timestamp: new Date(),
+    }
+
+    setMessages(prev => [...prev, userMessage])
+    setInput("")
+    setLoading(true)
+
+    try {
+      const response = await aiAPI.sendMessage(userMessage.content, sessionId)
+
+      const assistantMessage: Message = {
+        role: "assistant",
+        content: response.response,
+        timestamp: new Date(),
+        tokensUsed: response.tokens_used,
       }
+
+      setMessages(prev => [...prev, assistantMessage])
+      setProvider(response.provider || "claude")
+
+      // Refresh conversation list
+      loadConversations()
+
+    } catch (error: any) {
+      toast.error(
+        error.response?.data?.error || "Failed to get AI response"
+      )
+      // Remove the user message if AI failed
+      setMessages(prev => prev.slice(0, -1))
     } finally {
       setLoading(false)
+      inputRef.current?.focus()
     }
   }
 
-  const clearCache = async () => {
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault()
+      sendMessage()
+    }
+  }
+
+  const deleteConversation = async (sid: string, e: React.MouseEvent) => {
+    e.stopPropagation()
     try {
-      await recommendationsAPI.clearCache()
-      setRecommendations([])
-      setSummary("")
-      setCached(false)
-      setGeneratedAt("")
-      setStats(null)
-      toast.success('Cache cleared! Generate fresh recommendations.')
+      await aiAPI.deleteConversation(sid)
+      setConversations(prev => prev.filter(c => c.sessionId !== sid))
+      if (sid === sessionId) startNewChat()
+      toast.success("Conversation deleted")
     } catch (error) {
-      console.error('Clear cache error:', error)
-      toast.error('Failed to clear cache')
+      toast.error("Failed to delete conversation")
     }
   }
 
-  if (initialLoading) {
-    return (
-      <div className="p-8 max-w-7xl mx-auto">
-        <Skeleton className="h-12 w-64 mb-8 bg-gray-800" />
-        <Skeleton className="h-32 mb-6 bg-gray-800" />
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[1, 2, 3, 4, 5, 6].map((i) => (
-            <Skeleton key={i} className="h-96 bg-gray-800" />
-          ))}
-        </div>
-      </div>
-    )
-  }
+  const suggestedPrompts = [
+    "Recommend me a thriller movie similar to Inception",
+    "What are the best sci-fi TV shows from the last 5 years?",
+    "I enjoyed Breaking Bad, what should I watch next?",
+    "Suggest a feel-good movie for a family movie night",
+  ]
 
   return (
-    <div className="p-8 max-w-7xl mx-auto">
-      {/* Header */}
-      <div className="mb-8">
-        <div className="flex items-center gap-3 mb-2">
-          <div className="p-3 bg-linear-to-br from-purple-600 to-pink-600 rounded-lg">
-            <Brain className="w-6 h-6 text-white" />
-          </div>
-          <div>
-            <h1 className="text-3xl font-bold text-white">AI Recommendations</h1>
-            <p className="text-gray-400 mt-1">
-              Personalized suggestions powered by artificial intelligence
-            </p>
-          </div>
+    <div className="flex h-[calc(100vh-64px)] bg-gray-950">
+
+      {/* ── Sidebar: Conversation History ──────────────────────── */}
+      <div className="w-72 border-r border-gray-800 flex flex-col bg-gray-900">
+        <div className="p-4 border-b border-gray-800">
+          <Button
+            onClick={startNewChat}
+            className="w-full bg-purple-600 hover:bg-purple-700"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            New Chat
+          </Button>
         </div>
 
-        {/* AI Status Badge */}
-        {aiStatus && (
-          <div className="flex items-center gap-2 mt-4">
-            <Badge className={
-              aiStatus.available_count > 0 
-                ? "bg-green-600" 
-                : "bg-red-600"
-            }>
-              {aiStatus.available_count > 0 ? (
-                <>
-                  <CheckCircle2 className="w-3 h-3 mr-1" />
-                  AI Ready
-                </>
-              ) : (
-                <>
-                  <AlertCircle className="w-3 h-3 mr-1" />
-                  AI Unavailable
-                </>
+        <div className="p-3 border-b border-gray-800">
+          {aiStatus && (
+            <div className="flex items-center gap-2">
+              <Badge className={aiStatus.available_count > 0 ? "bg-green-700" : "bg-red-700"}>
+                {aiStatus.available_count > 0
+                  ? <><CheckCircle2 className="w-3 h-3 mr-1" />AI Ready</>
+                  : <><AlertCircle className="w-3 h-3 mr-1" />Unavailable</>
+                }
+              </Badge>
+              {aiStatus.available_count > 0 && (
+                <span className="text-xs text-gray-500">
+                  {aiStatus.primary_provider === "claude" ? "Claude AI" : "GPT-4"}
+                </span>
               )}
-            </Badge>
-            {aiStatus.available_count > 0 && (
-              <span className="text-sm text-gray-500">
-                Using {aiStatus.primary_provider === 'openai' ? 'OpenAI GPT-4' : 'Claude AI'}
-              </span>
-            )}
-          </div>
-        )}
-      </div>
-
-      {/* Action Buttons */}
-      <div className="flex flex-wrap gap-3 mb-8">
-        <Button
-          onClick={generateRecommendations}
-          disabled={loading || (aiStatus && aiStatus.available_count === 0)}
-          className="bg-linear-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
-          size="lg"
-        >
-          {loading ? (
-            <>
-              <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-              Generating...
-            </>
-          ) : (
-            <>
-              <Sparkles className="w-4 h-4 mr-2" />
-              {recommendations.length > 0 ? 'Refresh Recommendations' : 'Generate Recommendations'}
-            </>
-          )}
-        </Button>
-
-        {recommendations.length > 0 && (
-          <Button
-            onClick={clearCache}
-            variant="outline"
-            className="border-gray-700 text-white hover:bg-gray-800"
-          >
-            <Trash2 className="w-4 h-4 mr-2" />
-            Clear Cache
-          </Button>
-        )}
-      </div>
-
-      {/* Cache Info */}
-      {cached && generatedAt && (
-        <Alert className="mb-6 bg-blue-900/20 border-blue-700">
-          <Clock className="w-4 h-4" />
-          <AlertDescription>
-            These recommendations were generated {new Date(generatedAt).toLocaleString()}.
-            They're cached for 24 hours to save AI costs.
-          </AlertDescription>
-        </Alert>
-      )}
-
-      {/* AI Summary */}
-      {summary && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          <Card className="p-6 mb-8 bg-linear-to-br from-purple-900/50 to-pink-900/50 border-purple-700">
-            <div className="flex items-start gap-4">
-              <div className="p-3 bg-purple-600 rounded-lg shrink-0">
-                <Brain className="w-6 h-6 text-white" />
-              </div>
-              <div className="flex-1">
-                <h2 className="text-xl font-bold text-white mb-2">AI Analysis</h2>
-                <p className="text-gray-300 leading-relaxed">{summary}</p>
-                
-                {stats && (
-                  <div className="flex flex-wrap gap-4 mt-4 pt-4 border-t border-purple-800">
-                    <div className="flex items-center gap-2">
-                      <Zap className="w-4 h-4 text-yellow-500" />
-                      <span className="text-sm text-gray-400">
-                        {stats.tokens_used} tokens used
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <TrendingUp className="w-4 h-4 text-green-500" />
-                      <span className="text-sm text-gray-400">
-                        Cost: {stats.cost_estimate}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Clock className="w-4 h-4 text-blue-500" />
-                      <span className="text-sm text-gray-400">
-                        Cached for {stats.cache_duration}
-                      </span>
-                    </div>
-                  </div>
-                )}
-              </div>
             </div>
-          </Card>
-        </motion.div>
-      )}
+          )}
+        </div>
 
-      {/* Recommendations Grid */}
-      {recommendations.length > 0 ? (
-        <div>
-          <div className="flex items-center gap-2 mb-6">
-            <h2 className="text-2xl font-bold text-white">Your Personalized Picks</h2>
-            <Badge className="bg-purple-600">
-              {recommendations.length} recommendations
-            </Badge>
-          </div>
-
-          <AnimatePresence>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {recommendations.map((rec, index) => (
-                <motion.div
-                  key={`${rec.tmdb_id}-${index}`}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
+        <ScrollArea className="flex-1 p-2">
+          {loadingHistory ? (
+            <div className="space-y-2 p-2">
+              {[1, 2, 3].map(i => <Skeleton key={i} className="h-12 bg-gray-800" />)}
+            </div>
+          ) : conversations.length === 0 ? (
+            <div className="p-4 text-center">
+              <MessageSquare className="w-8 h-8 text-gray-600 mx-auto mb-2" />
+              <p className="text-xs text-gray-500">No conversations yet</p>
+            </div>
+          ) : (
+            <div className="space-y-1">
+              {conversations.map((conv) => (
+                <div
+                  key={conv.sessionId}
+                  onClick={() => loadConversation(conv.sessionId)}
+                  className={`group flex items-center justify-between p-3 rounded-lg cursor-pointer transition-colors ${
+                    conv.sessionId === sessionId
+                      ? "bg-purple-900/50 border border-purple-700"
+                      : "hover:bg-gray-800"
+                  }`}
                 >
-                  <RecommendationCard recommendation={rec} />
-                </motion.div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm text-white truncate">
+                      {conv.messages?.[0]?.content || "New conversation"}
+                    </p>
+                    <p className="text-xs text-gray-500 mt-0.5">
+                      {new Date(conv.updatedAt).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-7 w-7 opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-400"
+                    onClick={(e) => deleteConversation(conv.sessionId, e)}
+                  >
+                    <Trash2 className="w-3 h-3" />
+                  </Button>
+                </div>
               ))}
             </div>
-          </AnimatePresence>
-        </div>
-      ) : !loading && (
-        <Card className="p-12 bg-gray-900 border-gray-800 text-center">
-          <div className="max-w-md mx-auto">
-            <div className="w-20 h-20 bg-linear-to-br from-purple-600 to-pink-600 rounded-full flex items-center justify-center mx-auto mb-6">
-              <Brain className="w-10 h-10 text-white" />
-            </div>
-            <h2 className="text-2xl font-bold text-white mb-3">
-              No Recommendations Yet
-            </h2>
-            <p className="text-gray-400 mb-6">
-              Click the button above to generate personalized AI recommendations based on your viewing history.
+          )}
+        </ScrollArea>
+      </div>
+
+      {/* ── Main Chat Area ────────────────────────────────────── */}
+      <div className="flex-1 flex flex-col">
+
+        {/* Header */}
+        <div className="px-6 py-4 border-b border-gray-800 flex items-center gap-3">
+          <div className="p-2 bg-purple-600 rounded-lg">
+            <Brain className="w-5 h-5 text-white" />
+          </div>
+          <div>
+            <h1 className="text-lg font-bold text-white">AI Movie Assistant</h1>
+            <p className="text-xs text-gray-400">
+              Powered by {provider === "claude" ? "Claude AI" : "GPT-4"} — Ask me anything about movies & TV
             </p>
-            <Button
-              onClick={generateRecommendations}
+          </div>
+        </div>
+
+        {/* Messages */}
+        <ScrollArea className="flex-1 p-6" ref={scrollRef}>
+          {messages.length === 0 ? (
+            <div className="flex flex-col items-center justify-center h-full py-12">
+              <div className="w-16 h-16 bg-purple-600/20 rounded-full flex items-center justify-center mb-6">
+                <Sparkles className="w-8 h-8 text-purple-400" />
+              </div>
+              <h2 className="text-xl font-bold text-white mb-2">
+                What would you like to watch?
+              </h2>
+              <p className="text-gray-400 text-center mb-8 max-w-md">
+                Ask me for movie recommendations, TV show suggestions, or anything about the world of cinema.
+              </p>
+
+              {/* Suggested prompts */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-xl">
+                {suggestedPrompts.map((prompt, i) => (
+                  <button
+                    key={i}
+                    onClick={() => { setInput(prompt); inputRef.current?.focus() }}
+                    className="text-left p-3 rounded-lg border border-gray-700 hover:border-purple-600 bg-gray-800/50 hover:bg-gray-800 transition-all text-sm text-gray-300"
+                  >
+                    {prompt}
+                  </button>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <AnimatePresence>
+              <div className="space-y-6 max-w-3xl mx-auto">
+                {messages.map((msg, index) => (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className={`flex gap-3 ${msg.role === "user" ? "flex-row-reverse" : "flex-row"}`}
+                  >
+                    {/* Avatar */}
+                    <div className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
+                      msg.role === "user"
+                        ? "bg-purple-600"
+                        : "bg-gray-700"
+                    }`}>
+                      {msg.role === "user"
+                        ? <User className="w-4 h-4 text-white" />
+                        : <Bot className="w-4 h-4 text-purple-400" />
+                      }
+                    </div>
+
+                    {/* Message bubble */}
+                    <div className={`max-w-[75%] ${msg.role === "user" ? "items-end" : "items-start"} flex flex-col gap-1`}>
+                      <div className={`px-4 py-3 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap ${
+                        msg.role === "user"
+                          ? "bg-purple-600 text-white rounded-tr-sm"
+                          : "bg-gray-800 text-gray-100 rounded-tl-sm"
+                      }`}>
+                        {msg.content}
+                      </div>
+                      <span className="text-xs text-gray-500 px-1">
+                        {msg.timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                        {msg.tokensUsed ? ` · ${msg.tokensUsed} tokens` : ""}
+                      </span>
+                    </div>
+                  </motion.div>
+                ))}
+
+                {/* Loading indicator */}
+                {loading && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="flex gap-3"
+                  >
+                    <div className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center">
+                      <Bot className="w-4 h-4 text-purple-400" />
+                    </div>
+                    <div className="bg-gray-800 px-4 py-3 rounded-2xl rounded-tl-sm">
+                      <div className="flex gap-1">
+                        {[0, 1, 2].map(i => (
+                          <div
+                            key={i}
+                            className="w-2 h-2 bg-purple-400 rounded-full animate-bounce"
+                            style={{ animationDelay: `${i * 0.15}s` }}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </div>
+            </AnimatePresence>
+          )}
+        </ScrollArea>
+
+        {/* Input Area */}
+        <div className="p-4 border-t border-gray-800 bg-gray-900">
+          <div className="max-w-3xl mx-auto flex gap-3 items-end">
+            <Input
+              ref={inputRef}
+              value={input}
+              onChange={e => setInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="Ask about movies, TV shows, recommendations..."
+              className="bg-gray-800 border-gray-700 text-white placeholder:text-gray-500 focus:border-purple-600 resize-none"
               disabled={loading || (aiStatus && aiStatus.available_count === 0)}
-              className="bg-linear-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
-              size="lg"
+            />
+            <Button
+              onClick={sendMessage}
+              disabled={!input.trim() || loading || (aiStatus && aiStatus.available_count === 0)}
+              className="bg-purple-600 hover:bg-purple-700 shrink-0"
+              size="icon"
             >
-              <Sparkles className="w-4 h-4 mr-2" />
-              Get Started
+              <Send className="w-4 h-4" />
             </Button>
           </div>
-        </Card>
-      )}
+          <p className="text-xs text-gray-600 text-center mt-2">
+            Press Enter to send · Shift+Enter for new line
+          </p>
+        </div>
+
+      </div>
     </div>
   )
 }

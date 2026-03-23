@@ -119,8 +119,8 @@ export function HeroSection() {
               <div className="text-sm text-muted-foreground mt-1">Movies & Shows</div>
             </div>
             <div>
-              <div className="text-3xl md:text-4xl font-bold gradient-text">50K+</div>
-              <div className="text-sm text-muted-foreground mt-1">Active Users</div>
+              <div className="text-3xl md:text-4xl font-bold gradient-text">Early</div>
+              <div className="text-sm text-muted-foreground mt-1">Access Open</div>
             </div>
             <div>
               <div className="text-3xl md:text-4xl font-bold gradient-text">99%</div>

@@ -1,6 +1,7 @@
 //backend/src/jobs/exchange-rate-updater.job.js
 const { Worker } = require('bullmq');
 const axios = require('axios');
+const logger = require('../utils/logger');
 
 const { connection } = require('./queues');
 
@@ -35,7 +36,7 @@ async function fetchRatesWithRetry(maxRetries = 3) {
   for (const source of API_SOURCES) {
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
       try {
-        console.log(`💱 Trying ${source.name} (attempt ${attempt}/${maxRetries})...`);
+        logger.info(`💱 Trying ${source.name} (attempt ${attempt}/${maxRetries})...`);
         
         const response = await axios.get(source.url, {
           timeout: 15000, // 15 second timeout
@@ -45,17 +46,17 @@ async function fetchRatesWithRetry(maxRetries = 3) {
         });
 
         const parsed = source.parse(response.data);
-        console.log(`✅ Success with ${source.name}!`);
+        logger.info(`✅ Success with ${source.name}!`);
         
         return parsed;
         
       } catch (error) {
-        console.error(`⚠️  ${source.name} failed (attempt ${attempt}): ${error.message}`);
+        logger.error(`⚠️  ${source.name} failed (attempt ${attempt}): ${error.message}`);
         
         if (attempt < maxRetries) {
           // Wait before retry (exponential backoff)
           const delay = Math.min(1000 * Math.pow(2, attempt - 1), 5000);
-          console.log(`   Retrying in ${delay}ms...`);
+          logger.info(`   Retrying in ${delay}ms...`);
           await new Promise(resolve => setTimeout(resolve, delay));
         }
       }
@@ -71,7 +72,7 @@ async function fetchRatesWithRetry(maxRetries = 3) {
 const exchangeRateWorker = new Worker(
   'exchange-rates',
   async (job) => {
-    console.log('💱 Updating exchange rates...');
+    logger.info('💱 Updating exchange rates...');
 
     try {
       // Fetch latest rates with retry and fallback
@@ -87,8 +88,8 @@ const exchangeRateWorker = new Worker(
         throw new Error('KES rate not available in response');
       }
 
-      console.log(`💱 Date: ${date}`);
-      console.log(`💱 1 USD = ${kesRate} KES`);
+      logger.info(`💱 Date: ${date}`);
+      logger.info(`💱 1 USD = ${kesRate} KES`);
 
       // Calculate rates with KES as base
       const kesBasedRates = {};
@@ -122,9 +123,9 @@ const exchangeRateWorker = new Worker(
         JSON.stringify(rateData)
       );
 
-      console.log(`✅ Updated ${Object.keys(kesBasedRates).length} exchange rates`);
-      console.log(`💱 Sample: 1 KES = ${kesBasedRates.USD.toFixed(6)} USD`);
-      console.log(`💱 Sample: 1 KES = ${kesBasedRates.EUR.toFixed(6)} EUR`);
+      logger.info(`✅ Updated ${Object.keys(kesBasedRates).length} exchange rates`);
+      logger.info(`💱 Sample: 1 KES = ${kesBasedRates.USD.toFixed(6)} USD`);
+      logger.info(`💱 Sample: 1 KES = ${kesBasedRates.EUR.toFixed(6)} EUR`);
 
       // Store historical rates in MongoDB
       if (global.mongoClient) {
@@ -133,9 +134,9 @@ const exchangeRateWorker = new Worker(
             ...rateData,
             created_at: new Date()
           });
-          console.log('📊 Stored historical rates in MongoDB');
+          logger.info('📊 Stored historical rates in MongoDB');
         } catch (mongoError) {
-          console.error('⚠️  Failed to store in MongoDB:', mongoError.message);
+          logger.error('⚠️  Failed to store in MongoDB:', mongoError.message);
         }
       }
 
@@ -151,7 +152,7 @@ const exchangeRateWorker = new Worker(
       };
 
     } catch (error) {
-      console.error('💱 All exchange rate sources failed:', error.message);
+      logger.error('💱 All exchange rate sources failed:', error.message);
       
       // If API fails, try to keep using cached rates
       const { redisClient } = require('../config/cache');
@@ -160,7 +161,7 @@ const exchangeRateWorker = new Worker(
       if (cached) {
         const cachedData = JSON.parse(cached);
         const age = Math.floor((Date.now() - new Date(cachedData.timestamp).getTime()) / 1000 / 3600);
-        console.log(`⚠️  Using cached rates (${age} hours old)`);
+        logger.info(`⚠️  Using cached rates (${age} hours old)`);
         
         return {
           status: 'using_cache',
@@ -171,7 +172,7 @@ const exchangeRateWorker = new Worker(
       }
       
       // No cache available - this is a real problem
-      console.error('❌ No cached rates available! Currency conversion will fail!');
+      logger.error('❌ No cached rates available! Currency conversion will fail!');
       throw error;
     }
   },
@@ -183,11 +184,11 @@ const exchangeRateWorker = new Worker(
 );
 
 exchangeRateWorker.on('completed', (job) => {
-  console.log(`✅ Exchange rates updated:`, job.returnvalue);
+  logger.info(`✅ Exchange rates updated:`, job.returnvalue);
 });
 
 exchangeRateWorker.on('failed', (job, err) => {
-  console.error(`❌ Exchange rate update failed:`, err.message);
+  logger.error(`❌ Exchange rate update failed:`, err.message);
 });
 
 module.exports = exchangeRateWorker;

@@ -6,13 +6,7 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Play, Users, ExternalLink, ChevronDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuSeparator,
-} from "@/components/ui/dropdown-menu"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu"
 import { StreamingModal } from "./streaming-modal"
 
 interface PlayOptionsButtonProps {

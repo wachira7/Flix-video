@@ -4,6 +4,9 @@ const stripeService = require('../../integrations/stripe');
 const mpesaService = require('../../integrations/mpesa');
 const cryptoService = require('../../integrations/crypto/nowpayments');
 const { paymentsTotal, failedPayments, revenueTotal } = require('../../config/metrics');
+const logger = require('../../utils/logger');
+const { notificationQueue } = require('../../jobs/queues');
+
 
 
 // =============================================================================
@@ -125,7 +128,33 @@ const stripeWebhook = async (req, res) => {
         [session.payment_intent, paymentId]
       );
 
-      console.log(`✅ Stripe payment ${paymentId} completed!`);
+      logger.info(`✅ Stripe payment ${paymentId} completed!`);
+    }
+
+    // Get user email for notification
+    const userResult = await global.pgPool.query(
+      `SELECT u.email, up.username, p.amount, p.currency, p.plan_type
+      FROM payments p
+      JOIN users u ON p.user_id = u.id
+      LEFT JOIN user_profiles up ON u.id = up.user_id
+      WHERE p.id = $1`,
+      [paymentId]
+    );
+    if (userResult.rows.length > 0) {
+      const user = userResult.rows[0];
+      await notificationQueue.add('payment_success', {
+        type: 'payment_success',
+        userId: session.client_reference_id,
+        data: {
+          email: user.email,
+          username: user.username,
+          amount: user.amount,
+          currency: user.currency,
+          plan: user.plan_type,
+          payment_method: 'Stripe',
+          transaction_id: paymentId
+        }
+      });
     }
 
     paymentsTotal.inc({ status: 'succeeded', provider: 'stripe' });
@@ -149,7 +178,31 @@ const stripeWebhook = async (req, res) => {
         ]
       );
 
-      console.log(`❌ Stripe payment failed: ${paymentIntent.id}`);
+      logger.warn(`❌ Stripe payment failed: ${paymentIntent.id}`);
+    }
+
+    const failedUser = await global.pgPool.query(
+      `SELECT u.email, up.username, p.amount, p.currency, p.plan_type
+      FROM payments p
+      JOIN users u ON p.user_id = u.id
+      LEFT JOIN user_profiles up ON u.id = up.user_id
+      WHERE p.stripe_payment_intent_id = $1`,
+      [paymentIntent.id]
+    );
+    if (failedUser.rows.length > 0) {
+      const user = failedUser.rows[0];
+      await notificationQueue.add('payment_failed', {
+        type: 'payment_failed',
+        userId: user.id,
+        data: {
+          email: user.email,
+          username: user.username,
+          amount: user.amount,
+          currency: user.currency,
+          plan: user.plan_type,
+          reason: paymentIntent.last_payment_error?.message || 'Payment declined'
+        }
+      });
     }
 
     // Increment failed payments metric
@@ -159,7 +212,7 @@ const stripeWebhook = async (req, res) => {
     res.json({ received: true });
 
   } catch (error) {
-    console.error('Stripe webhook error:', error);
+    logger.error('Stripe webhook error:', error);
     res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
       success: false,
       error: 'Webhook processing failed'
@@ -196,7 +249,7 @@ const getStripeStatus = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Get Stripe status error:', error);
+    logger.error('Get Stripe status error:', error);
     res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
       success: false,
       error: ERROR_MESSAGES.SERVER_ERROR
@@ -274,7 +327,7 @@ const initiateMpesaPayment = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('M-Pesa STK Push error:', error);
+    logger.error('M-Pesa STK Push error:', error);
     res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
       success: false,
       error: error.message || ERROR_MESSAGES.SERVER_ERROR
@@ -288,7 +341,7 @@ const initiateMpesaPayment = async (req, res) => {
 const mpesaCallback = async (req, res) => {
   try {
     const callbackData = req.body;
-    console.log('📱 M-Pesa Callback:', JSON.stringify(callbackData, null, 2));
+    logger.info('📱 M-Pesa Callback:', JSON.stringify(callbackData, null, 2));
 
     const resultCode = callbackData.Body?.stkCallback?.ResultCode;
     const checkoutRequestId = callbackData.Body?.stkCallback?.CheckoutRequestID;
@@ -329,7 +382,32 @@ const mpesaCallback = async (req, res) => {
         [checkoutRequestId]
       );
 
-      console.log(`✅ M-Pesa payment ${checkoutRequestId} completed!`);
+      logger.info(`✅ M-Pesa payment ${checkoutRequestId} completed!`);
+
+    const mpesaUser = await global.pgPool.query(
+       `SELECT u.email, up.username, p.amount, p.plan_type
+        FROM payments p
+        JOIN users u ON p.user_id = u.id
+        LEFT JOIN user_profiles up ON u.id = up.user_id
+        WHERE p.mpesa_checkout_request_id = $1`,
+        [checkoutRequestId]
+      );
+      if (mpesaUser.rows.length > 0) {
+        const user = mpesaUser.rows[0];
+        await notificationQueue.add('payment_success', {
+          type: 'payment_success',
+          userId: user.id,
+          data: {
+            email: user.email,
+            username: user.username,
+            amount: user.amount,
+            currency: 'KES',
+            plan: user.plan_type,
+            payment_method: 'M-Pesa',
+            transaction_id: mpesaReceiptNumber
+          }
+        });
+      }
 
       // Increment revenue metric
       paymentsTotal.inc({ status: 'succeeded', provider: 'mpesa' });
@@ -362,8 +440,33 @@ const mpesaCallback = async (req, res) => {
         [resultCode.toString(), resultDesc, checkoutRequestId]
       );
 
-      console.log(`❌ M-Pesa payment ${checkoutRequestId} failed: ${resultDesc}`);
+      logger.warn(`❌ M-Pesa payment ${checkoutRequestId} failed: ${resultDesc}`);
     }
+
+      const mpesaUser = await global.pgPool.query(
+       `SELECT u.email, up.username, p.amount, p.plan_type
+        FROM payments p
+        JOIN users u ON p.user_id = u.id
+        LEFT JOIN user_profiles up ON u.id = up.user_id
+        WHERE p.mpesa_checkout_request_id = $1`,
+        [checkoutRequestId]
+      );
+      if (mpesaUser.rows.length > 0) {
+        const user = mpesaUser.rows[0];
+        await notificationQueue.add('payment_failed', {
+          type: 'payment_failed',
+          userId: user.id,
+          data: {
+            email: user.email,
+            username: user.username,
+            amount: user.amount,
+            currency: 'KES',
+            plan: user.plan_type,
+            payment_method: 'M-Pesa',
+            transaction_id: mpesaReceiptNumber
+          }
+        });
+      }
 
     failedPayments.inc({ provider: 'mpesa' });
     paymentsTotal.inc({ status: 'failed', provider: 'mpesa' });
@@ -371,7 +474,7 @@ const mpesaCallback = async (req, res) => {
     res.json({ ResultCode: 0, ResultDesc: 'Success' });
 
   } catch (error) {
-    console.error('M-Pesa callback error:', error);
+    logger.error('M-Pesa callback error:', error);
     res.json({ ResultCode: 1, ResultDesc: 'Failed' });
   }
 };
@@ -409,7 +512,7 @@ const getMpesaStatus = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Get M-Pesa status error:', error);
+    logger.error('Get M-Pesa status error:', error);
     res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
       success: false,
       error: ERROR_MESSAGES.SERVER_ERROR
@@ -488,7 +591,7 @@ const createCryptoPayment = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Create crypto payment error:', error);
+    logger.error('Create crypto payment error:', error);
     res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
       success: false,
       error: error.message || ERROR_MESSAGES.SERVER_ERROR
@@ -504,7 +607,7 @@ const cryptoWebhook = async (req, res) => {
     const signature = req.headers['x-nowpayments-sig'];
     const payload = req.body;
 
-    console.log('🪙 Crypto Webhook:', JSON.stringify(payload, null, 2));
+    logger.info('🪙 Crypto Webhook:', JSON.stringify(payload, null, 2));
 
     // Verify signature
     const isValid = cryptoService.verifyIPNSignature(signature, payload);
@@ -549,7 +652,33 @@ const cryptoWebhook = async (req, res) => {
         'UPDATE payments SET status = $1, paid_at = NOW() WHERE id = $2',
         ['succeeded', paymentId]
       );
-      console.log(`✅ Crypto payment ${paymentId} completed!`);
+      logger.info(`✅ Crypto payment ${paymentId} completed!`);
+
+      const cryptoUser = await global.pgPool.query(
+       `SELECT u.email, up.username, p.amount, p.currency, p.plan_type
+        FROM payments p
+        JOIN users u ON p.user_id = u.id
+        LEFT JOIN user_profiles up ON u.id = up.user_id
+        WHERE p.id = $1`,
+        [paymentId]
+      );
+      if (cryptoUser.rows.length > 0) {
+        const user = cryptoUser.rows[0];
+        await notificationQueue.add('payment_success', {
+          type: 'payment_success',
+          userId: user.id,
+          data: {
+            email: user.email,
+            username: user.username,
+            amount: user.amount,
+            currency: user.currency,
+            plan: user.plan_type,
+            payment_method: 'Crypto',
+            transaction_id: payload.payin_hash
+          }
+        });
+      }
+
       paymentsTotal.inc({ status: 'succeeded', provider: 'crypto' });
       revenueTotal.inc({ provider: 'crypto' }, payload.price_amount);
     } 
@@ -560,7 +689,7 @@ const cryptoWebhook = async (req, res) => {
         'UPDATE payments SET status = $1, failed_at = NOW() WHERE id = $2',
         ['failed', paymentId]
       );
-      console.log(`❌ Crypto payment ${paymentId} ${paymentStatus}`);
+      logger.warn(`❌ Crypto payment ${paymentId} ${paymentStatus}`);
       paymentsTotal.inc({ status: 'failed', provider: 'crypto' });
       failedPayments.inc({ provider: 'crypto' });
     }
@@ -568,7 +697,7 @@ const cryptoWebhook = async (req, res) => {
     res.json({ success: true });
 
   } catch (error) {
-    console.error('Crypto webhook error:', error);
+    logger.error('Crypto webhook error:', error);
     res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
       success: false,
       error: 'Webhook processing failed'
@@ -611,7 +740,7 @@ const getCryptoStatus = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Get crypto status error:', error);
+    logger.error('Get crypto status error:', error);
     res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
       success: false,
       error: ERROR_MESSAGES.SERVER_ERROR
@@ -632,7 +761,7 @@ const getCryptoCurrencies = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Get crypto currencies error:', error);
+    logger.error('Get crypto currencies error:', error);
     res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
       success: false,
       error: ERROR_MESSAGES.SERVER_ERROR
@@ -657,7 +786,7 @@ const getPaymentMethods = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Get payment methods error:', error);
+    logger.error('Get payment methods error:', error);
     res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
       success: false,
       error: ERROR_MESSAGES.SERVER_ERROR
@@ -677,7 +806,7 @@ const setDefaultPaymentMethod = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Set default error:', error);
+    logger.error('Set default error:', error);
     res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
       success: false,
       error: ERROR_MESSAGES.SERVER_ERROR
@@ -697,7 +826,7 @@ const deletePaymentMethod = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Delete payment method error:', error);
+    logger.error('Delete payment method error:', error);
     res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
       success: false,
       error: ERROR_MESSAGES.SERVER_ERROR
@@ -758,7 +887,7 @@ const getPaymentHistory = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Get payment history error:', error);
+    logger.error('Get payment history error:', error);
     res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
       success: false,
       error: ERROR_MESSAGES.SERVER_ERROR

@@ -1,6 +1,8 @@
 // backend/src/api/controllers/watchParty.controller.js
 const { HTTP_STATUS, ERROR_MESSAGES } = require('../../utils/constants');
 const { watchPartiesTotal, watchPartyParticipants } = require('../../config/metrics');
+const logger = require('../../utils/logger');
+const { notificationQueue } = require('../../jobs/queues');
 
 
 // Helper to normalize content type
@@ -79,7 +81,7 @@ const createWatchParty = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Create watch party error:', error);
+    logger.error('Create watch party error:', error);
     res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
       success: false,
       error: ERROR_MESSAGES.SERVER_ERROR
@@ -152,6 +154,33 @@ const joinWatchParty = async (req, res) => {
 
     watchPartyParticipants.inc({ partyCode });
 
+    const hostResult = await global.pgPool.query(
+     `SELECT u.email, up.username as host_name,
+             ju.email as joiner_email, jup.username as joiner_name
+      FROM watch_parties wp
+      JOIN users u ON wp.host_user_id = u.id
+      LEFT JOIN user_profiles up ON u.id = up.user_id
+      JOIN users ju ON ju.id = $2
+      LEFT JOIN user_profiles jup ON ju.id = jup.user_id
+      WHERE wp.id = $1`,
+      [party.id, userId]
+    );
+    if (hostResult.rows.length > 0) {
+      const info = hostResult.rows[0];
+      await notificationQueue.add('watch_party_invite', {
+        type: 'watch_party_invite',
+        userId,
+        data: {
+          email: info.joiner_email,
+          username: info.joiner_name,
+          host_name: info.host_name,
+          party_code: partyCode,
+          content_title: party.title,
+          start_time: 'Now'
+        }
+      });
+    }
+
     res.json({
       success: true,
       message: 'Joined watch party successfully',
@@ -162,7 +191,7 @@ const joinWatchParty = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Join watch party error:', error);
+    logger.error('Join watch party error:', error);
     res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
       success: false,
       error: ERROR_MESSAGES.SERVER_ERROR
@@ -202,7 +231,7 @@ const leaveWatchParty = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Leave watch party error:', error);
+    logger.error('Leave watch party error:', error);
     res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
       success: false,
       error: ERROR_MESSAGES.SERVER_ERROR
@@ -257,7 +286,7 @@ const getWatchParty = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Get watch party error:', error);
+    logger.error('Get watch party error:', error);
     res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
       success: false,
       error: ERROR_MESSAGES.SERVER_ERROR
@@ -323,7 +352,7 @@ const getMyWatchParties = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Get my watch parties error:', error);
+    logger.error('Get my watch parties error:', error);
     res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
       success: false,
       error: ERROR_MESSAGES.SERVER_ERROR
@@ -379,7 +408,7 @@ const endWatchParty = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('End watch party error:', error);
+    logger.error('End watch party error:', error);
     res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
       success: false,
       error: ERROR_MESSAGES.SERVER_ERROR

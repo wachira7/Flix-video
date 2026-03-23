@@ -5,6 +5,8 @@
 const { HTTP_STATUS, ERROR_MESSAGES } = require('../../utils/constants');
 const { uploadToS3, deleteFromS3, generateUniqueFilename } = require('../../utils/s3');
 const multer = require('multer');
+const WatchHistory = require('../../models/watchHistory.model');
+const logger = require('../../utils/logger');
 // const { createClient } = require('@supabase/supabase-js');
 
 // const supabase = createClient(
@@ -392,11 +394,152 @@ const changePassword = async (req, res) => {
   }
 };
 
+// @desc    Save/update watch progress
+// @route   POST /api/users/watch-progress
+// @access  Private
+const updateWatchProgress = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const {
+      content_type,
+      content_id,
+      progress_seconds,
+      duration_seconds,
+      completed = false,
+      season_number = null,
+      episode_number = null,
+      quality = 'HD'
+    } = req.body;
+ 
+    if (!content_type || !content_id || progress_seconds === undefined) {
+      return res.status(400).json({
+        success: false,
+        error: 'content_type, content_id and progress_seconds are required'
+      });
+    }
+ 
+    const record = await WatchHistory.upsert({
+      userId,
+      contentType: content_type,
+      contentId: content_id,
+      progressSeconds: progress_seconds,
+      durationSeconds: duration_seconds,
+      completed,
+      seasonNumber: season_number,
+      episodeNumber: episode_number,
+      quality
+    });
+ 
+    res.json({ success: true, watch_progress: record });
+ 
+  } catch (error) {
+    logger.error('Update watch progress error', { error: error.message });
+    res.status(500).json({ success: false, error: 'Failed to update watch progress' });
+  }
+};
+ 
+// @desc    Get user's watch history
+// @route   GET /api/users/watch-history
+// @access  Private
+const getWatchHistory = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { limit = 20, content_type } = req.query;
+ 
+    const history = await WatchHistory.getByUser(userId, {
+      limit: parseInt(limit),
+      contentType: content_type || null
+    });
+ 
+    res.json({ success: true, history });
+ 
+  } catch (error) {
+    logger.error('Get watch history error', { error: error.message });
+    res.status(500).json({ success: false, error: 'Failed to get watch history' });
+  }
+};
+ 
+// @desc    Get continue watching list
+// @route   GET /api/users/continue-watching
+// @access  Private
+const getContinueWatching = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { limit = 10 } = req.query;
+ 
+    const list = await WatchHistory.getContinueWatching(userId, parseInt(limit));
+ 
+    res.json({ success: true, continue_watching: list });
+ 
+  } catch (error) {
+    logger.error('Get continue watching error', { error: error.message });
+    res.status(500).json({ success: false, error: 'Failed to get continue watching list' });
+  }
+};
+ 
+// @desc    Get watch progress for a specific content
+// @route   GET /api/users/watch-progress/:contentType/:contentId
+// @access  Private
+const getWatchProgress = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { contentType, contentId } = req.params;
+ 
+    const progress = await WatchHistory.getProgress(userId, contentId, contentType);
+ 
+    res.json({ success: true, progress: progress || null });
+ 
+  } catch (error) {
+    logger.error('Get watch progress error', { error: error.message });
+    res.status(500).json({ success: false, error: 'Failed to get watch progress' });
+  }
+};
+ 
+// @desc    Delete a watch history entry
+// @route   DELETE /api/users/watch-history/:contentType/:contentId
+// @access  Private
+const deleteWatchHistory = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { contentType, contentId } = req.params;
+ 
+    await WatchHistory.delete(userId, contentId, contentType);
+ 
+    res.json({ success: true, message: 'Watch history entry removed' });
+ 
+  } catch (error) {
+    logger.error('Delete watch history error', { error: error.message });
+    res.status(500).json({ success: false, error: 'Failed to delete watch history' });
+  }
+};
+ 
+// @desc    Clear all watch history
+// @route   DELETE /api/users/watch-history
+// @access  Private
+const clearWatchHistory = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    await WatchHistory.clearAll(userId);
+    res.json({ success: true, message: 'Watch history cleared' });
+ 
+  } catch (error) {
+    logger.error('Clear watch history error', { error: error.message });
+    res.status(500).json({ success: false, error: 'Failed to clear watch history' });
+  }
+};
+
+
 module.exports = {
   getMyProfile,
   updateProfile,
   uploadAvatar,
   upload,
   deleteAvatar,
-  changePassword
+  changePassword,
+  updateWatchProgress,    
+  getWatchHistory,        
+  getContinueWatching,    
+  getWatchProgress,       
+  deleteWatchHistory,     
+  clearWatchHistory   
 };

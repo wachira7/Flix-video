@@ -1,4 +1,6 @@
 const { Resend } = require('resend');
+const logger = require('../utils/logger');
+
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -111,14 +113,14 @@ const sendPasswordResetEmail = async (email, resetToken, resetUrl) => {
     });
 
     if (error) {
-      console.error('❌ Resend email error:', error);
+      logger.error('❌ Resend email error:', error);
       return false;
     }
 
-    console.log(`✅ Password reset email sent to ${email}`, data);
+    logger.info(`✅ Password reset email sent to ${email}`, data);
     return true;
   } catch (error) {
-    console.error('❌ Email send error:', error);
+    logger.error('❌ Email send error:', error);
     return false;
   }
 };
@@ -244,14 +246,14 @@ const sendWelcomeEmail = async (email, username) => {
     });
 
     if (error) {
-      console.error('❌ Welcome email error:', error);
+      logger.error('❌ Welcome email error:', error);
       return false;
     }
 
-    console.log(`✅ Welcome email sent to ${email}`, data);
+    logger.info(`✅ Welcome email sent to ${email}`, data);
     return true;
   } catch (error) {
-    console.error('❌ Welcome email send error:', error);
+    logger.error('❌ Welcome email send error:', error);
     return false;
   }
 };
@@ -289,14 +291,14 @@ const sendVerificationEmail = async (email, verificationUrl) => {
     });
 
     if (error) {
-      console.error('❌ Verification email error:', error);
+      logger.error('❌ Verification email error:', error);
       return false;
     }
 
-    console.log(`✅ Verification email sent to ${email}`, data);
+    logger.info(`✅ Verification email sent to ${email}`, data);
     return true;
   } catch (error) {
-    console.error('❌ Verification email send error:', error);
+    logger.error('❌ Verification email send error:', error);
     return false;
   }
 };

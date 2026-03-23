@@ -3,6 +3,8 @@ const { HTTP_STATUS, ERROR_MESSAGES } = require('../../utils/constants');
 const { PLANS, getPlan, isValidUpgrade, isValidDowngrade } = require('../../config/plans');
 const { getUserSubscription } = require('../middlewares/subscription.middleware');
 const { subscriptionChanges, subscriptionsByTier } = require('../../config/metrics');
+const logger = require('../../utils/logger');
+const { notificationQueue } = require('../../jobs/queues');
 
 // @desc    Get all subscription plans
 // @route   GET /api/subscriptions/plans
@@ -25,7 +27,7 @@ const getPlans = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Get plans error:', error);
+    logger.error('Get plans error:', error);
     res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
       success: false,
       error: ERROR_MESSAGES.SERVER_ERROR
@@ -53,7 +55,7 @@ const getMySubscription = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Get my subscription error:', error);
+    logger.error('Get my subscription error:', error);
     res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
       success: false,
       error: ERROR_MESSAGES.SERVER_ERROR
@@ -156,7 +158,7 @@ const upgradeSubscription = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Upgrade subscription error:', error);
+    logger.error('Upgrade subscription error:', error);
     res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
       success: false,
       error: ERROR_MESSAGES.SERVER_ERROR
@@ -192,6 +194,32 @@ const cancelSubscription = async (req, res) => {
       [reason, subscription.id]
     );
 
+
+    const subUser = await global.pgPool.query(
+     `SELECT u.email, up.username, s.current_period_end
+      FROM subscriptions s
+      JOIN users u ON s.user_id = u.id
+      LEFT JOIN user_profiles up ON u.id = up.user_id
+      WHERE s.id = $1`,
+      [subscription.id]
+    );
+    if (subUser.rows.length > 0) {
+      const user = subUser.rows[0];
+      await notificationQueue.add('subscription_expiring', {
+        type: 'subscription_expiring',
+        userId,
+        data: {
+          email: user.email,
+          username: user.username,
+          plan: subscription.plan_type,
+          expiry_date: new Date(user.current_period_end).toLocaleDateString(),
+          days_remaining: Math.ceil(
+            (new Date(user.current_period_end) - new Date()) / (1000 * 60 * 60 * 24)
+          )
+        }
+      });
+    }
+
     res.json({
       success: true,
       message: 'Subscription cancelled. You will retain access until the end of your billing period.',
@@ -199,7 +227,7 @@ const cancelSubscription = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Cancel subscription error:', error);
+    logger.error('Cancel subscription error:', error);
     res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
       success: false,
       error: ERROR_MESSAGES.SERVER_ERROR
@@ -249,7 +277,7 @@ const getUsageStats = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Get usage stats error:', error);
+    logger.error('Get usage stats error:', error);
     res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
       success: false,
       error: ERROR_MESSAGES.SERVER_ERROR
@@ -306,7 +334,7 @@ const activateSubscription = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Activate subscription error:', error);
+    logger.error('Activate subscription error:', error);
     res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
       success: false,
       error: ERROR_MESSAGES.SERVER_ERROR
@@ -337,7 +365,7 @@ const canPerformAction = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Can perform action error:', error);
+    logger.error('Can perform action error:', error);
     res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
       success: false,
       error: ERROR_MESSAGES.SERVER_ERROR

@@ -1,13 +1,13 @@
 // src/jobs/analytics.job.js
 const { Worker } = require('bullmq');
-
+const logger = require('../utils/logger');
 const { connection } = require('./queues');
 
 // Worker to aggregate daily analytics
 const analyticsWorker = new Worker(
   'analytics',
   async (job) => {
-    console.log('📊 Running daily analytics aggregation...');
+    logger.info('📊 Running daily analytics aggregation...');
 
     try {
       const today = new Date().toISOString().split('T')[0];
@@ -66,7 +66,7 @@ const analyticsWorker = new Worker(
         });
       }
 
-      console.log('📊 Analytics aggregated:', stats);
+      logger.info('📊 Analytics aggregated:', stats);
       return stats;
 
     } catch (error) {
@@ -82,11 +82,11 @@ const analyticsWorker = new Worker(
 );
 
 analyticsWorker.on('completed', (job) => {
-  console.log(`✅ Analytics aggregation completed`);
+  logger.info(`✅ Analytics aggregation completed`);
 });
 
 analyticsWorker.on('failed', (job, err) => {
-  console.error(`❌ Analytics aggregation failed:`, err.message);
+  logger.error(`❌ Analytics aggregation failed:`, err.message);
 });
 
 module.exports = analyticsWorker;

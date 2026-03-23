@@ -1,5 +1,6 @@
 //backend/src/integrations/crypto/nowpayments/index.js
 const axios = require('axios');
+const logger = require('../../../utils/logger');
 
 const NOWPAYMENTS_API_URL = process.env.NOWPAYMENTS_ENVIRONMENT === 'sandbox'
   ? 'https://api-sandbox.nowpayments.io/v1'
@@ -26,7 +27,7 @@ const getAvailableCurrencies = async () => {
     };
 
   } catch (error) {
-    console.error('Get currencies error:', error.response?.data || error.message);
+    logger.error('Get currencies error:', error.response?.data || error.message);
     throw new Error('Failed to get available currencies');
   }
 };
@@ -55,7 +56,7 @@ const getEstimatedPrice = async (amount, currency_from, currency_to) => {
     };
 
   } catch (error) {
-    console.error('Estimate price error:', error.response?.data || error.message);
+    logger.error('Estimate price error:', error.response?.data || error.message);
     throw new Error('Failed to estimate price');
   }
 };
@@ -101,7 +102,7 @@ const createPayment = async (price_amount, price_currency, pay_currency, order_i
     };
 
   } catch (error) {
-    console.error('Create payment error:', error.response?.data || error.message);
+    logger.error('Create payment error:', error.response?.data || error.message);
     throw new Error(error.response?.data?.message || 'Failed to create crypto payment');
   }
 };
@@ -126,7 +127,7 @@ const getPaymentStatus = async (payment_id) => {
     };
 
   } catch (error) {
-    console.error('Get payment status error:', error.response?.data || error.message);
+    logger.error('Get payment status error:', error.response?.data || error.message);
     throw new Error('Failed to get payment status');
   }
 };

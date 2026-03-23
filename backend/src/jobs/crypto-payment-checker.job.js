@@ -1,6 +1,7 @@
 // src/jobs/crypto-payment-checker.job.js
 const { Worker } = require('bullmq');
 const cryptoService = require('../integrations/crypto/nowpayments');
+const logger = require('../utils/logger');
 
 const { connection } = require('./queues');
 
@@ -8,7 +9,7 @@ const { connection } = require('./queues');
 const cryptoPaymentWorker = new Worker(
   'crypto-payment-checker',
   async (job) => {
-    console.log('🪙 Checking pending crypto payments...');
+    logger.info('🪙 Checking pending crypto payments...');
 
     try {
       // Get all pending crypto payments
@@ -21,7 +22,7 @@ const cryptoPaymentWorker = new Worker(
          AND p.created_at > NOW() - INTERVAL '7 days'`
       );
 
-      console.log(`Found ${result.rows.length} pending crypto payments`);
+      logger.info(`Found ${result.rows.length} pending crypto payments`);
 
       let updated = 0;
       for (const payment of result.rows) {
@@ -59,26 +60,26 @@ const cryptoPaymentWorker = new Worker(
                 'UPDATE payments SET status = $1, paid_at = NOW() WHERE id = $2',
                 ['succeeded', payment.id]
               );
-              console.log(`✅ Payment ${payment.id} completed`);
+              logger.info(`✅ Payment ${payment.id} completed`);
               updated++;
             } else if (['failed', 'expired', 'refunded'].includes(newStatus)) {
               await global.pgPool.query(
                 'UPDATE payments SET status = $1, failed_at = NOW() WHERE id = $2',
                 ['failed', payment.id]
               );
-              console.log(`❌ Payment ${payment.id} failed`);
+              logger.info(`❌ Payment ${payment.id} failed`);
               updated++;
             }
           }
         } catch (error) {
-          console.error(`Error checking payment ${payment.id}:`, error.message);
+          logger.error(`Error checking payment ${payment.id}:`, error.message);
         }
       }
 
       return { checked: result.rows.length, updated };
 
     } catch (error) {
-      console.error('Crypto payment checker error:', error);
+      logger.error('Crypto payment checker error:', error);
       throw error;
     }
   },
@@ -90,11 +91,11 @@ const cryptoPaymentWorker = new Worker(
 );
 
 cryptoPaymentWorker.on('completed', (job) => {
-  console.log(`✅ Crypto payment check completed: ${JSON.stringify(job.returnvalue)}`);
+  logger.info(`✅ Crypto payment check completed: ${JSON.stringify(job.returnvalue)}`);
 });
 
 cryptoPaymentWorker.on('failed', (job, err) => {
-  console.error(`❌ Crypto payment check failed:`, err.message);
+  logger.error(`❌ Crypto payment check failed:`, err.message);
 });
 
 module.exports = cryptoPaymentWorker;

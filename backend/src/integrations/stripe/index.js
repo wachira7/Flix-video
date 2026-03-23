@@ -1,5 +1,6 @@
 // backend/src/integrations/stripe/index.js
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+const logger = require('../../utils/logger');
 
 /**
  * Create Stripe Checkout Session
@@ -35,7 +36,7 @@ const createCheckoutSession = async (userId, amount, currency, metadata) => {
     };
 
   } catch (error) {
-    console.error('Stripe checkout error:', error);
+    logger.error('Stripe checkout error:', error);
     throw new Error('Failed to create Stripe checkout session');
   }
 };
@@ -52,7 +53,7 @@ const verifyWebhookSignature = (payload, signature) => {
     );
     return { success: true, event };
   } catch (error) {
-    console.error('Webhook signature verification failed:', error.message);
+    logger.error('Webhook signature verification failed:', error.message);
     return { success: false, error: error.message };
   }
 };
@@ -68,7 +69,7 @@ const getCheckoutSession = async (sessionId) => {
       session
     };
   } catch (error) {
-    console.error('Get session error:', error);
+    logger.error('Get session error:', error);
     throw new Error('Failed to retrieve session');
   }
 };
@@ -88,7 +89,7 @@ const createRefund = async (paymentIntentId, amount) => {
       refund
     };
   } catch (error) {
-    console.error('Refund error:', error);
+    logger.error('Refund error:', error);
     throw new Error('Failed to create refund');
   }
 };
@@ -104,7 +105,7 @@ const cancelPaymentIntent = async (paymentIntentId) => {
       paymentIntent
     };
   } catch (error) {
-    console.error('Cancel payment error:', error);
+    logger.error('Cancel payment error:', error);
     throw new Error('Failed to cancel payment');
   }
 };

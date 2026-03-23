@@ -1,5 +1,6 @@
 // src/jobs/index.js
 const { startScheduler, stopScheduler } = require('./scheduler');
+const logger = require('../utils/logger');
 
 // Import all workers
 const cryptoPaymentWorker = require('./crypto-payment-checker.job');
@@ -15,20 +16,20 @@ let scheduledJobs = null;
  * Start all background jobs
  */
 async function startJobs() {
-  console.log('🚀 Starting background job system...');
+  logger.info('🚀 Starting background job system...');
 
   try {
     // Start the scheduler
     scheduledJobs = startScheduler();
 
-    console.log('✅ All workers are running!');
-    console.log('📋 Active workers:');
-    console.log('   🪙 Crypto Payment Checker');
-    console.log('   📊 Analytics Aggregator');
-    console.log('   🧹 Data Cleanup');
-    console.log('   �� AI Recommendations');
-    console.log('   📧 Notification Sender');
-    console.log('   💱 Exchange Rate Updater');
+    logger.info('✅ All workers are running!');
+    logger.info('📋 Active workers:');
+    logger.info('   🪙 Crypto Payment Checker');
+    logger.info('   📊 Analytics Aggregator');
+    logger.info('   🧹 Data Cleanup');
+    logger.info('    AI Recommendations');
+    logger.info('   📧 Notification Sender');
+    logger.info('   💱 Exchange Rate Updater');
 
     return {
       workers: {
@@ -43,7 +44,7 @@ async function startJobs() {
     };
 
   } catch (error) {
-    console.error('❌ Failed to start job system:', error);
+    logger.error('❌ Failed to start job system:', error);
     throw error;
   }
 }
@@ -52,7 +53,7 @@ async function startJobs() {
  * Stop all background jobs
  */
 async function stopJobs() {
-  console.log('⏸️  Stopping background job system...');
+  logger.info('⏸️  Stopping background job system...');
 
   try {
     // Stop scheduler
@@ -66,22 +67,22 @@ async function stopJobs() {
     await notificationWorker.close();
     await exchangeRateWorker.close();
 
-    console.log('✅ All workers stopped');
+    logger.info('✅ All workers stopped');
 
   } catch (error) {
-    console.error('❌ Error stopping jobs:', error);
+    logger.error('❌ Error stopping jobs:', error);
   }
 }
 
 // Graceful shutdown
 process.on('SIGTERM', async () => {
-  console.log('📴 Received SIGTERM, shutting down gracefully...');
+  logger.info('📴 Received SIGTERM, shutting down gracefully...');
   await stopJobs();
   process.exit(0);
 });
 
 process.on('SIGINT', async () => {
-  console.log('📴 Received SIGINT, shutting down gracefully...');
+  logger.info('📴 Received SIGINT, shutting down gracefully...');
   await stopJobs();
   process.exit(0);
 });

@@ -1,7 +1,8 @@
+// frontend/components/landing/stats-section.tsx
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { Users, Film, Star, Zap } from 'lucide-react';
+import { Users, Film, Star, Zap, CreditCard } from 'lucide-react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -18,11 +19,11 @@ const stats = [
     description: 'Extensive content TMDB database',
   },
   {
-    icon: Users,
-    value: 50000,
-    suffix: '+',
-    label: 'Active Users',
-    description: 'Growing community',
+    icon: CreditCard,
+    value: 3,
+    suffix: 'Plans',
+    label: 'Subscription Tiers',
+    description: 'Free, Basic & Premium options',
   },
   {
     icon: Star,
