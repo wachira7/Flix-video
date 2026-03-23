@@ -9,7 +9,7 @@ services:
     container_name: flixvideo-postgres
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: flixvideo
     ports:
       - "5432:5432"

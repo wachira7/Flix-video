@@ -1,7 +1,7 @@
 //backend/src/services/ai.service.js
 const OpenAIProvider = require('./ai-providers/openai.provider');
 const ClaudeProvider = require('./ai-providers/claude.provider');
-const logger = require('../../utils/logger');
+const logger = require('../utils/logger');
 const AIConversation = require('../models/aiConversation.model');
 
 // Initialize providers
