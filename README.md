@@ -235,7 +235,7 @@ Full documentation available at `/api-docs` (Swagger UI).
 
 | Gateway | Method | Currency | Status |
 | --------|--------|----------|--------|
-| Stripe | Card | USD/KES | ✅ Production |
+| Stripe | Card | USD/KES | ✅ Sandbox |
 | M-Pesa | Mobile Money | KES | ✅ Sandbox |
 | NOWPayments | Crypto (BTC, ETH, USDT) | USD | ✅ Sandbox |
 
