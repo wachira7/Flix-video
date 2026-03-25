@@ -13,6 +13,9 @@ const { errorHandler, notFoundHandler } = require('./src/api/middlewares/error-h
 
 const app = express();
 
+// Trust proxy for rate limiting and secure cookies
+app.set('trust proxy', 1);
+
 // ─── Security Middleware ───────────────────────────────────────────
 app.use(helmet());
 app.use(cors());

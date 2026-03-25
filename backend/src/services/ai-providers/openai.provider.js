@@ -19,7 +19,7 @@ class OpenAIProvider extends BaseAIProvider {
 
     try {
       const completion = await this.client.chat.completions.create({
-        model: 'gpt-4o-mini',
+        model: 'gpt-5.3-instant',
         messages: [
           {
             role: 'system',
@@ -44,7 +44,7 @@ class OpenAIProvider extends BaseAIProvider {
         summary: response.summary || '',
         tokens_used: completion.usage.total_tokens,
         cost_estimate: this.calculateCost(completion.usage.total_tokens),
-        model: 'gpt-4o-mini'
+        model: 'gpt-5.3-instant'
       };
 
     } catch (error) {
@@ -53,6 +53,37 @@ class OpenAIProvider extends BaseAIProvider {
     }
   }
 
+  async chat(messages, context = {}) {
+    if (!this.isConfigured()) {
+      throw new Error('OpenAI API key not configured');
+    }
+
+    const systemPrompt = context.systemPrompt ||
+      `You are an expert AI assistant for FlixVideo, a movie and TV discovery platform.
+      Help users find movies and TV shows, answer questions about content,
+      and provide personalized recommendations. Be conversational and helpful.`;
+
+    try {
+      const completion = await this.client.chat.completions.create({
+        model: 'gpt-5.3-instant',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          ...messages
+        ],
+        max_tokens: 1000,
+        temperature: 0.7
+      });
+
+      return {
+        content: completion.choices[0].message.content,
+        provider: this.providerName,
+        tokens_used: completion.usage.total_tokens
+      };
+
+    } catch (error) {
+      throw new Error(`OpenAI chat failed: ${error.message}`);
+    }
+  }
   calculateCost(tokens) {
     const costPer1MTokens = 0.375;
     return ((tokens / 1000000) * costPer1MTokens).toFixed(6);

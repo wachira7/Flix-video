@@ -4,7 +4,7 @@ const logger = require('../../utils/logger');
 const AIConversation = require('../../models/aiConversation.model');
 const { redisClient } = require('../../config/cache')
 const { v4: uuidv4 } = require('uuid');
-
+const { getProviderStatus } = require('../../services/ai.service'); 
 // ─── AI Chat ──────────────────────────────────────────────────────
 
 // @desc    Send a message and get AI response
