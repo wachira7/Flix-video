@@ -114,9 +114,10 @@ const stripeWebhook = async (req, res) => {
     const event = verification.event;
 
     // Handle checkout.session.completed
+    let paymentId;
     if (event.type === 'checkout.session.completed') {
       const session = event.data.object;
-      const paymentId = session.metadata.payment_id;
+      paymentId = session.metadata.payment_id;
 
       // Update payment status
       await global.pgPool.query(
@@ -443,7 +444,7 @@ const mpesaCallback = async (req, res) => {
       logger.warn(`❌ M-Pesa payment ${checkoutRequestId} failed: ${resultDesc}`);
     }
 
-      const mpesaUser = await global.pgPool.query(
+      const mpesaFailedUser = await global.pgPool.query(
        `SELECT u.email, up.username, p.amount, p.plan_type
         FROM payments p
         JOIN users u ON p.user_id = u.id
@@ -451,8 +452,8 @@ const mpesaCallback = async (req, res) => {
         WHERE p.mpesa_checkout_request_id = $1`,
         [checkoutRequestId]
       );
-      if (mpesaUser.rows.length > 0) {
-        const user = mpesaUser.rows[0];
+      if (mpesaFailedUser.rows.length > 0) {
+        const user = mpesaFailedUser.rows[0];
         await notificationQueue.add('payment_failed', {
           type: 'payment_failed',
           userId: user.id,
