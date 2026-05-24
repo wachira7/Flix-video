@@ -33,6 +33,12 @@ export default function CallbackPage() {
       // ignore decode error
     }
 
+    // Redirect back to mobile app if request came from it
+    if (typeof navigator !== 'undefined' && /android|iphone|ipad/i.test(navigator.userAgent)) {
+      window.location.href = `flixvideo://callback?token=${token}`
+      return
+    }
+
     router.push('/dashboard')
   }, [searchParams])
 

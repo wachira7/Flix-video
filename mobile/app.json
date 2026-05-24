@@ -22,8 +22,10 @@
         "NSPhotoLibraryUsageDescription": "Allow FlixVideo to access your photo library for profile pictures"
       }
     },
+    "scheme": "flixvideo",
     "android": {
       "package": "com.warutech.flixvideo",
+      "softwareKeyboardLayoutMode": "pan",
       "adaptiveIcon": {
         "foregroundImage": "./src/assets/images/adaptive-icon.png",
         "backgroundColor": "#000000"
@@ -32,13 +34,20 @@
         "android.permission.CAMERA",
         "android.permission.READ_EXTERNAL_STORAGE",
         "android.permission.WRITE_EXTERNAL_STORAGE"
+      ],
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "data": [{ "scheme": "flixvideo" }],
+          "category": ["BROWSABLE", "DEFAULT"]
+        }
       ]
     },
     "web": {
       "favicon": "./src/assets/images/favicon.png"
     },
     "plugins": [
-      "expo-router",
       [
         "expo-camera",
         {
