@@ -1,41 +1,80 @@
-import React from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, Image, TouchableOpacity } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Star } from 'lucide-react-native';
+import { colors } from '../../theme/colors';
 
-interface Props {
+const TMDB_POSTER = 'https://image.tmdb.org/t/p/w342';
+
+const FALLBACK_GRADIENTS: [string, string][] = [
+  ['#9333EA', '#DB2777'],
+  ['#16191F', '#282E38'],
+  ['#7C3AED', '#EC4899'],
+  ['#1E2229', '#111318'],
+  ['#4C1D95', '#831843'],
+];
+
+interface MovieCardProps {
   id: number;
   title: string;
   posterPath: string | null;
-  voteAverage?: number;
-  onPress: (id: number) => void;
+  rating?: number;
+  cardWidth?: number;
+  cardHeight?: number;
+  onPress?: () => void;
+  index?: number;
 }
 
-export default function MovieCard({ id, title, posterPath, voteAverage, onPress }: Props) {
-  const imageUri = posterPath
-    ? `https://image.tmdb.org/t/p/w342${posterPath}`
-    : null;
+const MovieCard = React.memo(function MovieCard({
+  title,
+  posterPath,
+  rating,
+  cardWidth = 120,
+  cardHeight = 180,
+  onPress,
+  index = 0,
+}: MovieCardProps) {
+  const [errored, setErrored] = useState(false);
+  const grad = FALLBACK_GRADIENTS[index % FALLBACK_GRADIENTS.length];
 
   return (
-    <TouchableOpacity style={styles.container} onPress={() => onPress(id)} activeOpacity={0.8}>
-      {imageUri ? (
-        <Image source={{ uri: imageUri }} style={styles.poster} />
-      ) : (
-        <View style={[styles.poster, styles.placeholder]}>
-          <Text style={styles.placeholderText}>{title[0]}</Text>
-        </View>
-      )}
-      <Text style={styles.title} numberOfLines={2}>{title}</Text>
-      {voteAverage !== undefined && (
-        <Text style={styles.rating}>{voteAverage.toFixed(1)}</Text>
-      )}
+    <TouchableOpacity onPress={onPress} activeOpacity={0.85} style={{ width: cardWidth, marginRight: 12 }}>
+      <View style={{ borderRadius: 10, overflow: 'hidden', width: cardWidth, height: cardHeight }}>
+        {posterPath && !errored ? (
+          <Image
+            source={{ uri: `${TMDB_POSTER}${posterPath}` }}
+            style={{ width: cardWidth, height: cardHeight }}
+            onError={() => setErrored(true)}
+          />
+        ) : (
+          <LinearGradient
+            colors={grad}
+            style={{ width: cardWidth, height: cardHeight }}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+          />
+        )}
+
+        {rating !== undefined && rating > 0 && (
+          <View style={{
+            position: 'absolute', top: 6, right: 6,
+            backgroundColor: 'rgba(0,0,0,0.75)',
+            borderRadius: 6, paddingHorizontal: 5, paddingVertical: 2,
+            flexDirection: 'row', alignItems: 'center', gap: 2,
+          }}>
+            <Star size={9} color="#FFA00A" fill="#FFA00A" />
+            <Text style={{ color: '#fff', fontSize: 10, fontWeight: '700' }}>
+              {rating.toFixed(1)}
+            </Text>
+          </View>
+        )}
+      </View>
+
+      <Text numberOfLines={1} style={{ color: colors.foreground, fontSize: 12, fontWeight: '600', marginTop: 6 }}>
+        {title}
+      </Text>
     </TouchableOpacity>
   );
-}
-
-const styles = StyleSheet.create({
-  container: { width: 120, marginRight: 12 },
-  poster: { width: 120, height: 180, borderRadius: 8, backgroundColor: '#1a1a2e' },
-  placeholder: { alignItems: 'center', justifyContent: 'center' },
-  placeholderText: { color: '#fff', fontSize: 32, fontWeight: 'bold' },
-  title: { color: '#fff', fontSize: 12, marginTop: 6, fontWeight: '500' },
-  rating: { color: '#f5c518', fontSize: 11, marginTop: 2 },
 });
+
+export default MovieCard;

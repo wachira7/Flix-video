@@ -9,7 +9,7 @@
     "splash": {
       "image": "./src/assets/images/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#000000"
+      "backgroundColor": "#111318"
     },
     "assetBundlePatterns": [
       "**/*"
@@ -28,7 +28,7 @@
       "softwareKeyboardLayoutMode": "pan",
       "adaptiveIcon": {
         "foregroundImage": "./src/assets/images/adaptive-icon.png",
-        "backgroundColor": "#000000"
+        "backgroundColor": "#9333EA"
       },
       "permissions": [
         "android.permission.CAMERA",
