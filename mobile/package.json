@@ -54,6 +54,7 @@
     "expo-sharing": "~11.10.0",
     "expo-splash-screen": "~0.26.4",
     "expo-status-bar": "~1.11.1",
+    "expo-system-ui": "~2.9.4",
     "expo-web-browser": "~12.8.2",
     "jwt-decode": "^4.0.0",
     "lodash": "^4.17.21",

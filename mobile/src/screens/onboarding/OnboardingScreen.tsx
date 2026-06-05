@@ -8,7 +8,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import Animated, { FadeInDown, ZoomIn } from 'react-native-reanimated';
-import { Play, Heart, Search, Zap, ChevronRight } from 'lucide-react-native';
+import { Play, Heart, Search, ChevronRight } from 'lucide-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { colors } from '../../theme/colors';
@@ -30,7 +30,7 @@ interface Slide {
 const SLIDES: Slide[] = [
   {
     key: 'discover',
-    icon: Zap,
+    icon: Play,
     iconBg: ['#9333EA', '#DB2777'],
     title: 'Discover What\'s\nTrending',
     subtitle: 'Browse thousands of movies and TV shows. Stay on top of what everyone is watching right now.',
@@ -153,7 +153,7 @@ export default function OnboardingScreen() {
             start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
             style={{ borderRadius: 8, padding: 5 }}
           >
-            <Zap size={14} color="#fff" fill="#fff" />
+            <Play size={14} color="#fff" fill="#fff" />
           </LinearGradient>
           <Text style={{ color: colors.foreground, fontSize: 18, fontWeight: '800', letterSpacing: -0.5 }}>
             Flix<Text style={{ color: colors.primary }}>Video</Text>

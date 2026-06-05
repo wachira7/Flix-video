@@ -15,7 +15,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { Play, Info, Zap } from 'lucide-react-native';
+import { Play, Info } from 'lucide-react-native';
 import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
 
 import MovieCard from '../../components/content/MovieCard';
@@ -409,7 +409,7 @@ export default function HomeScreen() {
             start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
             style={{ borderRadius: 8, padding: 5 }}
           >
-            <Zap size={14} color="#fff" fill="#fff" />
+            <Play size={14} color="#fff" fill="#fff" />
           </LinearGradient>
           <Text style={{ color: colors.foreground, fontSize: 18, fontWeight: '800', letterSpacing: -0.5 }}>
             Flix<Text style={{ color: colors.primary }}>Video</Text>

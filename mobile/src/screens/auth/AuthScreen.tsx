@@ -29,7 +29,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
-  Eye, EyeOff, Mail, Lock, User, Zap,
+  Eye, EyeOff, Mail, Lock, User, Play,
   Check, X, ArrowLeft, CheckCircle2,
 } from 'lucide-react-native';
 import { useAuth } from '../../hooks/useAuth';
@@ -433,7 +433,7 @@ export default function AuthScreen() {
                   start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
                   style={{ borderRadius: 10, padding: 8 }}
                 >
-                  <Zap size={24} color="#fff" fill="#fff" />
+                  <Play size={24} color="#fff" fill="#fff" />
                 </LinearGradient>
                 <Text style={{ fontSize: 36, fontWeight: '800', color: colors.foreground, letterSpacing: -1 }}>
                   Flix<Text style={{ color: colors.primary }}>Video</Text>
