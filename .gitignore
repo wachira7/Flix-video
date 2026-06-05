@@ -80,6 +80,7 @@ credentials.txt
 tmp/
 temp/
 *.tmp
+structure.txt
 
 # AWS (just in case someone puts credentials here)
 .aws/
