@@ -230,7 +230,7 @@ const ContentRow = React.memo(function ContentRow({ section, onPressCard }: {
   section: Section;
   onPressCard: (movie: Movie, isTV: boolean) => void;
 }) {
-  const listRef = useRef<FlatList>(null);
+  const scrollRef = useRef<ScrollView>(null);
   const offsetRef = useRef(0);
   const userScrolling = useRef(false);
   const intervalRef = useRef<ReturnType<typeof setInterval>>();
@@ -239,14 +239,14 @@ const ContentRow = React.memo(function ContentRow({ section, onPressCard }: {
   const startScroll = useCallback(() => {
     clearInterval(intervalRef.current);
     intervalRef.current = setInterval(() => {
-      if (userScrolling.current || !listRef.current) return;
+      if (userScrolling.current || !scrollRef.current) return;
       const maxOffset = section.data.length * CARD_W;
       const next = offsetRef.current + SCROLL_STEP;
       if (next >= maxOffset - CARD_W * 3) {
-        listRef.current.scrollToOffset({ offset: 0, animated: true });
+        scrollRef.current.scrollTo({ x: 0, animated: true });
         offsetRef.current = 0;
       } else {
-        listRef.current.scrollToOffset({ offset: next, animated: true });
+        scrollRef.current.scrollTo({ x: next, animated: true });
         offsetRef.current = next;
       }
     }, SCROLL_INTERVAL);
@@ -258,20 +258,6 @@ const ContentRow = React.memo(function ContentRow({ section, onPressCard }: {
   }, [startScroll]);
 
   const isTV = !!section.isTV;
-  const sectionKey = section.key;
-
-  const renderItem = useCallback(({ item, index }: { item: Movie; index: number }) => (
-    <MovieCard
-      id={item.id}
-      title={item.title ?? item.name ?? ''}
-      posterPath={item.poster_path}
-      rating={item.vote_average}
-      index={index}
-      onPress={() => onPressCard(item, isTV)}
-    />
-  ), [onPressCard, isTV]);
-
-  const keyExtractor = useCallback((item: Movie) => `${sectionKey}-${item.id}`, [sectionKey]);
 
   return (
     <Animated.View entering={FadeInDown.duration(400).springify()} style={{ marginBottom: 28 }}>
@@ -281,10 +267,8 @@ const ContentRow = React.memo(function ContentRow({ section, onPressCard }: {
       }}>
         {section.label}
       </Text>
-      <FlatList
-        ref={listRef}
-        data={section.data}
-        keyExtractor={keyExtractor}
+      <ScrollView
+        ref={scrollRef}
         horizontal
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={{ paddingHorizontal: 16 }}
@@ -303,8 +287,19 @@ const ContentRow = React.memo(function ContentRow({ section, onPressCard }: {
         onMomentumScrollEnd={(e) => {
           offsetRef.current = e.nativeEvent.contentOffset.x;
         }}
-        renderItem={renderItem}
-      />
+      >
+        {section.data.map((item, index) => (
+          <MovieCard
+            key={`${section.key}-${item.id}`}
+            id={item.id}
+            title={item.title ?? item.name ?? ''}
+            posterPath={item.poster_path}
+            rating={item.vote_average}
+            index={index}
+            onPress={() => onPressCard(item, isTV)}
+          />
+        ))}
+      </ScrollView>
     </Animated.View>
   );
 });

@@ -8,11 +8,16 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import {
   Settings, Bell, CreditCard, Shield, HelpCircle,
-  LogOut, ChevronRight, Crown,
+  LogOut, ChevronRight, Crown, Sparkles, Clock,
 } from 'lucide-react-native';
 
 import { colors } from '../../theme/colors';
 import { useAuth } from '../../hooks/useAuth';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../../types/navigation';
+
+type NavProp = NativeStackNavigationProp<RootStackParamList>;
 
 interface MenuItem {
   icon: any;
@@ -56,13 +61,14 @@ const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://10.0.2.2:5000';
 
 export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
+  const navigation = useNavigation<NavProp>();
   const { user, token, signOut } = useAuth();
   const [signingOut, setSigningOut] = useState(false);
   const [planLabel, setPlanLabel] = useState('Free Plan');
 
   useEffect(() => {
     if (!token) return;
-    fetch(`${API_URL}/api/subscription/my-subscription`, {
+    fetch(`${API_URL}/api/subscriptions/my-subscription`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then(r => r.json())
@@ -91,16 +97,18 @@ export default function ProfileScreen() {
     {
       title: 'Account',
       items: [
-        { icon: CreditCard, label: 'Subscription', sublabel: 'Manage your plan', onPress: () => {} },
-        { icon: Bell,        label: 'Notifications',  sublabel: 'Push & email preferences', onPress: () => {} },
-        { icon: Shield,      label: 'Privacy & Security', onPress: () => {} },
-        { icon: Settings,    label: 'Settings',       onPress: () => {} },
+        { icon: Sparkles,    label: 'AI Assistant',    sublabel: 'Get personalised recommendations', onPress: () => navigation.navigate('AIChat') },
+        { icon: Clock,       label: 'Watch History',   sublabel: 'See what you\'ve watched', onPress: () => navigation.navigate('WatchHistory') },
+        { icon: CreditCard,  label: 'Subscription',    sublabel: 'Manage your plan', onPress: () => navigation.navigate('Subscription') },
+        { icon: Bell,        label: 'Notifications',   sublabel: 'Push & email preferences', onPress: () => navigation.navigate('NotificationSettings') },
+        { icon: Shield,      label: 'Privacy & Security', onPress: () => navigation.navigate('Settings') },
+        { icon: Settings,    label: 'Settings',        onPress: () => navigation.navigate('Settings') },
       ],
     },
     {
       title: 'Support',
       items: [
-        { icon: HelpCircle, label: 'Help & Support', onPress: () => {} },
+        { icon: HelpCircle, label: 'Help & Support', onPress: () => Alert.alert('Help & Support', 'Email us at support@flixvideo.com') },
       ],
     },
     {

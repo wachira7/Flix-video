@@ -14,6 +14,12 @@ import LibraryScreen from '../screens/library/LibraryScreen';
 import MovieDetailScreen from '../screens/movie/MovieDetailScreen';
 import TVDetailScreen from '../screens/tv/TVDetailScreen';
 import OnboardingScreen, { ONBOARDING_KEY } from '../screens/onboarding/OnboardingScreen';
+import SettingsScreen from '../screens/settings/SettingsScreen';
+import EditProfileScreen from '../screens/profile/EditProfileScreen';
+import NotificationSettingsScreen from '../screens/settings/NotificationSettingsScreen';
+import SubscriptionPlansScreen from '../screens/payments/SubscriptionPlansScreen';
+import AIChatScreen from '../screens/ai/AIChatScreen';
+import WatchHistoryScreen from '../screens/history/WatchHistoryScreen';
 
 import { useAuth } from '../hooks/useAuth';
 import { colors } from '../theme/colors';
@@ -96,6 +102,12 @@ export default function AppNavigator() {
               component={TVDetailScreen}
               options={{ animation: 'slide_from_bottom' }}
             />
+            <Stack.Screen name="Settings" component={SettingsScreen} options={{ animation: 'slide_from_right' }} />
+            <Stack.Screen name="EditProfile" component={EditProfileScreen} options={{ animation: 'slide_from_right' }} />
+            <Stack.Screen name="NotificationSettings" component={NotificationSettingsScreen} options={{ animation: 'slide_from_right' }} />
+            <Stack.Screen name="Subscription" component={SubscriptionPlansScreen} options={{ animation: 'slide_from_right' }} />
+            <Stack.Screen name="AIChat" component={AIChatScreen} options={{ animation: 'slide_from_right' }} />
+            <Stack.Screen name="WatchHistory" component={WatchHistoryScreen} options={{ animation: 'slide_from_right' }} />
           </>
         ) : onboardingDone ? (
           <Stack.Screen name="Auth" component={AuthScreen} />
