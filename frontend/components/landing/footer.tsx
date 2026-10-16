@@ -1,159 +1,79 @@
-'use client';
+// components/landing/footer.tsx
+import Link from "next/link"
+import { Wordmark } from "./wordmark"
 
-import Link from 'next/link';
-import { Play } from 'lucide-react';
-import { FaFacebook, FaInstagram, FaTwitter, FaYoutube } from "react-icons/fa";
-import { Separator } from '@/components/ui/separator';
-
-const footerLinks = {
-  product: [
-    { label: 'Features', href: '#features' },
-    { label: 'Pricing', href: '#pricing' },
-    { label: 'FAQ', href: '#faq' },
-    { label: 'Download', href: '#' },
-  ],
-  company: [
-    { label: 'About Us', href: '/about' },
-    { label: 'Careers', href: '#' },
-    { label: 'Blog', href: '#' },
-    { label: 'Press', href: '#' },
-  ],
-  support: [
-    { label: 'Help Center', href: '#' },
-    { label: 'Contact Us', href: '#' },
-    { label: 'System Status', href: '#' },
-    { label: 'Report Issue', href: '#' },
-  ],
-  legal: [
-    { label: 'Privacy Policy', href: '#' },
-    { label: 'Terms of Service', href: '#' },
-    { label: 'Cookie Policy', href: '#' },
-    { label: 'DMCA', href: '#' },
-  ],
-};
-
-const socialLinks = [
-  { icon: FaFacebook, href: 'https://facebook.com', label: 'Facebook' },
-  { icon: FaTwitter, href: 'https://twitter.com', label: 'Twitter' },
-  { icon: FaInstagram, href: 'https://instagram.com', label: 'Instagram' },
-  { icon: FaYoutube, href: 'https://youtube.com', label: 'YouTube' },
-];
+const columns = [
+  {
+    title: "FlixVideo",
+    links: [
+      { label: "How it works", href: "#how-it-works" },
+      { label: "Top 10 this week", href: "#this-week" },
+      { label: "Pricing", href: "#pricing" },
+      { label: "FAQ", href: "#faq" },
+    ],
+  },
+  {
+    title: "Account",
+    links: [
+      { label: "Create an account", href: "/signup" },
+      { label: "Sign in", href: "/login" },
+      { label: "Reset password", href: "/forgot-password" },
+    ],
+  },
+]
 
 export function Footer() {
   return (
-    <footer className="bg-secondary/30 border-t">
-      <div className="container mx-auto px-4 py-12">
-        {/* Main Footer Content */}
-        <div className="grid grid-cols-2 md:grid-cols-6 gap-8 mb-8">
-          {/* Brand Column */}
-          <div className="col-span-2">
-            <Link href="/" className="flex items-center space-x-2 mb-4">
-              <div className="bg-linear-to-r from-primary to-highlight p-2 rounded-lg">
-                <Play className="w-6 h-6 text-primary-foreground" fill="currentColor" />
-              </div>
-              <span className="text-2xl font-bold gradient-text">FlixVideo</span>
-            </Link>
-            <p className="text-sm text-muted-foreground mb-4 max-w-xs">
-              AI-powered movie and TV show discovery platform. Find your next
-              favorite with personalized recommendations.
+    <footer className="border-t bg-card/40">
+      <div className="reveal mx-auto max-w-6xl px-5 py-14 md:px-8">
+        <div className="grid gap-10 md:grid-cols-[minmax(0,2fr)_repeat(3,minmax(0,1fr))]">
+          <div className="space-y-4">
+            <Wordmark />
+            <p className="max-w-xs text-sm leading-relaxed text-muted-foreground">
+              Film and TV discovery that explains itself. Find it, then watch it wherever it&apos;s available.
             </p>
-            <div className="flex gap-4">
-              {socialLinks.map((social) => (
-                <a
-                  key={social.label}
-                  href={social.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-10 h-10 rounded-full bg-primary/10 hover:bg-primary/20 flex items-center justify-center transition-colors"
-                  aria-label={social.label}
-                >
-                  <social.icon className="w-5 h-5" />
-                </a>
-              ))}
+          </div>
+
+          {columns.map((col) => (
+            <div key={col.title}>
+              <h3 className="text-sm font-semibold">{col.title}</h3>
+              <ul className="mt-4 space-y-2.5">
+                {col.links.map((link) => (
+                  <li key={link.label}>
+                    <Link
+                      href={link.href}
+                      className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                    >
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
             </div>
-          </div>
+          ))}
 
-          {/* Product Links */}
           <div>
-            <h3 className="font-semibold mb-4">Product</h3>
-            <ul className="space-y-2">
-              {footerLinks.product.map((link) => (
-                <li key={link.label}>
-                  <Link
-                    href={link.href}
-                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Company Links */}
-          <div>
-            <h3 className="font-semibold mb-4">Company</h3>
-            <ul className="space-y-2">
-              {footerLinks.company.map((link) => (
-                <li key={link.label}>
-                  <Link
-                    href={link.href}
-                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Support Links */}
-          <div>
-            <h3 className="font-semibold mb-4">Support</h3>
-            <ul className="space-y-2">
-              {footerLinks.support.map((link) => (
-                <li key={link.label}>
-                  <Link
-                    href={link.href}
-                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Legal Links */}
-          <div>
-            <h3 className="font-semibold mb-4">Legal</h3>
-            <ul className="space-y-2">
-              {footerLinks.legal.map((link) => (
-                <li key={link.label}>
-                  <Link
-                    href={link.href}
-                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
+            <h3 className="text-sm font-semibold">Contact</h3>
+            <ul className="mt-4 space-y-2.5 text-sm text-muted-foreground">
+              <li>
+                <a href="mailto:support@flixvideo.com" className="transition-colors hover:text-foreground">
+                  support@flixvideo.com
+                </a>
+              </li>
+              <li>
+                <a href="tel:+254705274244" className="tabular-nums transition-colors hover:text-foreground">
+                  +254 705 274 244
+                </a>
+              </li>
             </ul>
           </div>
         </div>
 
-        <Separator className="my-8" />
-
-        {/* Bottom Footer */}
-        <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-sm text-muted-foreground">
-            © {new Date().getFullYear()} FlixVideo by WaruTech. All rights reserved.
-          </p>
-          <div className="flex gap-6 text-sm text-muted-foreground">
-            <span>Made with ❤️ in Kenya</span>
-          </div>
+        <div className="mt-12 flex flex-col gap-3 border-t pt-6 text-xs text-muted-foreground md:flex-row md:items-center md:justify-between">
+          <p>© {new Date().getFullYear()} FlixVideo by WaruTech. Made in Kenya.</p>
+          <p>This product uses the TMDB API but is not endorsed or certified by TMDB.</p>
         </div>
       </div>
     </footer>
-  );
+  )
 }

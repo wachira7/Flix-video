@@ -68,7 +68,6 @@ export default function RootLayout({
           duration={4000}
           theme="dark"
         />
-        <div className="h-32" />
       </body>
     </html>
   )

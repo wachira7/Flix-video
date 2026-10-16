@@ -189,9 +189,54 @@
   .font-display {
     font-family: var(--font-display);
   }
+
+  /* Small uppercase section label */
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: hsl(var(--primary));
+  }
+
+  /* Hero entrance: CSS-only so it runs before hydration */
+  .hero-reveal {
+    animation: hero-rise 0.9s cubic-bezier(0.22, 1, 0.36, 1) var(--delay, 0s) both;
+  }
+  .hero-backdrop {
+    animation: hero-lights 2.2s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hero-reveal,
+    .hero-backdrop {
+      animation: none;
+    }
+  }
+
+  /* Subtle projector grain over hero artwork */
+  .film-grain {
+    pointer-events: none;
+    opacity: 0.07;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
 }
 
 /* Custom Animations */
+@keyframes hero-rise {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+}
+
+@keyframes hero-lights {
+  from {
+    opacity: 0;
+    transform: scale(1.06);
+  }
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -490,4 +535,214 @@
 }
 .stagger-children > *:nth-child(6) {
   animation-delay: 0.6s;
+}
+/* ------------------------------------------------------------------
+ * Landing page motion (Projector)
+ * All of it is decorative and switched off under reduced motion.
+ * ------------------------------------------------------------------ */
+
+/* Scroll reveals, driven by components/landing/scroll-motion.tsx.
+   Nothing is hidden until that script adds .reveal-ready. */
+.reveal-ready .reveal,
+.reveal-ready .reveal-stagger > * {
+  opacity: 0;
+  transform: translate3d(0, 56px, 0);
+  transition:
+    opacity 0.5s ease,
+    transform 0.8s cubic-bezier(0.22, 1, 0.36, 1),
+    translate 0.3s ease;
+  will-change: opacity, transform;
+}
+.reveal-ready .reveal[data-reveal="left"] {
+  transform: translate3d(-72px, 0, 0);
+}
+.reveal-ready .reveal[data-reveal="right"],
+.reveal-ready .reveal-stagger[data-reveal="right"] > * {
+  transform: translate3d(72px, 0, 0);
+}
+.reveal-ready .reveal[data-reveal="zoom"],
+.reveal-ready .reveal-stagger[data-reveal="zoom"] > * {
+  transform: translate3d(0, 40px, 0) scale(0.9);
+}
+/* Leaving through the top of the screen */
+.reveal-ready .reveal[data-exit="up"],
+.reveal-ready .reveal-stagger[data-exit="up"] > * {
+  transform: translate3d(0, -56px, 0);
+}
+.reveal-ready .reveal-stagger > * {
+  transition-delay: calc(var(--i, 0) * 90ms);
+}
+.reveal-ready .reveal.is-visible,
+.reveal-ready .reveal-stagger.is-visible > * {
+  opacity: 1;
+  transform: none;
+}
+
+/* Slow push-in on the active hero backdrop */
+@keyframes kenburns {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.08) translate(-1%, -1%);
+  }
+}
+.kenburns {
+  animation: kenburns 9s ease-out both;
+}
+
+/* Reel-style progress for the hero slides */
+@keyframes reel-fill {
+  from {
+    width: 0;
+  }
+  to {
+    width: 100%;
+  }
+}
+.reel-progress {
+  animation: reel-fill var(--slide-ms, 7000ms) linear both;
+}
+
+/* Warm projector light drifting behind the headline */
+@keyframes leak-drift {
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 0.85;
+  }
+  100% {
+    transform: translate(12%, 8%) scale(1.15);
+    opacity: 0.6;
+  }
+}
+.light-leak {
+  pointer-events: none;
+  background: radial-gradient(closest-side, hsl(var(--primary) / 0.22), transparent 70%);
+  filter: blur(20px);
+  animation: leak-drift 16s ease-in-out infinite alternate;
+}
+
+/* Cursor-following glow, fed by components/landing/spotlight.tsx */
+.spotlight {
+  position: relative;
+  isolation: isolate;
+}
+.spotlight::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  background: radial-gradient(
+    420px circle at var(--mx, 50%) var(--my, 50%),
+    hsl(var(--primary) / 0.12),
+    transparent 45%
+  );
+}
+.spotlight:hover::before {
+  opacity: 1;
+}
+
+/* Light sweeping around the featured plan's border */
+@property --sheen-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+@keyframes sheen-spin {
+  to {
+    --sheen-angle: 360deg;
+  }
+}
+.sheen-border::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  pointer-events: none;
+  background:
+    conic-gradient(
+      from var(--sheen-angle),
+      transparent 0 62%,
+      hsl(var(--primary)) 76%,
+      hsl(var(--highlight)) 82%,
+      transparent 92%
+    ),
+    linear-gradient(hsl(var(--primary) / 0.45), hsl(var(--primary) / 0.45));
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#000 0 0) content-box exclude,
+    linear-gradient(#000 0 0);
+  animation: sheen-spin 6s linear infinite;
+}
+
+/* Typing caret and thinking dots in the AI example */
+@keyframes caret-blink {
+  50% {
+    opacity: 0;
+  }
+}
+.caret {
+  display: inline-block;
+  width: 2px;
+  height: 1.05em;
+  margin-left: 2px;
+  vertical-align: -0.15em;
+  background: hsl(var(--primary));
+  animation: caret-blink 0.9s steps(1) infinite;
+}
+@keyframes dot-bounce {
+  0%,
+  80%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.35;
+  }
+  40% {
+    transform: translateY(-4px);
+    opacity: 1;
+  }
+}
+.dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  background: hsl(var(--primary));
+  animation: dot-bounce 1s ease-in-out infinite;
+}
+
+/* Endless poster rows behind the closing call to action */
+@keyframes marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+.marquee {
+  width: max-content;
+  animation: marquee var(--marquee-s, 80s) linear infinite;
+}
+.marquee-reverse {
+  animation-direction: reverse;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kenburns,
+  .reel-progress,
+  .light-leak,
+  .sheen-border::after,
+  .caret,
+  .dot,
+  .marquee {
+    animation: none;
+  }
 }

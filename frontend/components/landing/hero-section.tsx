@@ -1,156 +1,69 @@
-//src/components/landing/hero-section.tsx
-"use client"
-
-import { Button } from "@/components/ui/button"
-import { Play, Sparkles, TrendingUp } from "lucide-react"
-import { motion } from "framer-motion"
+// components/landing/hero-section.tsx
+// Entrance motion is CSS-only (.hero-reveal in globals.css) so the hero
+// animates in before hydration and never stays hidden if JS is slow.
+import type { CSSProperties } from "react"
 import Link from "next/link"
+import { Button } from "@/components/ui/button"
+import { HeroBackdrop } from "./hero-backdrop"
+import type { LandingTitle } from "./landing-data"
 
-export function HeroSection() {
+interface HeroProps {
+  slides: LandingTitle[]
+  showTop10: boolean
+}
+
+export function HeroSection({ slides, showTop10 }: HeroProps) {
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-linear-to-b from-background via-background to-secondary/20">
-      {/* Animated background elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <motion.div
-          animate={{
-            scale: [1, 1.2, 1],
-            opacity: [0.3, 0.5, 0.3],
-          }}
-          transition={{
-            duration: 8,
-            repeat: Number.POSITIVE_INFINITY,
-            ease: "easeInOut",
-          }}
-          className="absolute -top-40 -right-40 w-80 h-80 bg-primary/30 rounded-full blur-3xl"
-        />
-        <motion.div
-          animate={{
-            scale: [1, 1.3, 1],
-            opacity: [0.3, 0.5, 0.3],
-          }}
-          transition={{
-            duration: 10,
-            repeat: Number.POSITIVE_INFINITY,
-            ease: "easeInOut",
-            delay: 1,
-          }}
-          className="absolute top-40 -left-40 w-80 h-80 bg-primary/30 rounded-full blur-3xl"
-        />
-        <motion.div
-          animate={{
-            scale: [1, 1.1, 1],
-            opacity: [0.3, 0.5, 0.3],
-          }}
-          transition={{
-            duration: 12,
-            repeat: Number.POSITIVE_INFINITY,
-            ease: "easeInOut",
-            delay: 2,
-          }}
-          className="absolute bottom-40 right-1/3 w-80 h-80 bg-blue-500/30 rounded-full blur-3xl"
-        />
-      </div>
+    <section className="relative isolate flex min-h-[min(88svh,880px)] items-end overflow-hidden pt-28 pb-14 md:pb-20">
+      {/* Backdrop: this week's top trending films, dimmed like house lights going down */}
+      <HeroBackdrop slides={slides} />
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,hsl(var(--background))_8%,hsl(var(--background)/0.75)_45%,transparent_85%),linear-gradient(0deg,hsl(var(--background))_2%,transparent_45%),linear-gradient(180deg,hsl(var(--background)/0.6),transparent_25%)]"
+      />
+      <div aria-hidden="true" className="light-leak absolute -top-1/4 -left-1/4 -z-10 h-[80%] w-[70%]" />
+      <div aria-hidden="true" className="film-grain absolute inset-0 -z-10" />
 
-      <div className="container mx-auto px-4 py-32 relative z-10">
-        <div className="max-w-4xl mx-auto text-center space-y-8">
-          {/* Badge */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="inline-flex items-center space-x-2 bg-primary/10 border border-primary/20 rounded-full px-4 py-2"
-          >
-            <Sparkles className="w-4 h-4 text-primary" />
-            <span className="text-sm font-medium">AI-Powered Recommendations</span>
-          </motion.div>
+      <div className="mx-auto w-full max-w-6xl px-5 md:px-8">
+        <div className="max-w-2xl space-y-7" data-parallax="-0.12" data-parallax-fade="">
+          <p className="hero-reveal eyebrow" style={{ "--delay": "0.2s" } as CSSProperties}>
+            Film and TV discovery, made in Kenya
+          </p>
 
-          {/* Main Heading */}
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-            className="text-5xl md:text-7xl font-bold leading-tight"
+          <h1
+            className="hero-reveal text-[2.9rem] leading-[0.98] sm:text-6xl md:text-7xl lg:text-[5.25rem]"
+            style={{ "--delay": "0.35s" } as CSSProperties}
           >
-            Discover Your Next
-            <br />
-            <span className="gradient-text">Favorite Movie</span>
-          </motion.h1>
+            Know what to watch <em className="italic text-primary">tonight.</em>
+          </h1>
 
-          {/* Subheading */}
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto"
-          >
-            Experience personalized movie and TV show recommendations powered by advanced AI. Stream unlimited content
-            with premium features.
-          </motion.p>
+          <p className="hero-reveal max-w-xl text-lg leading-relaxed text-foreground/75 md:text-xl" style={{ "--delay": "0.5s" } as CSSProperties}>
+            FlixVideo learns your taste, explains every recommendation, and shows you where each title is
+            streaming, for rent or to buy.
+          </p>
 
-          {/* CTA Buttons */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
-            className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4"
-          >
-            <Link href="/signup">
-              <Button size="lg" className="text-lg px-8 h-12">
-                <Play className="w-5 h-5 mr-2" />
-                Start Free Trial
+          <div className="hero-reveal flex flex-wrap items-center gap-3 pt-1" style={{ "--delay": "0.65s" } as CSSProperties}>
+            <Button size="lg" className="h-12 px-7 text-base" asChild>
+              <Link href="/signup">Start free</Link>
+            </Button>
+            {showTop10 && (
+              <Button
+                size="lg"
+                variant="outline"
+                className="h-12 border-foreground/25 bg-background/30 px-7 text-base backdrop-blur-sm"
+                asChild
+              >
+                <Link href="#this-week">See this week&apos;s top 10</Link>
               </Button>
-            </Link>
-            <Link href="#pricing">
-              <Button size="lg" variant="outline" className="text-lg px-8 h-12 bg-transparent">
-                View Pricing
-              </Button>
-            </Link>
-          </motion.div>
+            )}
+          </div>
 
-          {/* Stats */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
-            className="grid grid-cols-3 gap-8 pt-12 max-w-2xl mx-auto"
-          >
-            <div>
-              <div className="text-3xl md:text-4xl font-bold gradient-text">10K+</div>
-              <div className="text-sm text-muted-foreground mt-1">Movies & Shows</div>
-            </div>
-            <div>
-              <div className="text-3xl md:text-4xl font-bold gradient-text">Early</div>
-              <div className="text-sm text-muted-foreground mt-1">Access Open</div>
-            </div>
-            <div>
-              <div className="text-3xl md:text-4xl font-bold gradient-text">99%</div>
-              <div className="text-sm text-muted-foreground mt-1">Satisfaction</div>
-            </div>
-          </motion.div>
-
-          {/* Trust indicators */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.5 }}
-            className="flex items-center justify-center gap-2 pt-8 text-sm text-muted-foreground"
-          >
-            <TrendingUp className="w-4 h-4" />
-            <span>Hey you! Join other happy viewers today</span>
-          </motion.div>
+          <p className="hero-reveal text-sm text-muted-foreground" style={{ "--delay": "0.8s" } as CSSProperties}>
+            Free plan, no card needed. Upgrade any time with M-Pesa or card.
+          </p>
         </div>
       </div>
 
-      {/* Scroll indicator */}
-      <motion.div
-        animate={{ y: [0, 10, 0] }}
-        transition={{ duration: 2, repeat: Number.POSITIVE_INFINITY }}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2"
-      >
-        <div className="w-6 h-10 border-2 border-foreground/20 rounded-full flex items-start justify-center p-2">
-          <div className="w-1 h-3 bg-foreground/40 rounded-full" />
-        </div>
-      </motion.div>
     </section>
   )
 }
