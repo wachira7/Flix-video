@@ -6,7 +6,7 @@
 import { useEffect, useState } from "react"
 import Image from "next/image"
 import { cn } from "@/lib/utils"
-import { tmdbImage, type LandingTitle } from "./landing-data"
+import { tmdbImage, type LandingTitle } from "./landing-types"
 
 const SLIDE_MS = 7000
 

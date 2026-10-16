@@ -735,6 +735,39 @@
   animation-direction: reverse;
 }
 
+/* Auth art panel: vertical poster columns */
+@keyframes column-up {
+  to {
+    transform: translateY(-50%);
+  }
+}
+.poster-column {
+  display: grid;
+  gap: 0.75rem;
+  animation: column-up var(--column-s, 80s) linear infinite;
+}
+.poster-column-reverse {
+  animation-direction: reverse;
+}
+
+/* Light sweep across primary auth buttons */
+.button-sweep {
+  transform: skewX(-20deg) translateX(0);
+  transition: transform 0.8s ease;
+}
+button:hover > .button-sweep,
+a:hover > .button-sweep {
+  transform: skewX(-20deg) translateX(400%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .poster-column,
+  .button-sweep {
+    animation: none;
+    transition: none;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .kenburns,
   .reel-progress,

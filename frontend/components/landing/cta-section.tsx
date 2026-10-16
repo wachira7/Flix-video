@@ -4,7 +4,7 @@ import Link from "next/link"
 import type { CSSProperties } from "react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
-import { tmdbImage, type LandingTitle } from "./landing-data"
+import { tmdbImage, type LandingTitle } from "./landing-types"
 
 function PosterRow({ posters, reverse, seconds }: { posters: LandingTitle[]; reverse?: boolean; seconds: number }) {
   // Duplicate the row so the -50% loop is seamless

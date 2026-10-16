@@ -5,7 +5,7 @@ import type { CSSProperties } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { HeroBackdrop } from "./hero-backdrop"
-import type { LandingTitle } from "./landing-data"
+import type { LandingTitle } from "./landing-types"
 
 interface HeroProps {
   slides: LandingTitle[]

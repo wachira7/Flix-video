@@ -8,7 +8,7 @@ import { useCallback, useEffect, useRef, useState } from "react"
 import Image from "next/image"
 import { RotateCcw, Sparkles } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { tmdbImage, type AIPick } from "./landing-data"
+import { tmdbImage, type AIPick } from "./landing-types"
 
 type Phase = "done" | "idle" | "typing" | "thinking" | "answering"
 

@@ -6,7 +6,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { Star } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { tmdbImage, type LandingTitle } from "./landing-data"
+import { tmdbImage, type LandingTitle } from "./landing-types"
 
 type Tab = "movies" | "tv"
 

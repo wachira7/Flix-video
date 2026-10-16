@@ -5,16 +5,22 @@ import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
-import { getPasswordStrength } from "@/lib/validations/auth"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Card } from "@/components/ui/card"
-import { Lock, Eye, EyeOff, Loader2 } from "lucide-react"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
+import { motion } from "framer-motion"
+import { Lock, Unlink } from "lucide-react"
 import { toast } from "sonner"
 import axios from "axios"
+import {
+  AuthField,
+  FormAlert,
+  FormHeader,
+  PasswordChecklist,
+  SubmitButton,
+  formItem,
+  formStagger,
+  useReveal,
+} from "./auth-fields"
 
 const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/
 
@@ -36,182 +42,104 @@ type ResetPasswordInput = z.infer<typeof resetPasswordSchema>
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"
 
 export function ResetPasswordForm() {
-  const [showPassword, setShowPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-  const [loading, setLoading] = useState(false)
   const router = useRouter()
-  const searchParams = useSearchParams()
-  const token = searchParams.get("token")
+  const token = useSearchParams().get("token")
+  const [state, setState] = useState<"idle" | "loading" | "success">("idle")
+  const [formError, setFormError] = useState<string>()
+  const [shake, setShake] = useState(0)
+  const password = useReveal()
+  const confirm = useReveal()
 
   const {
     register,
     handleSubmit,
     watch,
     formState: { errors },
-  } = useForm<ResetPasswordInput>({
-    resolver: zodResolver(resetPasswordSchema),
-  })
+  } = useForm<ResetPasswordInput>({ resolver: zodResolver(resetPasswordSchema) })
 
-  const password = watch("password", "")
-  const passwordStrength = password ? getPasswordStrength(password) : null
+  const passwordValue = watch("password", "")
 
   const onSubmit = async (data: ResetPasswordInput) => {
-    if (!token) {
-      toast.error("Invalid or missing reset token")
-      return
-    }
-
-    setLoading(true)
+    setState("loading")
+    setFormError(undefined)
     try {
-      await axios.post(`${API_URL}/api/auth/reset-password`, {
-        token,
-        newPassword: data.password,
-      })
-
-      toast.success("Password reset successful! Please login with your new password.")
-      router.push("/login")
-    } catch (error: any) {
-      const message = error.response?.data?.message || "Failed to reset password"
-      toast.error(message)
-    } finally {
-      setLoading(false)
+      await axios.post(`${API_URL}/api/auth/reset-password`, { token, newPassword: data.password })
+      setState("success")
+      toast.success("Password updated. Sign in with your new password.")
+      setTimeout(() => router.push("/login"), 700)
+    } catch (error) {
+      const err = error as { response?: { data?: { message?: string } } }
+      setState("idle")
+      setFormError(
+        err.response
+          ? err.response.data?.message || "We couldn't reset your password. The link may have expired."
+          : "We couldn't reach FlixVideo. Check your connection and try again."
+      )
+      setShake((n) => n + 1)
     }
-  }
-
-  const getStrengthColor = () => {
-    if (!passwordStrength) return "bg-gray-200"
-    switch (passwordStrength.strength) {
-      case "weak":
-        return "bg-red-500"
-      case "fair":
-        return "bg-orange-500"
-      case "good":
-        return "bg-yellow-500"
-      case "strong":
-        return "bg-green-500"
-      default:
-        return "bg-gray-200"
-    }
-  }
-
-  const getStrengthWidth = () => {
-    if (!passwordStrength) return "0%"
-    return `${(passwordStrength.score / 6) * 100}%`
   }
 
   if (!token) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4 bg-linear-to-br from-primary/15 via-primary/15 to-highlight/15">
-        <Card className="w-full max-w-md p-8 bg-white">
-          <div className="text-center space-y-4">
-            <h2 className="text-2xl font-bold text-gray-900">Invalid Reset Link</h2>
-            <p className="text-gray-600">This password reset link is invalid or has expired.</p>
-            <Link href="/forgot-password">
-              <Button className="w-full bg-linear-to-r from-primary to-highlight hover:from-primary/90 hover:to-highlight/90">
-                Request New Link
-              </Button>
-            </Link>
-          </div>
-        </Card>
-      </div>
+      <motion.div variants={formStagger} initial="hidden" animate="show" className="space-y-6">
+        <motion.span
+          variants={formItem}
+          className="flex h-16 w-16 items-center justify-center rounded-full bg-destructive/15 text-destructive"
+        >
+          <Unlink className="h-7 w-7" aria-hidden="true" />
+        </motion.span>
+        <FormHeader title="This link" italic="doesn't work.">
+          Reset links can only be used once and expire after a while. Request a new one and use it straight away.
+        </FormHeader>
+        <motion.div variants={formItem}>
+          <Link
+            href="/forgot-password"
+            className="inline-flex h-12 w-full items-center justify-center rounded-lg bg-primary text-[15px] font-semibold text-primary-foreground transition-[filter] hover:brightness-110 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+          >
+            Send me a new link
+          </Link>
+        </motion.div>
+      </motion.div>
     )
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-linear-to-br from-primary/15 via-primary/15 to-highlight/15">
-      <Card className="w-full max-w-md p-8 bg-white">
-        <div className="space-y-6">
-          <div className="text-center">
-            <h1 className="text-3xl font-bold text-gray-900">Reset Password</h1>
-            <p className="text-gray-600 mt-2">Enter your new password</p>
-          </div>
+    <motion.div variants={formStagger} initial="hidden" animate="show" className="space-y-6">
+      <FormHeader title="Choose a new" italic="password">
+        You&apos;ll use this to sign in from now on.
+      </FormHeader>
 
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            {/* New Password */}
-            <div className="space-y-2">
-              <Label htmlFor="password">New Password</Label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                <Input
-                  id="password"
-                  type={showPassword ? "text" : "password"}
-                  {...register("password")}
-                  className="pl-10 text-gray-950"
-                  placeholder="Enter new password"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2"
-                >
-                  {showPassword ? (
-                    <EyeOff className="w-5 h-5 text-gray-400" />
-                  ) : (
-                    <Eye className="w-5 h-5 text-gray-400" />
-                  )}
-                </button>
-              </div>
-
-              {/* Password Strength Indicator */}
-              {password && (
-                <div className="space-y-1">
-                  <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-                    <div
-                      className={`h-full transition-all duration-300 ${getStrengthColor()}`}
-                      style={{ width: getStrengthWidth() }}
-                    />
-                  </div>
-                  <p className="text-xs text-gray-600 capitalize">Strength: {passwordStrength?.strength}</p>
-                </div>
-              )}
-
-              {errors.password && <p className="text-sm text-red-500">{errors.password.message}</p>}
-            </div>
-
-            {/* Confirm Password */}
-            <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Confirm New Password</Label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                <Input
-                  id="confirmPassword"
-                  type={showConfirmPassword ? "text" : "password"}
-                  {...register("confirmPassword")}
-                  className="pl-10 text-gray-950"
-                  placeholder="Confirm new password"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2"
-                >
-                  {showConfirmPassword ? (
-                    <EyeOff className="w-5 h-5 text-gray-400" />
-                  ) : (
-                    <Eye className="w-5 h-5 text-gray-400" />
-                  )}
-                </button>
-              </div>
-              {errors.confirmPassword && <p className="text-sm text-red-500">{errors.confirmPassword.message}</p>}
-            </div>
-
-            <Button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-linear-to-r from-primary to-highlight hover:from-primary/90 hover:to-highlight/90"
-            >
-              {loading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Resetting...
-                </>
-              ) : (
-                "Reset Password"
-              )}
-            </Button>
-          </form>
+      <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-5">
+        <div className="space-y-2">
+          <AuthField
+            id="password"
+            type={password.type}
+            label="New password"
+            icon={Lock}
+            autoComplete="new-password"
+            placeholder="Create a password"
+            error={errors.password?.message}
+            trailing={password.toggle}
+            {...register("password")}
+          />
+          <PasswordChecklist password={passwordValue} />
         </div>
-      </Card>
-    </div>
+        <AuthField
+          id="confirmPassword"
+          type={confirm.type}
+          label="Confirm new password"
+          icon={Lock}
+          autoComplete="new-password"
+          placeholder="Type it again"
+          error={errors.confirmPassword?.message}
+          trailing={confirm.toggle}
+          {...register("confirmPassword")}
+        />
+        <FormAlert message={formError} shakeKey={shake} />
+        <SubmitButton state={state} loadingText="Saving">
+          Save new password
+        </SubmitButton>
+      </form>
+    </motion.div>
   )
 }

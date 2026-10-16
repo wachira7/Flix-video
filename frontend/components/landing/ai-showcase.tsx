@@ -1,6 +1,6 @@
 // components/landing/ai-showcase.tsx
 import { AIConversation } from "./ai-conversation"
-import type { AIPick } from "./landing-data"
+import type { AIPick } from "./landing-types"
 
 const PROMPT = "A smart sci-fi film under two hours with a hopeful ending"
 

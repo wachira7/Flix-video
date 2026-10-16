@@ -3,34 +3,10 @@
 // still renders (with artwork-free fallbacks) when TMDB is unreachable.
 // Only import this from server components.
 import { tmdbClient, type Movie, type TVShow } from "@/lib/api/tmdb"
+import type { AIPick, LandingData, LandingTitle } from "./landing-types"
 
-export interface LandingTitle {
-  id: number
-  title: string
-  year: string
-  rating: number
-  overview: string
-  poster: string | null
-  backdrop: string | null
-  href: string
-}
-
-export interface AIPick extends LandingTitle {
-  runtime: string
-  reason: string
-}
-
-export interface LandingData {
-  feature: LandingTitle | null
-  slides: LandingTitle[]
-  topMovies: LandingTitle[]
-  topTV: LandingTitle[]
-  picks: AIPick[]
-}
-
-export function tmdbImage(path: string | null, size: "w342" | "w500" | "w780" | "w1280" = "w500") {
-  return path ? `https://image.tmdb.org/t/p/${size}${path}` : null
-}
+export { tmdbImage } from "./landing-types"
+export type { LandingTitle, AIPick, LandingData } from "./landing-types"
 
 const year = (date?: string) => (date ? date.slice(0, 4) : "")
 
@@ -126,4 +102,25 @@ export async function getLandingData(): Promise<LandingData> {
     topTV: tv.filter((s) => s.poster).slice(0, 10),
     picks,
   }
+}
+
+// Posters for the sign-in / sign-up art panel. Same cached TMDB requests as above.
+export async function getPosterWall(): Promise<LandingTitle[]> {
+  const [movies, tv] = await Promise.all([
+    tmdbClient
+      .getTrending("movie", "week")
+      .then((r) => (r.results as Movie[]).map(fromMovie))
+      .catch(() => [] as LandingTitle[]),
+    tmdbClient
+      .getTrending("tv", "week")
+      .then((r) => (r.results as TVShow[]).map(fromTV))
+      .catch(() => [] as LandingTitle[]),
+  ])
+  // Interleave so each column mixes films and series
+  const out: LandingTitle[] = []
+  for (let i = 0; i < Math.max(movies.length, tv.length); i++) {
+    if (movies[i]?.poster) out.push(movies[i])
+    if (tv[i]?.poster) out.push(tv[i])
+  }
+  return out.slice(0, 24)
 }

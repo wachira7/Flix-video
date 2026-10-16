@@ -20,7 +20,10 @@ export function middleware(request: NextRequest) {
   
   // Redirect to login if accessing dashboard without token
   if (isDashboardPage && !token) {
-    return NextResponse.redirect(new URL('/login', request.url))
+    // Remember where they were going so login can send them back
+    const loginUrl = new URL('/login', request.url)
+    loginUrl.searchParams.set('next', request.nextUrl.pathname + request.nextUrl.search)
+    return NextResponse.redirect(loginUrl)
   }
   
   // Redirect to dashboard if accessing auth pages with token
