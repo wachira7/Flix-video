@@ -25,6 +25,13 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: false,
   },
+  async redirects() {
+    return [
+      // These pages became sections of the landing page
+      { source: '/pricing', destination: '/#pricing', permanent: true },
+      { source: '/features', destination: '/#how-it-works', permanent: true },
+    ];
+  },
 };
 
 export default nextConfig;
