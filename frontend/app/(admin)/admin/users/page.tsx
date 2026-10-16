@@ -120,8 +120,8 @@ export default function UsersManagementPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-white mb-2">User Management</h1>
-          <p className="text-gray-400">
+          <h1 className="text-3xl font-bold text-foreground mb-2">User Management</h1>
+          <p className="text-muted-foreground">
             {totalUsers.toLocaleString()} total users
           </p>
         </div>
@@ -141,7 +141,7 @@ export default function UsersManagementPage() {
               {/* Clear all filters button */}
               <button
                 onClick={handleClearFilters}
-                className="text-xs text-gray-400 hover:text-white underline transition-colors"
+                className="text-xs text-muted-foreground hover:text-foreground underline transition-colors"
               >
                 Clear all
               </button>
@@ -151,7 +151,7 @@ export default function UsersManagementPage() {
           <Button
             onClick={loadUsers}
             variant="outline"
-            className="border-gray-700"
+            className="border-border"
           >
             <RefreshCw className="w-4 h-4 mr-2" />
             Refresh
@@ -160,29 +160,29 @@ export default function UsersManagementPage() {
       </div>
 
       {/* Filters */}
-      <Card className="bg-gray-900 border-gray-800 p-6">
+      <Card className="bg-card border-border p-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
-            <label className="text-sm text-gray-400 mb-2 block">Search Users</label>
+            <label className="text-sm text-muted-foreground mb-2 block">Search Users</label>
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
                 type="search"
                 placeholder="Search by email..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 bg-gray-800 border-gray-700 text-white"
+                className="pl-10 bg-secondary border-border text-foreground"
               />
             </div>
           </div>
 
           <div>
-            <label className="text-sm text-gray-400 mb-2 block">Filter by Role</label>
+            <label className="text-sm text-muted-foreground mb-2 block">Filter by Role</label>
             <Select value={roleFilter} onValueChange={setRoleFilter}>
-              <SelectTrigger className="bg-gray-800 border-gray-700 text-white">
+              <SelectTrigger className="bg-secondary border-border text-foreground">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="bg-gray-900 border-gray-800">
+              <SelectContent className="bg-card border-border">
                 <SelectItem value="all">All Roles</SelectItem>
                 <SelectItem value="user">User</SelectItem>
                 <SelectItem value="moderator">Moderator</SelectItem>
@@ -192,12 +192,12 @@ export default function UsersManagementPage() {
           </div>
 
           <div>
-            <label className="text-sm text-gray-400 mb-2 block">Filter by Status</label>
+            <label className="text-sm text-muted-foreground mb-2 block">Filter by Status</label>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="bg-gray-800 border-gray-700 text-white">
+              <SelectTrigger className="bg-secondary border-border text-foreground">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="bg-gray-900 border-gray-800">
+              <SelectContent className="bg-card border-border">
                 <SelectItem value="all">All Status</SelectItem>
                 <SelectItem value="active">Active</SelectItem>
                 <SelectItem value="suspended">Suspended</SelectItem>
@@ -214,11 +214,11 @@ export default function UsersManagementPage() {
           <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
         </div>
       ) : filteredUsers.length === 0 ? (
-        <Card className="bg-gray-900 border-gray-800 p-12 text-center">
-          <Filter className="w-10 h-10 text-gray-600 mx-auto mb-3" />
-          <p className="text-gray-400 font-medium">No users found</p>
+        <Card className="bg-card border-border p-12 text-center">
+          <Filter className="w-10 h-10 text-muted-foreground/70 mx-auto mb-3" />
+          <p className="text-muted-foreground font-medium">No users found</p>
           {activeFiltersCount > 0 && (
-            <p className="text-gray-500 text-sm mt-2">
+            <p className="text-muted-foreground text-sm mt-2">
               Try adjusting your filters or{' '}
               <button
                 onClick={handleClearFilters}
@@ -246,18 +246,18 @@ export default function UsersManagementPage() {
             variant="outline"
             onClick={() => setPage(p => Math.max(1, p - 1))}
             disabled={page === 1}
-            className="border-gray-700"
+            className="border-border"
           >
             Previous
           </Button>
-          <span className="text-gray-400 px-4">
+          <span className="text-muted-foreground px-4">
             Page {page} of {Math.ceil(totalUsers / 20)}
           </span>
           <Button
             variant="outline"
             onClick={() => setPage(p => p + 1)}
             disabled={page >= Math.ceil(totalUsers / 20)}
-            className="border-gray-700"
+            className="border-border"
           >
             Next
           </Button>

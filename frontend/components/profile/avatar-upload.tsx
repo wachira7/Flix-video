@@ -129,7 +129,7 @@ export function AvatarUpload({ currentAvatar, username, onAvatarUpdate }: Avatar
           className="absolute bottom-0 right-0 p-2 bg-primary/90 rounded-full hover:bg-primary transition-colors disabled:opacity-50"
           type="button"
         >
-          <Camera className="w-4 h-4 text-white" />
+          <Camera className="w-4 h-4 text-foreground" />
         </button>
       </div>
 
@@ -147,7 +147,7 @@ export function AvatarUpload({ currentAvatar, username, onAvatarUpdate }: Avatar
           onClick={() => fileInputRef.current?.click()}
           disabled={uploading}
           variant="outline"
-          className="border-gray-700"
+          className="border-border"
         >
           {uploading ? "Uploading..." : "Change Avatar"}
         </Button>
@@ -158,14 +158,14 @@ export function AvatarUpload({ currentAvatar, username, onAvatarUpdate }: Avatar
             onClick={handleDelete}
             disabled={deleting}
             variant="outline"
-            className="border-red-500 text-red-500 hover:bg-red-500 hover:text-white"
+            className="border-red-500 text-red-500 hover:bg-red-500 hover:text-foreground"
           >
             <Trash2 className="w-4 h-4 mr-2" />
             {deleting ? "Deleting..." : "Remove"}
           </Button>
         )}
 
-        <p className="text-xs text-gray-500">
+        <p className="text-xs text-muted-foreground">
           JPG, PNG or GIF. Max 10MB.
         </p>
       </div>

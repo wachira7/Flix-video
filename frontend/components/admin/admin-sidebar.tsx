@@ -50,11 +50,11 @@ export function AdminSidebar() {
       initial={{ x: 0 }}
       animate={{ width: collapsed ? 80 : 256 }}
       transition={{ duration: 0.3, ease: "easeInOut" }}
-      className="fixed left-0 top-0 z-40 h-screen bg-gradient-to-b from-gray-900 to-black border-r border-gray-800"
+      className="fixed left-0 top-0 z-40 h-screen bg-gradient-to-b from-card to-background border-r border-border"
     >
       <div className="flex flex-col h-full">
         {/* Header */}
-        <div className="p-4 border-b border-gray-800 flex items-center justify-between">
+        <div className="p-4 border-b border-border flex items-center justify-between">
           <AnimatePresence>
             {!collapsed && (
               <motion.div
@@ -64,9 +64,9 @@ export function AdminSidebar() {
                 className="flex items-center space-x-2"
               >
                 <div className="bg-gradient-to-r from-primary/90 to-highlight p-2 rounded-lg">
-                  <Shield className="w-6 h-6 text-white" />
+                  <Shield className="w-6 h-6 text-foreground" />
                 </div>
-                <span className="text-xl font-bold text-white">Admin Panel</span>
+                <span className="text-xl font-bold text-foreground">Admin Panel</span>
               </motion.div>
             )}
           </AnimatePresence>
@@ -75,20 +75,20 @@ export function AdminSidebar() {
             variant="ghost"
             size="icon"
             onClick={() => setCollapsed(!collapsed)}
-            className="shrink-0 hover:bg-gray-800"
+            className="shrink-0 hover:bg-secondary"
           >
             {collapsed ? (
-              <ChevronRight className="w-5 h-5 text-gray-400" />
+              <ChevronRight className="w-5 h-5 text-muted-foreground" />
             ) : (
-              <ChevronLeft className="w-5 h-5 text-gray-400" />
+              <ChevronLeft className="w-5 h-5 text-muted-foreground" />
             )}
           </Button>
         </div>
 
         {/* User Info */}
-        <div className="p-4 border-b border-gray-800">
+        <div className="p-4 border-b border-border">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-r from-primary/90 to-highlight flex items-center justify-center text-white font-semibold">
+            <div className="w-10 h-10 rounded-full bg-gradient-to-r from-primary/90 to-highlight flex items-center justify-center text-foreground font-semibold">
               {user?.email?.charAt(0).toUpperCase() || "A"}
             </div>
             <AnimatePresence>
@@ -99,7 +99,7 @@ export function AdminSidebar() {
                   exit={{ opacity: 0, width: 0 }}
                   className="flex-1 overflow-hidden"
                 >
-                  <p className="text-sm font-semibold text-white truncate">
+                  <p className="text-sm font-semibold text-foreground truncate">
                     {user?.email?.split('@')[0] || "Admin"}
                   </p>
                   <p className="text-xs text-primary truncate">
@@ -124,8 +124,8 @@ export function AdminSidebar() {
                 className={cn(
                   "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200",
                   isActive
-                    ? "bg-gradient-to-r from-primary/90 to-highlight text-white"
-                    : "text-gray-400 hover:text-white hover:bg-gray-800"
+                    ? "bg-gradient-to-r from-primary/90 to-highlight text-foreground"
+                    : "text-muted-foreground hover:text-foreground hover:bg-secondary"
                 )}
                 title={collapsed ? item.label : undefined}
               >
@@ -147,14 +147,14 @@ export function AdminSidebar() {
           })}
         </nav>
 
-        {!collapsed && <Separator className="bg-gray-800" />}
+        {!collapsed && <Separator className="bg-secondary" />}
 
         {/* Bottom Actions */}
-        <div className="p-4 space-y-2 border-t border-gray-800">
+        <div className="p-4 space-y-2 border-t border-border">
           <Button
             variant="ghost"
             onClick={() => router.push('/dashboard')}
-            className="w-full justify-start text-gray-400 hover:text-white hover:bg-gray-800"
+            className="w-full justify-start text-muted-foreground hover:text-foreground hover:bg-secondary"
           >
             <ArrowLeft className="w-5 h-5 shrink-0" />
             <AnimatePresence>
@@ -174,7 +174,7 @@ export function AdminSidebar() {
           <Button
             variant="ghost"
             onClick={() => router.push('/settings')}
-            className="w-full justify-start text-gray-400 hover:text-white hover:bg-gray-800"
+            className="w-full justify-start text-muted-foreground hover:text-foreground hover:bg-secondary"
           >
             <Settings className="w-5 h-5 shrink-0" />
             <AnimatePresence>
@@ -194,7 +194,7 @@ export function AdminSidebar() {
           <Button
             variant="ghost"
             onClick={logout}
-            className="w-full justify-start text-gray-400 hover:text-red-400 hover:bg-gray-800"
+            className="w-full justify-start text-muted-foreground hover:text-red-400 hover:bg-secondary"
           >
             <LogOut className="w-5 h-5 shrink-0" />
             <AnimatePresence>

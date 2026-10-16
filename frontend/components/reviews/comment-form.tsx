@@ -76,14 +76,14 @@ export function CommentForm({
         value={content}
         onChange={(e) => setContent(e.target.value)}
         placeholder={placeholder}
-        className={`bg-gray-800 border-gray-700 text-white resize-none ${
+        className={`bg-secondary border-border text-foreground resize-none ${
           compact ? "min-h-[60px]" : "min-h-20"
         }`}
         maxLength={1000}
       />
       
       <div className="flex items-center justify-between">
-        <span className="text-xs text-gray-500">
+        <span className="text-xs text-muted-foreground">
           {content.length}/1000 characters
         </span>
         
@@ -95,7 +95,7 @@ export function CommentForm({
               size="sm"
               onClick={onCancel}
               disabled={loading}
-              className="border-gray-700"
+              className="border-border"
             >
               Cancel
             </Button>

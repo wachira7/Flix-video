@@ -54,29 +54,29 @@ export default async function MovieDetailPage({
           className="object-cover"
           priority
         />
-        <div className="absolute inset-0 bg-linear-to-r from-black via-black/70 to-transparent" />
-        <div className="absolute inset-0 bg-linear-to-t from-black via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-linear-to-r from-background via-black/70 to-transparent" />
+        <div className="absolute inset-0 bg-linear-to-t from-background via-transparent to-transparent" />
 
         {/* Content Overlay */}
         <div className="absolute bottom-0 left-0 p-12 max-w-3xl">
-          <h1 className="text-5xl font-bold text-white mb-4">{movie.title}</h1>
+          <h1 className="text-5xl font-bold text-foreground mb-4">{movie.title}</h1>
 
           {movie.tagline && (
-            <p className="text-xl text-gray-300 italic mb-4">{movie.tagline}</p>
+            <p className="text-xl text-foreground/80 italic mb-4">{movie.tagline}</p>
           )}
 
           <div className="flex items-center gap-4 mb-6 flex-wrap">
             <div className="flex items-center gap-2">
               <Star className="w-5 h-5 text-yellow-500" fill="currentColor" />
-              <span className="text-white font-semibold">{movie.vote_average.toFixed(1)}</span>
+              <span className="text-foreground font-semibold">{movie.vote_average.toFixed(1)}</span>
             </div>
             <div className="flex items-center gap-2">
-              <Calendar className="w-5 h-5 text-gray-400" />
-              <span className="text-gray-300">{new Date(movie.release_date).getFullYear()}</span>
+              <Calendar className="w-5 h-5 text-muted-foreground" />
+              <span className="text-foreground/80">{new Date(movie.release_date).getFullYear()}</span>
             </div>
             <div className="flex items-center gap-2">
-              <Clock className="w-5 h-5 text-gray-400" />
-              <span className="text-gray-300">{movie.runtime} min</span>
+              <Clock className="w-5 h-5 text-muted-foreground" />
+              <span className="text-foreground/80">{movie.runtime} min</span>
             </div>
             {movie.genres.slice(0, 3).map((genre) => (
               <Badge key={genre.id} variant="secondary">
@@ -85,7 +85,7 @@ export default async function MovieDetailPage({
             ))}
           </div>
 
-          <p className="text-gray-300 text-lg mb-6 line-clamp-3">{movie.overview}</p>
+          <p className="text-foreground/80 text-lg mb-6 line-clamp-3">{movie.overview}</p>
 
           <div className="flex items-center gap-4">
             {/* Play Options Button - Watch Party & Streaming */}
@@ -105,7 +105,7 @@ export default async function MovieDetailPage({
             <Button 
               size="lg" 
               variant="outline" 
-              className="border-gray-400 bg-gray-800/80 hover:border-primary hover:bg-gray-700 transition-all"
+              className="border-muted-foreground/50 bg-secondary/80 hover:border-primary hover:bg-accent transition-all"
             >
               <Plus className="w-6 h-6" />
             </Button>
@@ -121,7 +121,7 @@ export default async function MovieDetailPage({
         {/* Cast */}
         {cast.length > 0 && (
           <div>
-            <h2 className="text-3xl font-bold text-white mb-6">Cast</h2>
+            <h2 className="text-3xl font-bold text-foreground mb-6">Cast</h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-6 gap-4">
               {cast.map((member) => (
                 <CastCard key={member.id} cast={member} />

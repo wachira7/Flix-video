@@ -304,19 +304,19 @@ export default function PartyRoomPage() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-gray-400">Loading watch party...</p>
+          <p className="text-muted-foreground">Loading watch party...</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-black">
+    <div className="min-h-screen bg-background">
       {/* Top Bar */}
-      <div className="bg-gray-900 border-b border-gray-800 p-4">
+      <div className="bg-card border-b border-border p-4">
         <div className="flex items-center justify-between max-w-7xl mx-auto">
           <div className="flex items-center gap-4">
-            <h1 className="text-xl font-bold text-white">{party?.title}</h1>
+            <h1 className="text-xl font-bold text-foreground">{party?.title}</h1>
             {party?.content_type === 'tv_show' && (
               <Badge variant="outline">S{party.season_number}E{party.episode_number}</Badge>
             )}
@@ -330,7 +330,7 @@ export default function PartyRoomPage() {
 
           <div className="flex items-center gap-2">
             {/* Party Code */}
-            <div className="flex items-center gap-2 bg-gray-800 px-3 py-2 rounded">
+            <div className="flex items-center gap-2 bg-secondary px-3 py-2 rounded">
               <code className="text-primary font-mono font-bold">{partyCode}</code>
               <Button size="sm" variant="ghost" onClick={copyPartyCode}>
                 <Copy className="w-4 h-4" />
@@ -360,7 +360,7 @@ export default function PartyRoomPage() {
         {/* Video Player */}
         <div className="flex-1 flex flex-col">
           {/* Video Container */}
-          <div className="flex-1 bg-black relative group">
+          <div className="flex-1 bg-background relative group">
             <video
               ref={videoRef}
               className="w-full h-full"
@@ -374,10 +374,10 @@ export default function PartyRoomPage() {
             </video>
 
             {/* Video Controls Overlay */}
-            <div className="absolute bottom-0 left-0 right-0 bg-linear-to-t from-black to-transparent p-6 opacity-0 group-hover:opacity-100 transition-opacity">
+            <div className="absolute bottom-0 left-0 right-0 bg-linear-to-t from-background to-transparent p-6 opacity-0 group-hover:opacity-100 transition-opacity">
               {/* Progress Bar */}
               <div 
-                className="w-full h-2 bg-gray-700 rounded-full mb-4 cursor-pointer"
+                className="w-full h-2 bg-accent rounded-full mb-4 cursor-pointer"
                 onClick={handleSeek}
               >
                 <div 
@@ -393,7 +393,7 @@ export default function PartyRoomPage() {
                     size="icon"
                     variant="ghost"
                     onClick={handlePlayPause}
-                    className="text-white"
+                    className="text-foreground"
                     disabled={!isHost}
                   >
                     {isPlaying ? <Pause className="w-6 h-6" /> : <Play className="w-6 h-6" />}
@@ -403,12 +403,12 @@ export default function PartyRoomPage() {
                     size="icon"
                     variant="ghost"
                     onClick={() => setIsMuted(!isMuted)}
-                    className="text-white"
+                    className="text-foreground"
                   >
                     {isMuted ? <VolumeX className="w-6 h-6" /> : <Volume2 className="w-6 h-6" />}
                   </Button>
 
-                  <span className="text-white text-sm">
+                  <span className="text-foreground text-sm">
                     {Math.floor(currentTime / 60)}:{String(Math.floor(currentTime % 60)).padStart(2, '0')} / 
                     {Math.floor(duration / 60)}:{String(Math.floor(duration % 60)).padStart(2, '0')}
                   </span>
@@ -420,10 +420,10 @@ export default function PartyRoomPage() {
                       Only host can control video
                     </Badge>
                   )}
-                  <Button size="icon" variant="ghost" className="text-white">
+                  <Button size="icon" variant="ghost" className="text-foreground">
                     <Settings className="w-5 h-5" />
                   </Button>
-                  <Button size="icon" variant="ghost" className="text-white">
+                  <Button size="icon" variant="ghost" className="text-foreground">
                     <Maximize className="w-5 h-5" />
                   </Button>
                 </div>
@@ -432,9 +432,9 @@ export default function PartyRoomPage() {
           </div>
 
           {/* Quick Reactions */}
-          <div className="bg-gray-900 p-4 border-t border-gray-800">
+          <div className="bg-card p-4 border-t border-border">
             <div className="flex items-center gap-2">
-              <span className="text-gray-400 text-sm mr-2">Quick reactions:</span>
+              <span className="text-muted-foreground text-sm mr-2">Quick reactions:</span>
               {['😂', '❤️', '🔥', '👏', '😮', '👍'].map((emoji) => (
                 <Button
                   key={emoji}
@@ -451,13 +451,13 @@ export default function PartyRoomPage() {
         </div>
 
         {/* Sidebar */}
-        <div className="w-96 bg-gray-900 border-l border-gray-800 flex flex-col">
+        <div className="w-96 bg-card border-l border-border flex flex-col">
           {/* Tabs */}
-          <div className="flex border-b border-gray-800">
+          <div className="flex border-b border-border">
             <button
               onClick={() => { setShowChat(true); setShowParticipants(false) }}
               className={`flex-1 p-4 font-semibold transition-colors ${
-                showChat ? 'text-primary border-b-2 border-primary' : 'text-gray-400'
+                showChat ? 'text-primary border-b-2 border-primary' : 'text-muted-foreground'
               }`}
             >
               <MessageSquare className="w-5 h-5 inline mr-2" />
@@ -466,7 +466,7 @@ export default function PartyRoomPage() {
             <button
               onClick={() => { setShowChat(false); setShowParticipants(true) }}
               className={`flex-1 p-4 font-semibold transition-colors ${
-                showParticipants ? 'text-primary border-b-2 border-primary' : 'text-gray-400'
+                showParticipants ? 'text-primary border-b-2 border-primary' : 'text-muted-foreground'
               }`}
             >
               <Users className="w-5 h-5 inline mr-2" />
@@ -488,11 +488,11 @@ export default function PartyRoomPage() {
                       className={`${msg.type === 'system' ? 'text-center' : ''}`}
                     >
                       {msg.type === 'system' ? (
-                        <p className="text-xs text-gray-500">{msg.message}</p>
+                        <p className="text-xs text-muted-foreground">{msg.message}</p>
                       ) : msg.type === 'reaction' ? (
                         <div className="flex items-center gap-2 text-sm">
                           <span className="text-2xl">{msg.message}</span>
-                          <span className="text-gray-400">{msg.username}</span>
+                          <span className="text-muted-foreground">{msg.username}</span>
                         </div>
                       ) : (
                         <div>
@@ -500,14 +500,14 @@ export default function PartyRoomPage() {
                             <span className="font-semibold text-primary text-sm">
                               {msg.username}
                             </span>
-                            <span className="text-xs text-gray-500">
+                            <span className="text-xs text-muted-foreground">
                               {new Date(msg.timestamp).toLocaleTimeString([], { 
                                 hour: '2-digit', 
                                 minute: '2-digit' 
                               })}
                             </span>
                           </div>
-                          <p className="text-gray-300 text-sm">{msg.message}</p>
+                          <p className="text-foreground/80 text-sm">{msg.message}</p>
                         </div>
                       )}
                     </motion.div>
@@ -518,13 +518,13 @@ export default function PartyRoomPage() {
 
               {/* Typing Indicator */}
               {isTyping.length > 0 && (
-                <div className="px-4 py-2 text-xs text-gray-500">
+                <div className="px-4 py-2 text-xs text-muted-foreground">
                   {isTyping.join(', ')} {isTyping.length === 1 ? 'is' : 'are'} typing...
                 </div>
               )}
 
               {/* Message Input */}
-              <form onSubmit={handleSendMessage} className="p-4 border-t border-gray-800">
+              <form onSubmit={handleSendMessage} className="p-4 border-t border-border">
                 <Input
                   value={newMessage}
                   onChange={(e) => {
@@ -532,7 +532,7 @@ export default function PartyRoomPage() {
                     handleTyping()
                   }}
                   placeholder="Type a message..."
-                  className="bg-gray-800 border-gray-700 text-white"
+                  className="bg-secondary border-border text-foreground"
                 />
               </form>
             </>
@@ -544,7 +544,7 @@ export default function PartyRoomPage() {
                 {participants.map((participant) => (
                 <Card
                     key={participant.socketId}
-                    className="flex items-center gap-3 p-3 bg-gray-800 border-gray-700 hover:border-primary transition-all"
+                    className="flex items-center gap-3 p-3 bg-secondary border-border hover:border-primary transition-all"
                 >
                     <Avatar>
                     <AvatarImage src={participant.avatarUrl} />
@@ -553,7 +553,7 @@ export default function PartyRoomPage() {
                     </AvatarFallback>
                     </Avatar>
                     <div className="flex-1">
-                    <p className="text-white font-semibold">{participant.username}</p>
+                    <p className="text-foreground font-semibold">{participant.username}</p>
                     {participant.isHost && (
                         <Badge className="bg-yellow-600 text-xs">
                         <Crown className="w-3 h-3 mr-1" />

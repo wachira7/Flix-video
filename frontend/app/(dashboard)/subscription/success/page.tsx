@@ -36,31 +36,31 @@ export default function SubscriptionSuccessPage() {
   }, [router])
 
   return (
-    <div className="min-h-screen bg-gray-950 flex items-center justify-center p-6">
-      <Card className="max-w-2xl w-full p-8 bg-gray-900 border-gray-800 text-center">
+    <div className="min-h-screen bg-background flex items-center justify-center p-6">
+      <Card className="max-w-2xl w-full p-8 bg-card border-border text-center">
         {/* Success Icon */}
         <div className="relative mb-6">
           <div className="w-24 h-24 bg-linear-to-br from-green-600 to-emerald-600 rounded-full flex items-center justify-center mx-auto animate-pulse">
-            <CheckCircle className="w-12 h-12 text-white" />
+            <CheckCircle className="w-12 h-12 text-foreground" />
           </div>
           <div className="absolute inset-0 w-24 h-24 bg-green-600 rounded-full mx-auto animate-ping opacity-20" />
         </div>
 
         {/* Success Message */}
-        <h1 className="text-3xl font-bold text-white mb-2">
+        <h1 className="text-3xl font-bold text-foreground mb-2">
           Payment Successful! 🎉
         </h1>
-        <p className="text-gray-400 text-lg mb-8">
+        <p className="text-muted-foreground text-lg mb-8">
           Welcome to FlixVideo Premium! Your subscription is now active.
         </p>
 
         {/* What's Next */}
-        <div className="bg-gray-800 rounded-lg p-6 mb-8 text-left">
-          <h2 className="text-white font-semibold mb-4 flex items-center gap-2">
+        <div className="bg-secondary rounded-lg p-6 mb-8 text-left">
+          <h2 className="text-foreground font-semibold mb-4 flex items-center gap-2">
             <Sparkles className="w-5 h-5 text-yellow-500" />
             What's New for You
           </h2>
-          <ul className="space-y-3 text-gray-300 text-sm">
+          <ul className="space-y-3 text-foreground/80 text-sm">
             <li className="flex items-start gap-3">
               <CheckCircle className="w-5 h-5 text-green-500 shrink-0 mt-0.5" />
               <span>Unlimited AI-powered movie recommendations</span>
@@ -97,7 +97,7 @@ export default function SubscriptionSuccessPage() {
           <Button
             onClick={() => router.push('/settings/billing')}
             variant="outline"
-            className="flex-1 border-gray-700 text-white hover:bg-gray-800"
+            className="flex-1 border-border text-foreground hover:bg-secondary"
             size="lg"
           >
             <Download className="w-4 h-4 mr-2" />
@@ -106,7 +106,7 @@ export default function SubscriptionSuccessPage() {
         </div>
 
         {/* Auto Redirect Notice */}
-        <p className="text-gray-500 text-sm">
+        <p className="text-muted-foreground text-sm">
           Redirecting to dashboard in {countdown} seconds...
         </p>
       </Card>

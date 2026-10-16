@@ -139,7 +139,7 @@ export function VideoPlayer({
       <Button
         size="lg"
         variant="outline"
-        className="border-gray-400 bg-gray-800/80 hover:border-primary hover:bg-gray-700 transition-all font-semibold"
+        className="border-muted-foreground/50 bg-secondary/80 hover:border-primary hover:bg-accent transition-all font-semibold"
         onClick={handleOpen}
       >
         <Play className="w-5 h-5 mr-2" fill="currentColor" />
@@ -148,17 +148,17 @@ export function VideoPlayer({
 
       {/* Player Modal */}
       <Dialog open={isOpen} onOpenChange={(open) => { if (!open) handleClose() }}>
-        <DialogContent className="max-w-5xl w-full p-0 bg-black border-gray-800 overflow-hidden">
+        <DialogContent className="max-w-5xl w-full p-0 bg-background border-border overflow-hidden">
 
           {/* Header */}
-          <div className="flex items-center justify-between px-4 py-3 bg-gray-900">
-            <h3 className="text-white font-semibold truncate">{title} — Trailer</h3>
+          <div className="flex items-center justify-between px-4 py-3 bg-card">
+            <h3 className="text-foreground font-semibold truncate">{title} — Trailer</h3>
             <div className="flex items-center gap-2">
               {/* Mute toggle */}
               <Button
                 variant="ghost"
                 size="icon"
-                className="text-gray-400 hover:text-white"
+                className="text-muted-foreground hover:text-foreground"
                 onClick={() => setIsMuted(!isMuted)}
               >
                 {isMuted
@@ -171,7 +171,7 @@ export function VideoPlayer({
               <Button
                 variant="ghost"
                 size="icon"
-                className="text-gray-400 hover:text-white"
+                className="text-muted-foreground hover:text-foreground"
                 onClick={toggleFullscreen}
               >
                 {isFullscreen
@@ -184,7 +184,7 @@ export function VideoPlayer({
               <Button
                 variant="ghost"
                 size="icon"
-                className="text-gray-400 hover:text-white"
+                className="text-muted-foreground hover:text-foreground"
                 onClick={handleClose}
               >
                 <X className="w-5 h-5" />
@@ -193,7 +193,7 @@ export function VideoPlayer({
           </div>
 
           {/* YouTube Embed */}
-          <div ref={containerRef} className="relative w-full aspect-video bg-black">
+          <div ref={containerRef} className="relative w-full aspect-video bg-background">
             <iframe
               src={getEmbedUrl()}
               title={`${title} Trailer`}
@@ -204,14 +204,14 @@ export function VideoPlayer({
           </div>
 
           {/* Footer */}
-          <div className="px-4 py-3 bg-gray-900 flex items-center justify-between">
-            <p className="text-xs text-gray-500">
+          <div className="px-4 py-3 bg-card flex items-center justify-between">
+            <p className="text-xs text-muted-foreground">
               Official trailer via YouTube
             </p>
             <Button
               variant="ghost"
               size="sm"
-              className="text-gray-400 hover:text-white text-xs"
+              className="text-muted-foreground hover:text-foreground text-xs"
               onClick={() =>
                 window.open(`https://www.youtube.com/watch?v=${videoKey}`, "_blank")
               }

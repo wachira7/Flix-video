@@ -85,8 +85,8 @@ export default function CreateWatchPartyPage() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-8"
         >
-          <h1 className="text-4xl font-bold text-white mb-2">Create Watch Party</h1>
-          <p className="text-gray-400">Set up a synchronized viewing session</p>
+          <h1 className="text-4xl font-bold text-foreground mb-2">Create Watch Party</h1>
+          <p className="text-muted-foreground">Set up a synchronized viewing session</p>
         </motion.div>
 
         {/* Form */}
@@ -95,12 +95,12 @@ export default function CreateWatchPartyPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
         >
-          <Card className="p-8 bg-gray-900 border-gray-800">
+          <Card className="p-8 bg-card border-border">
             <form onSubmit={handleSubmit} className="space-y-6">
               
               {/* Content Type */}
               <div>
-                <Label className="text-white mb-3 block">Content Type</Label>
+                <Label className="text-foreground mb-3 block">Content Type</Label>
                 <div className="grid grid-cols-2 gap-4">
                   <button
                     type="button"
@@ -108,11 +108,11 @@ export default function CreateWatchPartyPage() {
                     className={`p-4 rounded-lg border-2 transition-all ${
                       formData.content_type === 'movie'
                         ? 'border-primary bg-primary/20'
-                        : 'border-gray-700 hover:border-gray-600'
+                        : 'border-border hover:border-input'
                     }`}
                   >
-                    <Film className="w-8 h-8 mx-auto mb-2 text-white" />
-                    <p className="text-white font-semibold">Movie</p>
+                    <Film className="w-8 h-8 mx-auto mb-2 text-foreground" />
+                    <p className="text-foreground font-semibold">Movie</p>
                   </button>
                   <button
                     type="button"
@@ -120,18 +120,18 @@ export default function CreateWatchPartyPage() {
                     className={`p-4 rounded-lg border-2 transition-all ${
                       formData.content_type === 'tv'
                         ? 'border-primary bg-primary/20'
-                        : 'border-gray-700 hover:border-gray-600'
+                        : 'border-border hover:border-input'
                     }`}
                   >
-                    <Tv className="w-8 h-8 mx-auto mb-2 text-white" />
-                    <p className="text-white font-semibold">TV Show</p>
+                    <Tv className="w-8 h-8 mx-auto mb-2 text-foreground" />
+                    <p className="text-foreground font-semibold">TV Show</p>
                   </button>
                 </div>
               </div>
 
               {/* Content ID */}
               <div>
-                <Label htmlFor="content_id" className="text-white">
+                <Label htmlFor="content_id" className="text-foreground">
                   {formData.content_type === 'movie' ? 'Movie' : 'TV Show'} ID *
                 </Label>
                 <Input
@@ -140,23 +140,23 @@ export default function CreateWatchPartyPage() {
                   value={formData.content_id || ''}
                   onChange={(e) => setFormData({ ...formData, content_id: parseInt(e.target.value) })}
                   placeholder="TMDB ID (e.g., 550)"
-                  className="bg-gray-800 border-gray-700 text-white"
+                  className="bg-secondary border-border text-foreground"
                   required
                 />
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-muted-foreground mt-1">
                   Find on TMDB (The Movie Database)
                 </p>
               </div>
 
               {/* Title */}
               <div>
-                <Label htmlFor="title" className="text-white">Title *</Label>
+                <Label htmlFor="title" className="text-foreground">Title *</Label>
                 <Input
                   id="title"
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                   placeholder="Enter title"
-                  className="bg-gray-800 border-gray-700 text-white"
+                  className="bg-secondary border-border text-foreground"
                   required
                 />
               </div>
@@ -165,26 +165,26 @@ export default function CreateWatchPartyPage() {
               {formData.content_type === 'tv' && (
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="season" className="text-white">Season *</Label>
+                    <Label htmlFor="season" className="text-foreground">Season *</Label>
                     <Input
                       id="season"
                       type="number"
                       value={formData.season_number || ''}
                       onChange={(e) => setFormData({ ...formData, season_number: parseInt(e.target.value) })}
                       placeholder="1"
-                      className="bg-gray-800 border-gray-700 text-white"
+                      className="bg-secondary border-border text-foreground"
                       min="1"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="episode" className="text-white">Episode *</Label>
+                    <Label htmlFor="episode" className="text-foreground">Episode *</Label>
                     <Input
                       id="episode"
                       type="number"
                       value={formData.episode_number || ''}
                       onChange={(e) => setFormData({ ...formData, episode_number: parseInt(e.target.value) })}
                       placeholder="1"
-                      className="bg-gray-800 border-gray-700 text-white"
+                      className="bg-secondary border-border text-foreground"
                       min="1"
                     />
                   </div>
@@ -193,7 +193,7 @@ export default function CreateWatchPartyPage() {
 
               {/* Max Participants */}
               <div>
-                <Label htmlFor="max_participants" className="text-white">
+                <Label htmlFor="max_participants" className="text-foreground">
                   Max Participants
                 </Label>
                 <Input
@@ -201,28 +201,28 @@ export default function CreateWatchPartyPage() {
                   type="number"
                   value={formData.max_participants}
                   onChange={(e) => setFormData({ ...formData, max_participants: parseInt(e.target.value) })}
-                  className="bg-gray-800 border-gray-700 text-white"
+                  className="bg-secondary border-border text-foreground"
                   min="2"
                   max="50"
                 />
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-muted-foreground mt-1">
                   Between 2 and 50 participants
                 </p>
               </div>
 
               {/* Public/Private Toggle */}
-              <div className="flex items-center justify-between p-4 bg-gray-800 rounded-lg">
+              <div className="flex items-center justify-between p-4 bg-secondary rounded-lg">
                 <div className="flex items-center gap-3">
                   {formData.is_public ? (
                     <Unlock className="w-5 h-5 text-green-500" />
                   ) : (
-                    <Lock className="w-5 h-5 text-gray-400" />
+                    <Lock className="w-5 h-5 text-muted-foreground" />
                   )}
                   <div>
-                    <Label className="text-white font-semibold">
+                    <Label className="text-foreground font-semibold">
                       {formData.is_public ? 'Public Party' : 'Private Party'}
                     </Label>
-                    <p className="text-xs text-gray-400">
+                    <p className="text-xs text-muted-foreground">
                       {formData.is_public
                         ? 'Anyone can discover and join'
                         : 'Only people with the code can join'}

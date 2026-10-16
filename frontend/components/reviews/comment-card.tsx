@@ -82,15 +82,15 @@ export function CommentCard({ comment, currentUserId, onDelete, onCommentAdded }
           {/* Header */}
           <div className="flex items-center justify-between mb-1">
             <div className="flex items-center gap-2">
-              <span className="text-sm font-semibold text-white">
+              <span className="text-sm font-semibold text-foreground">
                 {comment.username}
               </span>
-              <span className="text-xs text-gray-500">
+              <span className="text-xs text-muted-foreground">
                 {format(new Date(comment.created_at), "MMM d, yyyy")}
               </span>
               {/* ADD DEPTH INDICATOR for deep comments */}
               {comment.depth > 3 && (
-                <span className="text-xs text-gray-600 italic">
+                <span className="text-xs text-muted-foreground/70 italic">
                   (↳ Level {comment.depth})
                 </span>
               )}
@@ -134,7 +134,7 @@ export function CommentCard({ comment, currentUserId, onDelete, onCommentAdded }
             />
           ) : (
             <>
-              <p className="text-sm text-gray-300 mb-2">{comment.content}</p>
+              <p className="text-sm text-foreground/80 mb-2">{comment.content}</p>
               
               {/* Reply Button - Now allows up to 10 levels */}
               {canReply && currentUserId && !isOwnComment && (
@@ -142,7 +142,7 @@ export function CommentCard({ comment, currentUserId, onDelete, onCommentAdded }
                   size="sm"
                   variant="ghost"
                   onClick={() => setIsReplying(!isReplying)}
-                  className="h-7 px-2 text-xs text-gray-400 hover:text-white"
+                  className="h-7 px-2 text-xs text-muted-foreground hover:text-foreground"
                 >
                   <Reply className="w-3 h-3 mr-1" />
                   Reply

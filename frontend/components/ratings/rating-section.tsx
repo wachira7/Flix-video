@@ -76,8 +76,8 @@ export function RatingSection({ contentType, contentId, title }: RatingSectionPr
   }
 
   return (
-    <Card className="p-6 bg-gray-900 border-gray-800">
-      <h3 className="text-xl font-bold text-white mb-4">
+    <Card className="p-6 bg-card border-border">
+      <h3 className="text-xl font-bold text-foreground mb-4">
         Rate This {contentType === "movie" ? "Movie" : "Show"}
       </h3>
       
@@ -104,7 +104,7 @@ export function RatingSection({ contentType, contentId, title }: RatingSectionPr
               variant="outline"
               onClick={handleDelete}
               disabled={loading}
-              className="border-red-500 text-red-500 hover:bg-red-500 hover:text-white"
+              className="border-red-500 text-red-500 hover:bg-red-500 hover:text-foreground"
             >
               <Trash2 className="w-4 h-4 mr-2" />
               Remove
@@ -122,7 +122,7 @@ export function RatingSection({ contentType, contentId, title }: RatingSectionPr
       </div>
 
       {userRating && (
-        <p className="text-sm text-gray-400 mt-3">
+        <p className="text-sm text-muted-foreground mt-3">
           You rated this {userRating.toFixed(1)}/10
         </p>
       )}

@@ -190,11 +190,11 @@ export default function AIChatPage() {
   ]
 
   return (
-    <div className="flex h-[calc(100vh-64px)] bg-gray-950">
+    <div className="flex h-[calc(100vh-64px)] bg-background">
 
       {/* ── Sidebar: Conversation History ──────────────────────── */}
-      <div className="w-72 border-r border-gray-800 flex flex-col bg-gray-900">
-        <div className="p-4 border-b border-gray-800">
+      <div className="w-72 border-r border-border flex flex-col bg-card">
+        <div className="p-4 border-b border-border">
           <Button
             onClick={startNewChat}
             className="w-full bg-primary hover:bg-primary/90"
@@ -204,7 +204,7 @@ export default function AIChatPage() {
           </Button>
         </div>
 
-        <div className="p-3 border-b border-gray-800">
+        <div className="p-3 border-b border-border">
           {aiStatus && (
             <div className="flex items-center gap-2">
               <Badge className={aiStatus.available_count > 0 ? "bg-green-700" : "bg-red-700"}>
@@ -214,7 +214,7 @@ export default function AIChatPage() {
                 }
               </Badge>
               {aiStatus.available_count > 0 && (
-                <span className="text-xs text-gray-500">
+                <span className="text-xs text-muted-foreground">
                   {aiStatus.primary_provider === "claude" ? "Claude AI" : "GPT-4"}
                 </span>
               )}
@@ -225,12 +225,12 @@ export default function AIChatPage() {
         <ScrollArea className="flex-1 p-2">
           {loadingHistory ? (
             <div className="space-y-2 p-2">
-              {[1, 2, 3].map(i => <Skeleton key={i} className="h-12 bg-gray-800" />)}
+              {[1, 2, 3].map(i => <Skeleton key={i} className="h-12 bg-secondary" />)}
             </div>
           ) : conversations.length === 0 ? (
             <div className="p-4 text-center">
-              <MessageSquare className="w-8 h-8 text-gray-600 mx-auto mb-2" />
-              <p className="text-xs text-gray-500">No conversations yet</p>
+              <MessageSquare className="w-8 h-8 text-muted-foreground/70 mx-auto mb-2" />
+              <p className="text-xs text-muted-foreground">No conversations yet</p>
             </div>
           ) : (
             <div className="space-y-1">
@@ -241,21 +241,21 @@ export default function AIChatPage() {
                   className={`group flex items-center justify-between p-3 rounded-lg cursor-pointer transition-colors ${
                     conv.sessionId === sessionId
                       ? "bg-primary/20 border border-primary"
-                      : "hover:bg-gray-800"
+                      : "hover:bg-secondary"
                   }`}
                 >
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm text-white truncate">
+                    <p className="text-sm text-foreground truncate">
                       {conv.messages?.[0]?.content || "New conversation"}
                     </p>
-                    <p className="text-xs text-gray-500 mt-0.5">
+                    <p className="text-xs text-muted-foreground mt-0.5">
                       {new Date(conv.updatedAt).toLocaleDateString()}
                     </p>
                   </div>
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-7 w-7 opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-400"
+                    className="h-7 w-7 opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-red-400"
                     onClick={(e) => deleteConversation(conv.sessionId, e)}
                   >
                     <Trash2 className="w-3 h-3" />
@@ -271,13 +271,13 @@ export default function AIChatPage() {
       <div className="flex-1 flex flex-col">
 
         {/* Header */}
-        <div className="px-6 py-4 border-b border-gray-800 flex items-center gap-3">
+        <div className="px-6 py-4 border-b border-border flex items-center gap-3">
           <div className="p-2 bg-primary rounded-lg">
             <Brain className="w-5 h-5 text-primary-foreground" />
           </div>
           <div>
-            <h1 className="text-lg font-bold text-white">AI Movie Assistant</h1>
-            <p className="text-xs text-gray-400">
+            <h1 className="text-lg font-bold text-foreground">AI Movie Assistant</h1>
+            <p className="text-xs text-muted-foreground">
               Powered by {provider === "claude" ? "Claude AI" : "GPT-4"} — Ask me anything about movies & TV
             </p>
           </div>
@@ -290,10 +290,10 @@ export default function AIChatPage() {
               <div className="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mb-6">
                 <Sparkles className="w-8 h-8 text-primary" />
               </div>
-              <h2 className="text-xl font-bold text-white mb-2">
+              <h2 className="text-xl font-bold text-foreground mb-2">
                 What would you like to watch?
               </h2>
-              <p className="text-gray-400 text-center mb-8 max-w-md">
+              <p className="text-muted-foreground text-center mb-8 max-w-md">
                 Ask me for movie recommendations, TV show suggestions, or anything about the world of cinema.
               </p>
 
@@ -303,7 +303,7 @@ export default function AIChatPage() {
                   <button
                     key={i}
                     onClick={() => { setInput(prompt); inputRef.current?.focus() }}
-                    className="text-left p-3 rounded-lg border border-gray-700 hover:border-primary bg-gray-800/50 hover:bg-gray-800 transition-all text-sm text-gray-300"
+                    className="text-left p-3 rounded-lg border border-border hover:border-primary bg-secondary/50 hover:bg-secondary transition-all text-sm text-foreground/80"
                   >
                     {prompt}
                   </button>
@@ -325,10 +325,10 @@ export default function AIChatPage() {
                     <div className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
                       msg.role === "user"
                         ? "bg-primary"
-                        : "bg-gray-700"
+                        : "bg-accent"
                     }`}>
                       {msg.role === "user"
-                        ? <User className="w-4 h-4 text-white" />
+                        ? <User className="w-4 h-4 text-foreground" />
                         : <Bot className="w-4 h-4 text-primary" />
                       }
                     </div>
@@ -338,11 +338,11 @@ export default function AIChatPage() {
                       <div className={`px-4 py-3 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap ${
                         msg.role === "user"
                           ? "bg-primary text-primary-foreground rounded-tr-sm"
-                          : "bg-gray-800 text-gray-100 rounded-tl-sm"
+                          : "bg-secondary text-foreground rounded-tl-sm"
                       }`}>
                         {msg.content}
                       </div>
-                      <span className="text-xs text-gray-500 px-1">
+                      <span className="text-xs text-muted-foreground px-1">
                         {msg.timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                         {msg.tokensUsed ? ` · ${msg.tokensUsed} tokens` : ""}
                       </span>
@@ -357,10 +357,10 @@ export default function AIChatPage() {
                     animate={{ opacity: 1 }}
                     className="flex gap-3"
                   >
-                    <div className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center">
+                    <div className="w-8 h-8 rounded-full bg-accent flex items-center justify-center">
                       <Bot className="w-4 h-4 text-primary" />
                     </div>
-                    <div className="bg-gray-800 px-4 py-3 rounded-2xl rounded-tl-sm">
+                    <div className="bg-secondary px-4 py-3 rounded-2xl rounded-tl-sm">
                       <div className="flex gap-1">
                         {[0, 1, 2].map(i => (
                           <div
@@ -379,7 +379,7 @@ export default function AIChatPage() {
         </ScrollArea>
 
         {/* Input Area */}
-        <div className="p-4 border-t border-gray-800 bg-gray-900">
+        <div className="p-4 border-t border-border bg-card">
           <div className="max-w-3xl mx-auto flex gap-3 items-end">
             <Input
               ref={inputRef}
@@ -387,7 +387,7 @@ export default function AIChatPage() {
               onChange={e => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Ask about movies, TV shows, recommendations..."
-              className="bg-gray-800 border-gray-700 text-white placeholder:text-gray-500 focus:border-primary resize-none"
+              className="bg-secondary border-border text-foreground placeholder:text-muted-foreground focus:border-primary resize-none"
               disabled={loading || (aiStatus && aiStatus.available_count === 0)}
             />
             <Button
@@ -399,7 +399,7 @@ export default function AIChatPage() {
               <Send className="w-4 h-4" />
             </Button>
           </div>
-          <p className="text-xs text-gray-600 text-center mt-2">
+          <p className="text-xs text-muted-foreground/70 text-center mt-2">
             Press Enter to send · Shift+Enter for new line
           </p>
         </div>

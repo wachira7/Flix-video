@@ -64,8 +64,8 @@ export default function SettingsPage() {
       <div className="flex items-center gap-3 mb-8">
         <SettingsIcon className="w-8 h-8 text-primary" />
         <div>
-          <h1 className="text-3xl font-bold text-white">Settings</h1>
-          <p className="text-gray-400 mt-1">Manage your account and preferences</p>
+          <h1 className="text-3xl font-bold text-foreground">Settings</h1>
+          <p className="text-muted-foreground mt-1">Manage your account and preferences</p>
         </div>
       </div>
 
@@ -76,22 +76,22 @@ export default function SettingsPage() {
           
           return (
             <Link key={link.href} href={link.href}>
-              <Card className="p-5 bg-gray-900 border-gray-800 hover:border-primary transition-all duration-200 cursor-pointer group">
+              <Card className="p-5 bg-card border-border hover:border-primary transition-all duration-200 cursor-pointer group">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
                     <div className={`p-3 ${link.bgColor} rounded-lg transition-transform group-hover:scale-110`}>
                       <Icon className={`w-6 h-6 ${link.color}`} />
                     </div>
                     <div>
-                      <h3 className="text-lg font-semibold text-white group-hover:text-primary transition-colors">
+                      <h3 className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors">
                         {link.label}
                       </h3>
-                      <p className="text-sm text-gray-400 mt-0.5">
+                      <p className="text-sm text-muted-foreground mt-0.5">
                         {link.description}
                       </p>
                     </div>
                   </div>
-                  <ChevronRight className="w-5 h-5 text-gray-500 group-hover:text-primary transition-colors" />
+                  <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
                 </div>
               </Card>
             </Link>

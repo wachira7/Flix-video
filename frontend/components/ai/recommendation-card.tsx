@@ -50,11 +50,11 @@ export function RecommendationCard({ recommendation }: RecommendationCardProps) 
   }
 
   return (
-    <Card className="group overflow-hidden bg-gray-900 border-gray-800 hover:border-primary transition-all duration-300 hover:scale-105">
+    <Card className="group overflow-hidden bg-card border-border hover:border-primary transition-all duration-300 hover:scale-105">
       {/* Poster */}
-      <div className="relative aspect-2/3 overflow-hidden bg-gray-800">
+      <div className="relative aspect-2/3 overflow-hidden bg-secondary">
         {loading ? (
-          <Skeleton className="w-full h-full bg-gray-800" />
+          <Skeleton className="w-full h-full bg-secondary" />
         ) : posterPath ? (
           <img
             src={posterPath}
@@ -62,8 +62,8 @@ export function RecommendationCard({ recommendation }: RecommendationCardProps) 
             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center bg-gray-800">
-            <Play className="w-16 h-16 text-gray-600" />
+          <div className="w-full h-full flex items-center justify-center bg-secondary">
+            <Play className="w-16 h-16 text-muted-foreground/70" />
           </div>
         )}
 
@@ -89,7 +89,7 @@ export function RecommendationCard({ recommendation }: RecommendationCardProps) 
             <Button
               variant="outline"
               size="sm"
-              className="border-gray-700"
+              className="border-border"
             >
               <Plus className="w-4 h-4" />
             </Button>
@@ -99,7 +99,7 @@ export function RecommendationCard({ recommendation }: RecommendationCardProps) 
 
       {/* Details */}
       <div className="p-4">
-        <h3 className="text-white font-semibold mb-2 line-clamp-1">
+        <h3 className="text-foreground font-semibold mb-2 line-clamp-1">
           {recommendation.title}
         </h3>
 
@@ -117,7 +117,7 @@ export function RecommendationCard({ recommendation }: RecommendationCardProps) 
         </div>
 
         {/* AI Reasoning */}
-        <p className="text-gray-400 text-sm line-clamp-3 leading-relaxed">
+        <p className="text-muted-foreground text-sm line-clamp-3 leading-relaxed">
           {recommendation.reason}
         </p>
       </div>

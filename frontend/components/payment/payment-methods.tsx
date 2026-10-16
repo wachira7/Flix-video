@@ -116,7 +116,7 @@ export function PaymentMethods() {
     return (
       <div className="space-y-4">
         {[1, 2].map((i) => (
-          <Skeleton key={i} className="h-24 bg-gray-800" />
+          <Skeleton key={i} className="h-24 bg-secondary" />
         ))}
       </div>
     )
@@ -124,13 +124,13 @@ export function PaymentMethods() {
 
   if (methods.length === 0) {
     return (
-      <Card className="p-8 bg-gray-900 border-gray-800 text-center">
-        <CreditCard className="w-12 h-12 mx-auto mb-4 text-gray-600" />
-        <h3 className="text-white font-semibold mb-2">No Payment Methods</h3>
-        <p className="text-gray-400 text-sm mb-6">
+      <Card className="p-8 bg-card border-border text-center">
+        <CreditCard className="w-12 h-12 mx-auto mb-4 text-muted-foreground/70" />
+        <h3 className="text-foreground font-semibold mb-2">No Payment Methods</h3>
+        <p className="text-muted-foreground text-sm mb-6">
           Payment methods will be saved automatically when you make a purchase
         </p>
-        <p className="text-gray-500 text-xs">
+        <p className="text-muted-foreground text-xs">
           You can manage your saved payment methods here after your first transaction
         </p>
       </Card>
@@ -143,28 +143,28 @@ export function PaymentMethods() {
       {methods.map((method) => (
         <Card
           key={method.id}
-          className={`p-4 bg-gray-900 border-2 transition-colors ${
-            method.is_default ? 'border-green-600' : 'border-gray-800'
+          className={`p-4 bg-card border-2 transition-colors ${
+            method.is_default ? 'border-green-600' : 'border-border'
           }`}
         >
           <div className="flex items-center gap-4">
-            <div className="p-3 bg-gray-800 rounded-lg text-white">
+            <div className="p-3 bg-secondary rounded-lg text-foreground">
               {getMethodIcon(method)}
             </div>
 
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-1">
-                <span className="text-white font-medium">
+                <span className="text-foreground font-medium">
                   {getMethodDisplay(method)}
                 </span>
                 {method.is_default && (
-                  <Badge className="bg-green-600 text-white text-xs">
+                  <Badge className="bg-green-600 text-foreground text-xs">
                     <CheckCircle className="w-3 h-3 mr-1" />
                     Default
                   </Badge>
                 )}
               </div>
-              <p className="text-gray-400 text-sm">
+              <p className="text-muted-foreground text-sm">
                 Added {new Date(method.created_at).toLocaleDateString()}
               </p>
             </div>
@@ -176,10 +176,10 @@ export function PaymentMethods() {
                   disabled={settingDefault === method.id}
                   variant="outline"
                   size="sm"
-                  className="border-gray-700"
+                  className="border-border"
                 >
                   {settingDefault === method.id ? (
-                    <div className="w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />
+                    <div className="w-4 h-4 border-2 border-muted-foreground/50 border-t-transparent rounded-full animate-spin" />
                   ) : (
                     'Set Default'
                   )}

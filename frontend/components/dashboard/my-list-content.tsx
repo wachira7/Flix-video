@@ -87,7 +87,7 @@ export function MyListContent({ type }: MyListContentProps) {
     return (
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
         {[...Array(12)].map((_, i) => (
-          <Skeleton key={i} className="aspect-2/3 bg-gray-800 rounded-lg" />
+          <Skeleton key={i} className="aspect-2/3 bg-secondary rounded-lg" />
         ))}
       </div>
     )
@@ -97,7 +97,7 @@ export function MyListContent({ type }: MyListContentProps) {
     return (
       <div className="flex flex-col items-center justify-center py-12 text-center">
         <AlertCircle className="w-12 h-12 text-red-500 mb-4" />
-        <p className="text-white text-lg">{error}</p>
+        <p className="text-foreground text-lg">{error}</p>
       </div>
     )
   }
@@ -105,10 +105,10 @@ export function MyListContent({ type }: MyListContentProps) {
   if (items.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-12 text-center">
-        <p className="text-gray-400 text-lg mb-2">
+        <p className="text-muted-foreground text-lg mb-2">
           Your {type} is empty
         </p>
-        <p className="text-gray-500 text-sm">
+        <p className="text-muted-foreground text-sm">
           Browse content and add items to your {type}
         </p>
       </div>

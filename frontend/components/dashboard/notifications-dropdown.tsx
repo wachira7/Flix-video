@@ -114,7 +114,7 @@ export function NotificationsDropdown() {
       case 'system':
         return <AlertCircle className="w-5 h-5 text-yellow-500" />
       default:
-        return <Bell className="w-5 h-5 text-gray-500" />
+        return <Bell className="w-5 h-5 text-muted-foreground" />
     }
   }
 
@@ -122,7 +122,7 @@ export function NotificationsDropdown() {
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon" className="relative">
-          <Bell className="w-5 h-5 text-gray-400 hover:text-white" />
+          <Bell className="w-5 h-5 text-muted-foreground hover:text-foreground" />
           {unreadCount > 0 && (
             <Badge
               variant="destructive"
@@ -135,14 +135,14 @@ export function NotificationsDropdown() {
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="end"
-        className="w-96 bg-gray-900 border-gray-800 p-0"
+        className="w-96 bg-card border-border p-0"
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-800">
+        <div className="flex items-center justify-between p-4 border-b border-border">
           <div>
-            <h3 className="text-lg font-semibold text-white">Notifications</h3>
+            <h3 className="text-lg font-semibold text-foreground">Notifications</h3>
             {unreadCount > 0 && (
-              <p className="text-sm text-gray-400">{unreadCount} unread</p>
+              <p className="text-sm text-muted-foreground">{unreadCount} unread</p>
             )}
           </div>
           {notifications.length > 0 && (
@@ -166,19 +166,19 @@ export function NotificationsDropdown() {
             </div>
           ) : notifications.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 px-4">
-              <Bell className="w-12 h-12 text-gray-600 mb-3" />
-              <p className="text-gray-400 text-center">No notifications yet</p>
-              <p className="text-gray-500 text-sm text-center mt-1">
+              <Bell className="w-12 h-12 text-muted-foreground/70 mb-3" />
+              <p className="text-muted-foreground text-center">No notifications yet</p>
+              <p className="text-muted-foreground text-sm text-center mt-1">
                 You'll see updates about billing, watch parties, and more here
               </p>
             </div>
           ) : (
-            <div className="divide-y divide-gray-800">
+            <div className="divide-y divide-border">
               {notifications.map((notification) => (
                 <div
                   key={notification.id}
-                  className={`p-4 hover:bg-gray-800 transition-colors cursor-pointer ${
-                    !notification.read ? 'bg-gray-800/50' : ''
+                  className={`p-4 hover:bg-secondary transition-colors cursor-pointer ${
+                    !notification.read ? 'bg-secondary/50' : ''
                   }`}
                   onClick={() => handleNotificationClick(notification)}
                 >
@@ -191,17 +191,17 @@ export function NotificationsDropdown() {
                     {/* Content */}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2">
-                        <h4 className="text-sm font-semibold text-white">
+                        <h4 className="text-sm font-semibold text-foreground">
                           {notification.title}
                         </h4>
                         {!notification.read && (
                           <div className="w-2 h-2 bg-primary rounded-full shrink-0 mt-1" />
                         )}
                       </div>
-                      <p className="text-sm text-gray-400 mt-1 line-clamp-2">
+                      <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
                         {notification.message}
                       </p>
-                      <p className="text-xs text-gray-500 mt-2">
+                      <p className="text-xs text-muted-foreground mt-2">
                         {formatDistanceToNow(new Date(notification.created_at), {
                           addSuffix: true,
                         })}
@@ -214,25 +214,25 @@ export function NotificationsDropdown() {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-8 w-8 hover:bg-gray-700"
+                          className="h-8 w-8 hover:bg-accent"
                           onClick={(e) => {
                             e.stopPropagation()
                             handleMarkAsRead(notification.id)
                           }}
                         >
-                          <Check className="w-4 h-4 text-gray-400" />
+                          <Check className="w-4 h-4 text-muted-foreground" />
                         </Button>
                       )}
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-8 w-8 hover:bg-gray-700"
+                        className="h-8 w-8 hover:bg-accent"
                         onClick={(e) => {
                           e.stopPropagation()
                           handleDelete(notification.id)
                         }}
                       >
-                        <Trash2 className="w-4 h-4 text-gray-400 hover:text-red-400" />
+                        <Trash2 className="w-4 h-4 text-muted-foreground hover:text-red-400" />
                       </Button>
                     </div>
                   </div>
@@ -244,7 +244,7 @@ export function NotificationsDropdown() {
 
         {/* Footer */}
         {notifications.length > 0 && (
-          <div className="p-3 border-t border-gray-800 text-center">
+          <div className="p-3 border-t border-border text-center">
             <Button
               variant="ghost"
               size="sm"

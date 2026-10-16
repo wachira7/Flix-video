@@ -45,7 +45,7 @@ export default function PaymentsPage() {
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-gray-400">Loading payments...</p>
+          <p className="text-muted-foreground">Loading payments...</p>
         </div>
       </div>
     )
@@ -57,8 +57,8 @@ export default function PaymentsPage() {
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-white mb-2">Payment Management</h1>
-        <p className="text-gray-400">Monitor transactions and revenue</p>
+        <h1 className="text-3xl font-bold text-foreground mb-2">Payment Management</h1>
+        <p className="text-muted-foreground">Monitor transactions and revenue</p>
       </div>
 
       {/* Stats */}
@@ -94,13 +94,13 @@ export default function PaymentsPage() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-4 border-b border-gray-800">
+      <div className="flex gap-4 border-b border-border">
         <button
           onClick={() => setActiveTab('all')}
           className={`pb-3 px-4 border-b-2 transition-colors ${
             activeTab === 'all'
-              ? 'border-primary text-white'
-              : 'border-transparent text-gray-400 hover:text-white'
+              ? 'border-primary text-foreground'
+              : 'border-transparent text-muted-foreground hover:text-foreground'
           }`}
         >
           All Payments ({payments.length})
@@ -109,8 +109,8 @@ export default function PaymentsPage() {
           onClick={() => setActiveTab('failed')}
           className={`pb-3 px-4 border-b-2 transition-colors ${
             activeTab === 'failed'
-              ? 'border-primary text-white'
-              : 'border-transparent text-gray-400 hover:text-white'
+              ? 'border-primary text-foreground'
+              : 'border-transparent text-muted-foreground hover:text-foreground'
           }`}
         >
           Failed Payments ({failedPayments.length})
@@ -118,52 +118,52 @@ export default function PaymentsPage() {
       </div>
 
       {/* Payments Table */}
-      <Card className="bg-gray-900 border-gray-800 overflow-hidden">
+      <Card className="bg-card border-border overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-gray-800">
+            <thead className="bg-secondary">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">
+                <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase">
                   Transaction ID
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">
+                <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase">
                   User
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">
+                <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase">
                   Amount
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">
+                <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase">
                   Method
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">
+                <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase">
                   Status
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">
+                <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase">
                   Date
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-800">
+            <tbody className="divide-y divide-border">
               {displayPayments.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-6 py-12 text-center text-gray-400">
+                  <td colSpan={6} className="px-6 py-12 text-center text-muted-foreground">
                     No payments found
                   </td>
                 </tr>
               ) : (
                 displayPayments.map((payment) => (
-                  <tr key={payment.id} className="hover:bg-gray-800/50">
-                    <td className="px-6 py-4 text-sm text-white font-mono">
+                  <tr key={payment.id} className="hover:bg-secondary/50">
+                    <td className="px-6 py-4 text-sm text-foreground font-mono">
                       {payment.transaction_id?.slice(0, 12) || payment.id.slice(0, 12)}...
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-300">
+                    <td className="px-6 py-4 text-sm text-foreground/80">
                       {payment.user_email || 'Unknown'}
                     </td>
-                    <td className="px-6 py-4 text-sm text-white font-semibold">
+                    <td className="px-6 py-4 text-sm text-foreground font-semibold">
                       {payment.currency} {payment.amount.toLocaleString()}
                     </td>
                     <td className="px-6 py-4 text-sm">
-                      <Badge variant="outline" className="border-gray-600 text-gray-300">
+                      <Badge variant="outline" className="border-input text-foreground/80">
                         {payment.payment_method}
                       </Badge>
                     </td>
@@ -180,7 +180,7 @@ export default function PaymentsPage() {
                         {payment.status}
                       </Badge>
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-400">
+                    <td className="px-6 py-4 text-sm text-muted-foreground">
                       {formatDistanceToNow(new Date(payment.created_at), { addSuffix: true })}
                     </td>
                   </tr>

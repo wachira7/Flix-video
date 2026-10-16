@@ -78,23 +78,23 @@ export default function AccountSettingsPage() {
           </Button>
         </Link>
         <div>
-          <h1 className="text-3xl font-bold text-white">Account Settings</h1>
-          <p className="text-gray-400 mt-1">Manage your account details and security</p>
+          <h1 className="text-3xl font-bold text-foreground">Account Settings</h1>
+          <p className="text-muted-foreground mt-1">Manage your account details and security</p>
         </div>
       </div>
 
       <div className="space-y-6">
         {/* Account Information */}
-        <Card className="p-6 bg-gray-900 border-gray-800">
+        <Card className="p-6 bg-card border-border">
           <div className="flex items-center gap-3 mb-6">
             <User className="w-6 h-6 text-blue-500" />
-            <h2 className="text-xl font-semibold text-white">Account Information</h2>
+            <h2 className="text-xl font-semibold text-foreground">Account Information</h2>
           </div>
 
           <div className="space-y-4">
             {/* Email */}
             <div>
-              <Label className="text-gray-300 flex items-center gap-2">
+              <Label className="text-foreground/80 flex items-center gap-2">
                 <Mail className="w-4 h-4" />
                 Email Address
               </Label>
@@ -102,7 +102,7 @@ export default function AccountSettingsPage() {
                 <Input
                   value={userData.email || ''}
                   disabled
-                  className="bg-gray-800 border-gray-700 text-white"
+                  className="bg-secondary border-border text-foreground"
                 />
                 {userData.email_verified ? (
                   <Badge className="bg-green-600 shrink-0">Verified</Badge>
@@ -119,11 +119,11 @@ export default function AccountSettingsPage() {
               )}
             </div>
 
-            <Separator className="bg-gray-800" />
+            <Separator className="bg-secondary" />
 
             {/* Phone */}
             <div>
-              <Label className="text-gray-300 flex items-center gap-2">
+              <Label className="text-foreground/80 flex items-center gap-2">
                 <Phone className="w-4 h-4" />
                 Phone Number
               </Label>
@@ -131,7 +131,7 @@ export default function AccountSettingsPage() {
                 <Input
                   value={userData.phone || ''}
                   placeholder="Add phone number"
-                  className="bg-gray-800 border-gray-700 text-white"
+                  className="bg-secondary border-border text-foreground"
                 />
                 {userData.phone_verified ? (
                   <Badge className="bg-green-600 shrink-0">Verified</Badge>
@@ -140,24 +140,24 @@ export default function AccountSettingsPage() {
                     Not Verified
                   </Badge>
                 ) : (
-                  <Badge variant="outline" className="border-gray-600 text-gray-400 shrink-0">
+                  <Badge variant="outline" className="border-input text-muted-foreground shrink-0">
                     Not Set
                   </Badge>
                 )}
               </div>
             </div>
 
-            <Separator className="bg-gray-800" />
+            <Separator className="bg-secondary" />
 
             {/* Account Status */}
             <div>
-              <Label className="text-gray-300 flex items-center gap-2">
+              <Label className="text-foreground/80 flex items-center gap-2">
                 <Shield className="w-4 h-4" />
                 Account Status
               </Label>
               <div className="flex items-center gap-3 mt-2">
                 <Badge className="bg-green-600 capitalize">{userData.status || 'Active'}</Badge>
-                <span className="text-sm text-gray-400">
+                <span className="text-sm text-muted-foreground">
                   Member since {userData.created_at ? new Date(userData.created_at).toLocaleDateString() : 'N/A'}
                 </span>
               </div>
@@ -166,15 +166,15 @@ export default function AccountSettingsPage() {
         </Card>
 
         {/* Change Password */}
-        <Card className="p-6 bg-gray-900 border-gray-800">
+        <Card className="p-6 bg-card border-border">
           <div className="flex items-center gap-3 mb-6">
             <Lock className="w-6 h-6 text-primary" />
-            <h2 className="text-xl font-semibold text-white">Change Password</h2>
+            <h2 className="text-xl font-semibold text-foreground">Change Password</h2>
           </div>
 
           <form onSubmit={handlePasswordChange} className="space-y-4">
             <div>
-              <Label htmlFor="current_password" className="text-gray-300">
+              <Label htmlFor="current_password" className="text-foreground/80">
                 Current Password
               </Label>
               <Input
@@ -182,13 +182,13 @@ export default function AccountSettingsPage() {
                 type="password"
                 value={passwordData.current_password}
                 onChange={(e) => setPasswordData(prev => ({ ...prev, current_password: e.target.value }))}
-                className="bg-gray-800 border-gray-700 text-white mt-2"
+                className="bg-secondary border-border text-foreground mt-2"
                 required
               />
             </div>
 
             <div>
-              <Label htmlFor="new_password" className="text-gray-300">
+              <Label htmlFor="new_password" className="text-foreground/80">
                 New Password
               </Label>
               <Input
@@ -196,15 +196,15 @@ export default function AccountSettingsPage() {
                 type="password"
                 value={passwordData.new_password}
                 onChange={(e) => setPasswordData(prev => ({ ...prev, new_password: e.target.value }))}
-                className="bg-gray-800 border-gray-700 text-white mt-2"
+                className="bg-secondary border-border text-foreground mt-2"
                 minLength={8}
                 required
               />
-              <p className="text-xs text-gray-500 mt-1">Must be at least 8 characters</p>
+              <p className="text-xs text-muted-foreground mt-1">Must be at least 8 characters</p>
             </div>
 
             <div>
-              <Label htmlFor="confirm_password" className="text-gray-300">
+              <Label htmlFor="confirm_password" className="text-foreground/80">
                 Confirm New Password
               </Label>
               <Input
@@ -212,7 +212,7 @@ export default function AccountSettingsPage() {
                 type="password"
                 value={passwordData.confirm_password}
                 onChange={(e) => setPasswordData(prev => ({ ...prev, confirm_password: e.target.value }))}
-                className="bg-gray-800 border-gray-700 text-white mt-2"
+                className="bg-secondary border-border text-foreground mt-2"
                 required
               />
             </div>

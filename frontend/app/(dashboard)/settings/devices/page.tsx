@@ -76,13 +76,13 @@ export default function DevicesSettingsPage() {
           </Button>
         </Link>
         <div className="flex-1">
-          <h1 className="text-3xl font-bold text-white">Device Management</h1>
-          <p className="text-gray-400 mt-1">Manage devices that have access to your account</p>
+          <h1 className="text-3xl font-bold text-foreground">Device Management</h1>
+          <p className="text-muted-foreground mt-1">Manage devices that have access to your account</p>
         </div>
         {devices.length > 1 && (
           <Button 
             variant="outline" 
-            className="border-red-500 text-red-500 hover:bg-red-500 hover:text-white"
+            className="border-red-500 text-red-500 hover:bg-red-500 hover:text-foreground"
             onClick={handleLogoutAll}
           >
             <LogOut className="w-4 h-4 mr-2" />
@@ -99,8 +99,8 @@ export default function DevicesSettingsPage() {
               <Smartphone className="w-5 h-5 text-blue-400" />
             </div>
             <div>
-              <p className="text-white font-medium">Active Devices: {devices.length}/5</p>
-              <p className="text-sm text-gray-400 mt-1">
+              <p className="text-foreground font-medium">Active Devices: {devices.length}/5</p>
+              <p className="text-sm text-muted-foreground mt-1">
                 Your Premium plan allows up to 5 simultaneous streams. Upgrade to Family plan for 10 devices.
               </p>
             </div>
@@ -108,29 +108,29 @@ export default function DevicesSettingsPage() {
         </Card>
 
         {/* Active Devices */}
-        <Card className="p-6 bg-gray-900 border-gray-800">
-          <h2 className="text-xl font-semibold text-white mb-6">Active Devices</h2>
+        <Card className="p-6 bg-card border-border">
+          <h2 className="text-xl font-semibold text-foreground mb-6">Active Devices</h2>
 
           <div className="space-y-4">
             {devices.map((device) => {
               const DeviceIcon = getDeviceIcon(device.type)
               
               return (
-                <div key={device.id} className="flex items-start gap-4 p-4 bg-gray-800 rounded-lg">
-                  <div className="p-3 bg-gray-700 rounded-lg">
-                    <DeviceIcon className="w-6 h-6 text-gray-300" />
+                <div key={device.id} className="flex items-start gap-4 p-4 bg-secondary rounded-lg">
+                  <div className="p-3 bg-accent rounded-lg">
+                    <DeviceIcon className="w-6 h-6 text-foreground/80" />
                   </div>
 
                   <div className="flex-1">
                     <div className="flex items-start justify-between mb-2">
                       <div>
                         <div className="flex items-center gap-2">
-                          <h3 className="text-white font-semibold">{device.name}</h3>
+                          <h3 className="text-foreground font-semibold">{device.name}</h3>
                           {device.isCurrent && (
                             <Badge className="bg-green-600">This Device</Badge>
                           )}
                         </div>
-                        <p className="text-sm text-gray-400 mt-1">
+                        <p className="text-sm text-muted-foreground mt-1">
                           {device.location} • {device.ip}
                         </p>
                       </div>
@@ -139,7 +139,7 @@ export default function DevicesSettingsPage() {
                         <Button
                           size="sm"
                           variant="outline"
-                          className="border-red-500 text-red-500 hover:bg-red-500 hover:text-white"
+                          className="border-red-500 text-red-500 hover:bg-red-500 hover:text-foreground"
                           onClick={() => handleLogout(device.id)}
                         >
                           <LogOut className="w-4 h-4 mr-2" />
@@ -148,7 +148,7 @@ export default function DevicesSettingsPage() {
                       )}
                     </div>
 
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-muted-foreground">
                       Last active: {device.lastActive}
                     </p>
                   </div>
@@ -160,8 +160,8 @@ export default function DevicesSettingsPage() {
 
         {/* Security Tips */}
         <Card className="p-6 bg-yellow-900/20 border-yellow-700">
-          <h3 className="text-white font-semibold mb-3">Security Tips</h3>
-          <ul className="space-y-2 text-sm text-gray-300">
+          <h3 className="text-foreground font-semibold mb-3">Security Tips</h3>
+          <ul className="space-y-2 text-sm text-foreground/80">
             <li className="flex items-start gap-2">
               <span className="text-yellow-500 mt-1">•</span>
               <span>Don't recognize a device? Log it out immediately and change your password.</span>

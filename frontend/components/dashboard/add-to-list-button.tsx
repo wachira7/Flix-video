@@ -117,7 +117,7 @@ export function AddToListButton({ contentType, contentId, variant = "full" }: Ad
     <Button
       size="lg"
       variant="outline"
-      className="border-gray-400 bg-gray-800/80 hover:bg-gray-700"
+      className="border-muted-foreground/50 bg-secondary/80 hover:bg-accent"
       disabled={loading}
     >
       <Plus className="w-6 h-6" />
@@ -126,7 +126,7 @@ export function AddToListButton({ contentType, contentId, variant = "full" }: Ad
     <Button
       size="lg"
       variant="outline"
-      className="border-gray-400 bg-gray-800/80 hover:bg-gray-700 text-white"
+      className="border-muted-foreground/50 bg-secondary/80 hover:bg-accent text-foreground"
       disabled={loading}
     >
       <Plus className="w-6 h-6 mr-2" />
@@ -139,37 +139,37 @@ export function AddToListButton({ contentType, contentId, variant = "full" }: Ad
       <DropdownMenuTrigger asChild>
         {ButtonContent}
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="bg-gray-900 border-gray-800 w-56">
+      <DropdownMenuContent className="bg-card border-border w-56">
         {/* Favorites */}
-        <DropdownMenuItem onClick={toggleFavorite} className="text-white hover:bg-gray-800">
+        <DropdownMenuItem onClick={toggleFavorite} className="text-foreground hover:bg-secondary">
           <Heart className={`w-4 h-4 mr-2 ${inFavorites ? "fill-red-500 text-red-500" : ""}`} />
           {inFavorites ? "Remove from Favorites" : "Add to Favorites"}
         </DropdownMenuItem>
 
         {/* Watchlist */}
-        <DropdownMenuItem onClick={toggleWatchlist} className="text-white hover:bg-gray-800">
+        <DropdownMenuItem onClick={toggleWatchlist} className="text-foreground hover:bg-secondary">
           <Check className={`w-4 h-4 mr-2 ${inWatchlist ? "text-green-500" : ""}`} />
           {inWatchlist ? "Remove from Watchlist" : "Add to Watchlist"}
         </DropdownMenuItem>
 
-        <DropdownMenuSeparator className="bg-gray-800" />
+        <DropdownMenuSeparator className="bg-secondary" />
 
         {/* Custom Lists */}
         <DropdownMenuSub>
           <DropdownMenuSubTrigger 
-            className="text-white hover:bg-gray-800"
+            className="text-foreground hover:bg-secondary"
             onMouseEnter={loadUserLists}
           >
             <List className="w-4 h-4 mr-2" />
             Add to List
           </DropdownMenuSubTrigger>
-          <DropdownMenuSubContent className="bg-gray-900 border-gray-800">
+          <DropdownMenuSubContent className="bg-card border-border">
             {listsLoading ? (
-              <DropdownMenuItem disabled className="text-gray-400">
+              <DropdownMenuItem disabled className="text-muted-foreground">
                 Loading lists...
               </DropdownMenuItem>
             ) : userLists.length === 0 ? (
-              <DropdownMenuItem disabled className="text-gray-400">
+              <DropdownMenuItem disabled className="text-muted-foreground">
                 No lists yet
               </DropdownMenuItem>
             ) : (
@@ -177,16 +177,16 @@ export function AddToListButton({ contentType, contentId, variant = "full" }: Ad
                 <DropdownMenuItem
                   key={list.id}
                   onClick={() => addToCustomList(list.id, list.title)}
-                  className="text-white hover:bg-gray-800"
+                  className="text-foreground hover:bg-secondary"
                 >
                   {list.title}
                 </DropdownMenuItem>
               ))
             )}
-            <DropdownMenuSeparator className="bg-gray-800" />
+            <DropdownMenuSeparator className="bg-secondary" />
             <DropdownMenuItem
               onClick={() => window.location.href = '/lists/create'}
-              className="text-primary hover:bg-gray-800"
+              className="text-primary hover:bg-secondary"
             >
               <Plus className="w-4 h-4 mr-2" />
               Create New List

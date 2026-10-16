@@ -85,7 +85,7 @@ export function UpgradeCTA({
           onClick={handleUpgrade}
           size="sm"
           variant="ghost"
-          className="text-primary hover:text-white h-auto py-1 px-2"
+          className="text-primary hover:text-foreground h-auto py-1 px-2"
         >
           Upgrade
           <ArrowRight className="w-3 h-3 ml-1" />
@@ -102,8 +102,8 @@ export function UpgradeCTA({
           <div className="flex items-center gap-3">
             <Lock className="w-5 h-5 text-primary" />
             <div>
-              <h4 className="text-white font-semibold">{displayTitle}</h4>
-              <p className="text-gray-300 text-sm">{displayDescription}</p>
+              <h4 className="text-foreground font-semibold">{displayTitle}</h4>
+              <p className="text-foreground/80 text-sm">{displayDescription}</p>
             </div>
           </div>
           <Button
@@ -125,11 +125,11 @@ export function UpgradeCTA({
         <Lock className="w-8 h-8 text-primary-foreground" />
       </div>
       
-      <h2 className="text-2xl font-bold text-white mb-2">
+      <h2 className="text-2xl font-bold text-foreground mb-2">
         {displayTitle}
       </h2>
       
-      <p className="text-gray-300 mb-6">
+      <p className="text-foreground/80 mb-6">
         {displayDescription}
       </p>
 
@@ -146,13 +146,13 @@ export function UpgradeCTA({
           onClick={() => router.push('/subscription')}
           size="lg"
           variant="outline"
-          className="border-primary text-white hover:bg-primary/15"
+          className="border-primary text-foreground hover:bg-primary/15"
         >
           Compare Plans
         </Button>
       </div>
 
-      <p className="text-xs text-gray-500 mt-4">
+      <p className="text-xs text-muted-foreground mt-4">
         Starting at just KES 499/month
       </p>
     </Card>

@@ -57,7 +57,7 @@ export default function AdminDashboardPage() {
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-gray-400">Loading dashboard...</p>
+          <p className="text-muted-foreground">Loading dashboard...</p>
         </div>
       </div>
     )
@@ -82,15 +82,15 @@ export default function AdminDashboardPage() {
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-4xl font-bold text-white mb-2">Admin Dashboard</h1>
-        <p className="text-gray-400">
+        <h1 className="text-4xl font-bold text-foreground mb-2">Admin Dashboard</h1>
+        <p className="text-muted-foreground">
           Welcome back! Here's what's happening with FlixVideo.
         </p>
       </div>
 
       {/* User Stats */}
       <div>
-        <h2 className="text-lg font-semibold text-gray-300 mb-4 uppercase tracking-wider">
+        <h2 className="text-lg font-semibold text-foreground/80 mb-4 uppercase tracking-wider">
           👥 User Statistics
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -127,7 +127,7 @@ export default function AdminDashboardPage() {
 
       {/* Revenue Stats ← NEW SECTION USING DollarSign */}
       <div>
-        <h2 className="text-lg font-semibold text-gray-300 mb-4 uppercase tracking-wider">
+        <h2 className="text-lg font-semibold text-foreground/80 mb-4 uppercase tracking-wider">
           💰 Revenue Statistics
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -166,7 +166,7 @@ export default function AdminDashboardPage() {
 
       {/* Content Stats */}
       <div>
-        <h2 className="text-lg font-semibold text-gray-300 mb-4 uppercase tracking-wider">
+        <h2 className="text-lg font-semibold text-foreground/80 mb-4 uppercase tracking-wider">
           🎬 Content Statistics
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -201,8 +201,8 @@ export default function AdminDashboardPage() {
 
       {/* User Growth Chart + Platform Summary */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card className="bg-gray-900 border-gray-800 p-6">
-          <h3 className="text-xl font-semibold text-white mb-4">
+        <Card className="bg-card border-border p-6">
+          <h3 className="text-xl font-semibold text-foreground mb-4">
             User Growth (Last 30 Days)
           </h3>
           {growthData.length > 0 ? (
@@ -231,7 +231,7 @@ export default function AdminDashboardPage() {
               </LineChart>
             </ResponsiveContainer>
           ) : (
-            <div className="h-[300px] flex flex-col items-center justify-center text-gray-500">
+            <div className="h-[300px] flex flex-col items-center justify-center text-muted-foreground">
               <Users className="w-12 h-12 mb-3 opacity-30" />
               <p>Not enough data yet</p>
               <p className="text-sm mt-1">Chart will populate as users register</p>
@@ -239,8 +239,8 @@ export default function AdminDashboardPage() {
           )}
         </Card>
 
-        <Card className="bg-gray-900 border-gray-800 p-6">
-          <h3 className="text-xl font-semibold text-white mb-4">
+        <Card className="bg-card border-border p-6">
+          <h3 className="text-xl font-semibold text-foreground mb-4">
             Platform Summary
           </h3>
           <div className="space-y-1">
@@ -252,12 +252,12 @@ export default function AdminDashboardPage() {
               { icon: Star, color: 'text-orange-500', label: 'Watch Parties', value: parseInt(content.total_parties || 0).toLocaleString() },
               { icon: Flag, color: 'text-red-500', label: 'Pending Reports', value: parseInt(moderation.pending_reports || 0).toLocaleString(), alert: parseInt(moderation.pending_reports) > 0 },
             ].map(({ icon: Icon, color, label, value, alert }) => (
-              <div key={label} className="flex items-center justify-between py-3 border-b border-gray-800 last:border-0">
+              <div key={label} className="flex items-center justify-between py-3 border-b border-border last:border-0">
                 <div className="flex items-center gap-3">
                   <Icon className={`w-5 h-5 ${color}`} />
-                  <span className="text-gray-300">{label}</span>
+                  <span className="text-foreground/80">{label}</span>
                 </div>
-                <span className={`font-bold text-lg ${alert ? 'text-red-400' : 'text-white'}`}>
+                <span className={`font-bold text-lg ${alert ? 'text-red-400' : 'text-foreground'}`}>
                   {value}
                 </span>
               </div>
@@ -267,8 +267,8 @@ export default function AdminDashboardPage() {
       </div>
 
       {/* Quick Actions */}
-      <Card className="bg-gray-900 border-gray-800 p-6">
-        <h3 className="text-xl font-semibold text-white mb-4">Quick Actions</h3>
+      <Card className="bg-card border-border p-6">
+        <h3 className="text-xl font-semibold text-foreground mb-4">Quick Actions</h3>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           {[
             { icon: Users, color: 'text-blue-500', label: 'Manage Users', desc: `${parseInt(users.total_users || 0)} total users`, path: '/admin/users' },
@@ -279,11 +279,11 @@ export default function AdminDashboardPage() {
             <button
               key={path}
               onClick={() => router.push(path)}
-              className="p-4 bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors text-left group"
+              className="p-4 bg-secondary hover:bg-accent rounded-lg transition-colors text-left group"
             >
               <Icon className={`w-8 h-8 ${color} mb-2 group-hover:scale-110 transition-transform`} />
-              <h4 className="text-white font-semibold">{label}</h4>
-              <p className="text-sm text-gray-400 mt-1">{desc}</p>
+              <h4 className="text-foreground font-semibold">{label}</h4>
+              <p className="text-sm text-muted-foreground mt-1">{desc}</p>
             </button>
           ))}
         </div>

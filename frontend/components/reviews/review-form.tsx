@@ -92,9 +92,9 @@ export function ReviewForm({ contentType, contentId, existingReview, onSuccess, 
         )}
       </DialogTrigger>
       
-      <DialogContent className="bg-gray-900 border-gray-800 max-w-2xl">
+      <DialogContent className="bg-card border-border max-w-2xl">
         <DialogHeader>
-          <DialogTitle className="text-white text-2xl">
+          <DialogTitle className="text-foreground text-2xl">
             {existingReview ? "Edit Review" : "Write a Review"}
           </DialogTitle>
         </DialogHeader>
@@ -102,7 +102,7 @@ export function ReviewForm({ contentType, contentId, existingReview, onSuccess, 
         <form onSubmit={handleSubmit} className="space-y-4 mt-4">
           {/* Title (Optional) */}
           <div>
-            <Label htmlFor="title" className="text-gray-300">
+            <Label htmlFor="title" className="text-foreground/80">
               Title (Optional)
             </Label>
             <Input
@@ -110,14 +110,14 @@ export function ReviewForm({ contentType, contentId, existingReview, onSuccess, 
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Sum up your review in one line"
-              className="bg-gray-800 border-gray-700 text-white mt-2"
+              className="bg-secondary border-border text-foreground mt-2"
               maxLength={255}
             />
           </div>
 
           {/* Content */}
           <div>
-            <Label htmlFor="content" className="text-gray-300">
+            <Label htmlFor="content" className="text-foreground/80">
               Review <span className="text-red-500">*</span>
             </Label>
             <Textarea
@@ -125,10 +125,10 @@ export function ReviewForm({ contentType, contentId, existingReview, onSuccess, 
               value={content}
               onChange={(e) => setContent(e.target.value)}
               placeholder="Share your thoughts about this movie/show..."
-              className="bg-gray-800 border-gray-700 text-white mt-2 min-h-[200px]"
+              className="bg-secondary border-border text-foreground mt-2 min-h-[200px]"
               required
             />
-            <p className="text-sm text-gray-500 mt-1">
+            <p className="text-sm text-muted-foreground mt-1">
               {content.length} characters
             </p>
           </div>
@@ -139,11 +139,11 @@ export function ReviewForm({ contentType, contentId, existingReview, onSuccess, 
               id="spoilers"
               checked={containsSpoilers}
               onCheckedChange={(checked) => setContainsSpoilers(checked as boolean)}
-              className="border-gray-700"
+              className="border-border"
             />
             <Label
               htmlFor="spoilers"
-              className="text-gray-300 cursor-pointer"
+              className="text-foreground/80 cursor-pointer"
             >
               This review contains spoilers
             </Label>
@@ -156,7 +156,7 @@ export function ReviewForm({ contentType, contentId, existingReview, onSuccess, 
               variant="outline"
               onClick={() => setOpen(false)}
               disabled={loading}
-              className="border-gray-700"
+              className="border-border"
             >
               Cancel
             </Button>

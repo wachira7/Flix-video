@@ -119,8 +119,8 @@ export default function ProfilePage() {
   if (loading) {
     return (
       <div className="p-8 max-w-4xl mx-auto space-y-6">
-        <Skeleton className="h-12 w-48 bg-gray-800" />
-        <Skeleton className="h-96 bg-gray-800" />
+        <Skeleton className="h-12 w-48 bg-secondary" />
+        <Skeleton className="h-96 bg-secondary" />
       </div>
     )
   }
@@ -132,17 +132,17 @@ export default function ProfilePage() {
           variant="ghost"
           size="icon"
           onClick={() => router.back()}
-          className="hover:bg-gray-800"
+          className="hover:bg-secondary"
         >
           <ArrowLeft className="w-5 h-5" />
         </Button>
         <User className="w-8 h-8 text-primary" />
-        <h1 className="text-3xl font-bold text-white">My Profile</h1>
+        <h1 className="text-3xl font-bold text-foreground">My Profile</h1>
       </div>
 
       <form onSubmit={handleSubmit}>
-        <Card className="p-6 bg-gray-900 border-gray-800 mb-6">
-          <h2 className="text-xl font-semibold text-white mb-6">Avatar</h2>
+        <Card className="p-6 bg-card border-border mb-6">
+          <h2 className="text-xl font-semibold text-foreground mb-6">Avatar</h2>
           <AvatarUpload
             currentAvatar={profile.avatar_url}
             username={profile.username}
@@ -150,62 +150,62 @@ export default function ProfilePage() {
           />
         </Card>
 
-        <Card className="p-6 bg-gray-900 border-gray-800 space-y-6">
-          <h2 className="text-xl font-semibold text-white">Personal Information</h2>
+        <Card className="p-6 bg-card border-border space-y-6">
+          <h2 className="text-xl font-semibold text-foreground">Personal Information</h2>
 
           {/* Username */}
           <div>
-            <Label htmlFor="username" className="text-gray-300">Username</Label>
+            <Label htmlFor="username" className="text-foreground/80">Username</Label>
             <Input
               id="username"
               value={profile.username || ''}
               onChange={(e) => handleInputChange('username', e.target.value)}
               placeholder="Choose a unique username"
-              className="bg-gray-800 border-gray-700 text-white mt-2"
+              className="bg-secondary border-border text-foreground mt-2"
             />
           </div>
 
           {/* Full Name */}
           <div>
-            <Label htmlFor="full_name" className="text-gray-300">Full Name</Label>
+            <Label htmlFor="full_name" className="text-foreground/80">Full Name</Label>
             <Input
               id="full_name"
               value={profile.full_name || ''}
               onChange={(e) => handleInputChange('full_name', e.target.value)}
               placeholder="Your full name"
-              className="bg-gray-800 border-gray-700 text-white mt-2"
+              className="bg-secondary border-border text-foreground mt-2"
             />
           </div>
 
           {/* Bio */}
           <div>
-            <Label htmlFor="bio" className="text-gray-300">Bio</Label>
+            <Label htmlFor="bio" className="text-foreground/80">Bio</Label>
             <Textarea
               id="bio"
               value={profile.bio || ''}
               onChange={(e) => handleInputChange('bio', e.target.value)}
               placeholder="Tell us about yourself..."
-              className="bg-gray-800 border-gray-700 text-white mt-2 min-h-[100px]"
+              className="bg-secondary border-border text-foreground mt-2 min-h-[100px]"
               maxLength={500}
             />
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-muted-foreground mt-1">
               {(profile.bio || '').length}/500 characters
             </p>
           </div>
 
           {/* Date of Birth */}
           <div>
-            <Label htmlFor="date_of_birth" className="text-gray-300">Date of Birth</Label>
+            <Label htmlFor="date_of_birth" className="text-foreground/80">Date of Birth</Label>
             <Input
               id="date_of_birth"
               type="date"
               value={profile.date_of_birth || ''}
               onChange={(e) => handleInputChange('date_of_birth', e.target.value)}
-              className="bg-gray-800 border-gray-700 text-white mt-2"
+              className="bg-secondary border-border text-foreground mt-2"
               max={new Date().toISOString().split('T')[0]} // Can't be in the future
             />
             {profile.date_of_birth && (
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-muted-foreground mt-1">
                 Selected: {new Date(profile.date_of_birth).toLocaleDateString()}
               </p>
             )}
@@ -213,15 +213,15 @@ export default function ProfilePage() {
 
           {/* Gender */}
           <div>
-            <Label htmlFor="gender" className="text-gray-300">Gender</Label>
+            <Label htmlFor="gender" className="text-foreground/80">Gender</Label>
             <Select
               value={profile.gender || ''}
               onValueChange={(value) => handleInputChange('gender', value)}
             >
-              <SelectTrigger className="bg-gray-800 border-gray-700 text-white mt-2">
+              <SelectTrigger className="bg-secondary border-border text-foreground mt-2">
                 <SelectValue placeholder="Select gender" />
               </SelectTrigger>
-              <SelectContent className="bg-gray-800 border-gray-700 text-white">
+              <SelectContent className="bg-secondary border-border text-foreground">
                 <SelectItem value="male">Male</SelectItem>
                 <SelectItem value="female">Female</SelectItem>
                 <SelectItem value="other">Other</SelectItem>
@@ -232,39 +232,39 @@ export default function ProfilePage() {
 
           {/* Country */}
           <div>
-            <Label htmlFor="country" className="text-gray-300">Country</Label>
+            <Label htmlFor="country" className="text-foreground/80">Country</Label>
             <Input
               id="country"
               value={profile.country || ''}
               onChange={(e) => handleInputChange('country', e.target.value)}
               placeholder="Your country"
-              className="bg-gray-800 border-gray-700 text-white mt-2"
+              className="bg-secondary border-border text-foreground mt-2"
             />
           </div>
 
           {/* City */}
           <div>
-            <Label htmlFor="city" className="text-gray-300">City</Label>
+            <Label htmlFor="city" className="text-foreground/80">City</Label>
             <Input
               id="city"
               value={profile.city || ''}
               onChange={(e) => handleInputChange('city', e.target.value)}
               placeholder="Your city"
-              className="bg-gray-800 border-gray-700 text-white mt-2"
+              className="bg-secondary border-border text-foreground mt-2"
             />
           </div>
 
           {/* Language */}
           <div>
-            <Label htmlFor="language" className="text-gray-300">Preferred Language</Label>
+            <Label htmlFor="language" className="text-foreground/80">Preferred Language</Label>
             <Select
               value={profile.language || 'en'}
               onValueChange={(value) => handleInputChange('language', value)}
             >
-              <SelectTrigger className="bg-gray-800 border-gray-700 text-white mt-2">
+              <SelectTrigger className="bg-secondary border-border text-foreground mt-2">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="bg-gray-800 border-gray-700 text-white">
+              <SelectContent className="bg-secondary border-border text-foreground">
                 <SelectItem value="en">English</SelectItem>
                 <SelectItem value="es">Spanish</SelectItem>
                 <SelectItem value="fr">French</SelectItem>
@@ -281,7 +281,7 @@ export default function ProfilePage() {
               variant="outline"
               onClick={() => router.back()}
               disabled={saving}
-              className="border-gray-700"
+              className="border-border"
             >
               Cancel
             </Button>

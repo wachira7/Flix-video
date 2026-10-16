@@ -85,33 +85,33 @@ export default function PreferencesSettingsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-linear-to-b from-gray-900 via-black to-gray-900 p-6">
+    <div className="min-h-screen bg-linear-to-b from-card via-background to-card p-6">
       <div className="max-w-4xl mx-auto">
         {/* Header with Back Button */}
         <div className="mb-8">
           <Link href="/settings">
             <Button 
               variant="ghost" 
-              className="mb-4 text-gray-400 hover:text-white hover:bg-gray-800"
+              className="mb-4 text-muted-foreground hover:text-foreground hover:bg-secondary"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Settings
             </Button>
           </Link>
-          <h1 className="text-3xl font-bold text-white mb-2">Preferences</h1>
-          <p className="text-gray-400">Customize your viewing experience</p>
+          <h1 className="text-3xl font-bold text-foreground mb-2">Preferences</h1>
+          <p className="text-muted-foreground">Customize your viewing experience</p>
         </div>
 
         <div className="space-y-6">
           {/* Language & Region */}
-          <Card className="bg-gray-900/50 border-gray-800 p-6">
+          <Card className="bg-card/50 border-border p-6">
             <div className="flex items-center gap-3 mb-6">
               <div className="p-2 bg-blue-500/10 rounded-lg">
                 <Globe className="w-5 h-5 text-blue-500" />
               </div>
               <div>
-                <h2 className="text-xl font-semibold text-white">Language & Region</h2>
-                <p className="text-sm text-gray-400">Choose your preferred language and timezone</p>
+                <h2 className="text-xl font-semibold text-foreground">Language & Region</h2>
+                <p className="text-sm text-muted-foreground">Choose your preferred language and timezone</p>
               </div>
             </div>
 
@@ -124,7 +124,7 @@ export default function PreferencesSettingsPage() {
                     setPreferences({ ...preferences, language: value })
                   }
                 >
-                  <SelectTrigger id="language" className="bg-gray-800 border-gray-700">
+                  <SelectTrigger id="language" className="bg-secondary border-border">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -149,7 +149,7 @@ export default function PreferencesSettingsPage() {
                     setPreferences({ ...preferences, timezone: value })
                   }
                 >
-                  <SelectTrigger id="timezone" className="bg-gray-800 border-gray-700">
+                  <SelectTrigger id="timezone" className="bg-secondary border-border">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -173,7 +173,7 @@ export default function PreferencesSettingsPage() {
                     setPreferences({ ...preferences, audioLanguage: value })
                   }
                 >
-                  <SelectTrigger id="audio-language" className="bg-gray-800 border-gray-700">
+                  <SelectTrigger id="audio-language" className="bg-secondary border-border">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -191,14 +191,14 @@ export default function PreferencesSettingsPage() {
           </Card>
 
           {/* Appearance */}
-          <Card className="bg-gray-900/50 border-gray-800 p-6">
+          <Card className="bg-card/50 border-border p-6">
             <div className="flex items-center gap-3 mb-6">
               <div className="p-2 bg-primary/10 rounded-lg">
                 <Palette className="w-5 h-5 text-primary" />
               </div>
               <div>
-                <h2 className="text-xl font-semibold text-white">Appearance</h2>
-                <p className="text-sm text-gray-400">Customize the look and feel</p>
+                <h2 className="text-xl font-semibold text-foreground">Appearance</h2>
+                <p className="text-sm text-muted-foreground">Customize the look and feel</p>
               </div>
             </div>
 
@@ -211,7 +211,7 @@ export default function PreferencesSettingsPage() {
                     setPreferences({ ...preferences, theme: value })
                   }
                 >
-                  <SelectTrigger id="theme" className="bg-gray-800 border-gray-700">
+                  <SelectTrigger id="theme" className="bg-secondary border-border">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -220,7 +220,7 @@ export default function PreferencesSettingsPage() {
                     <SelectItem value="auto">Auto (System)</SelectItem>
                   </SelectContent>
                 </Select>
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-muted-foreground">
                   Dark theme is optimized for viewing experience
                 </p>
               </div>
@@ -228,26 +228,26 @@ export default function PreferencesSettingsPage() {
           </Card>
 
           {/* Playback Settings */}
-          <Card className="bg-gray-900/50 border-gray-800 p-6">
+          <Card className="bg-card/50 border-border p-6">
             <div className="flex items-center gap-3 mb-6">
               <div className="p-2 bg-green-500/10 rounded-lg">
                 <Play className="w-5 h-5 text-green-500" />
               </div>
               <div>
-                <h2 className="text-xl font-semibold text-white">Playback Settings</h2>
-                <p className="text-sm text-gray-400">Control how content plays</p>
+                <h2 className="text-xl font-semibold text-foreground">Playback Settings</h2>
+                <p className="text-sm text-muted-foreground">Control how content plays</p>
               </div>
             </div>
 
             <div className="space-y-4">
-              <div className="flex items-center justify-between p-4 bg-gray-800/50 rounded-lg">
+              <div className="flex items-center justify-between p-4 bg-secondary/50 rounded-lg">
                 <div className="flex items-center gap-3">
-                  <Play className="w-5 h-5 text-gray-400" />
+                  <Play className="w-5 h-5 text-muted-foreground" />
                   <div>
-                    <Label htmlFor="autoplay" className="text-white font-medium">
+                    <Label htmlFor="autoplay" className="text-foreground font-medium">
                       Autoplay Next Episode
                     </Label>
-                    <p className="text-sm text-gray-400">
+                    <p className="text-sm text-muted-foreground">
                       Automatically play next episode in a series
                     </p>
                   </div>
@@ -259,14 +259,14 @@ export default function PreferencesSettingsPage() {
                 />
               </div>
 
-              <div className="flex items-center justify-between p-4 bg-gray-800/50 rounded-lg">
+              <div className="flex items-center justify-between p-4 bg-secondary/50 rounded-lg">
                 <div className="flex items-center gap-3">
-                  <Monitor className="w-5 h-5 text-gray-400" />
+                  <Monitor className="w-5 h-5 text-muted-foreground" />
                   <div>
-                    <Label htmlFor="autoplay-previews" className="text-white font-medium">
+                    <Label htmlFor="autoplay-previews" className="text-foreground font-medium">
                       Autoplay Previews
                     </Label>
-                    <p className="text-sm text-gray-400">
+                    <p className="text-sm text-muted-foreground">
                       Preview content while browsing
                     </p>
                   </div>
@@ -278,14 +278,14 @@ export default function PreferencesSettingsPage() {
                 />
               </div>
 
-              <div className="flex items-center justify-between p-4 bg-gray-800/50 rounded-lg">
+              <div className="flex items-center justify-between p-4 bg-secondary/50 rounded-lg">
                 <div className="flex items-center gap-3">
-                  <Clock className="w-5 h-5 text-gray-400" />
+                  <Clock className="w-5 h-5 text-muted-foreground" />
                   <div>
-                    <Label htmlFor="skip-intro" className="text-white font-medium">
+                    <Label htmlFor="skip-intro" className="text-foreground font-medium">
                       Skip Intro
                     </Label>
-                    <p className="text-sm text-gray-400">
+                    <p className="text-sm text-muted-foreground">
                       Automatically skip TV show intros
                     </p>
                   </div>
@@ -297,14 +297,14 @@ export default function PreferencesSettingsPage() {
                 />
               </div>
 
-              <div className="flex items-center justify-between p-4 bg-gray-800/50 rounded-lg">
+              <div className="flex items-center justify-between p-4 bg-secondary/50 rounded-lg">
                 <div className="flex items-center gap-3">
-                  <Clock className="w-5 h-5 text-gray-400" />
+                  <Clock className="w-5 h-5 text-muted-foreground" />
                   <div>
-                    <Label htmlFor="skip-credits" className="text-white font-medium">
+                    <Label htmlFor="skip-credits" className="text-foreground font-medium">
                       Skip Credits
                     </Label>
-                    <p className="text-sm text-gray-400">
+                    <p className="text-sm text-muted-foreground">
                       Automatically skip end credits
                     </p>
                   </div>
@@ -324,7 +324,7 @@ export default function PreferencesSettingsPage() {
                     setPreferences({ ...preferences, defaultQuality: value })
                   }
                 >
-                  <SelectTrigger id="default-quality" className="bg-gray-800 border-gray-700">
+                  <SelectTrigger id="default-quality" className="bg-secondary border-border">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -335,7 +335,7 @@ export default function PreferencesSettingsPage() {
                     <SelectItem value="480p">480p SD</SelectItem>
                   </SelectContent>
                 </Select>
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-muted-foreground">
                   Auto adjusts quality based on your connection speed
                 </p>
               </div>
@@ -348,7 +348,7 @@ export default function PreferencesSettingsPage() {
                     setPreferences({ ...preferences, dataUsage: value })
                   }
                 >
-                  <SelectTrigger id="data-usage" className="bg-gray-800 border-gray-700">
+                  <SelectTrigger id="data-usage" className="bg-secondary border-border">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -358,7 +358,7 @@ export default function PreferencesSettingsPage() {
                     <SelectItem value="high">Maximum Quality</SelectItem>
                   </SelectContent>
                 </Select>
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-muted-foreground">
                   Control data consumption on mobile
                 </p>
               </div>
@@ -366,14 +366,14 @@ export default function PreferencesSettingsPage() {
           </Card>
 
           {/* Subtitle Settings */}
-          <Card className="bg-gray-900/50 border-gray-800 p-6">
+          <Card className="bg-card/50 border-border p-6">
             <div className="flex items-center gap-3 mb-6">
               <div className="p-2 bg-yellow-500/10 rounded-lg">
                 <Subtitles className="w-5 h-5 text-yellow-500" />
               </div>
               <div>
-                <h2 className="text-xl font-semibold text-white">Subtitle Settings</h2>
-                <p className="text-sm text-gray-400">Customize subtitle appearance</p>
+                <h2 className="text-xl font-semibold text-foreground">Subtitle Settings</h2>
+                <p className="text-sm text-muted-foreground">Customize subtitle appearance</p>
               </div>
             </div>
 
@@ -386,7 +386,7 @@ export default function PreferencesSettingsPage() {
                     setPreferences({ ...preferences, defaultSubtitles: value })
                   }
                 >
-                  <SelectTrigger id="default-subtitles" className="bg-gray-800 border-gray-700">
+                  <SelectTrigger id="default-subtitles" className="bg-secondary border-border">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -403,7 +403,7 @@ export default function PreferencesSettingsPage() {
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <Label>Subtitle Size</Label>
-                  <span className="text-sm text-gray-400">{preferences.subtitleSize}px</span>
+                  <span className="text-sm text-muted-foreground">{preferences.subtitleSize}px</span>
                 </div>
                 <Slider
                   value={[preferences.subtitleSize]}
@@ -415,15 +415,15 @@ export default function PreferencesSettingsPage() {
                   step={2}
                   className="w-full"
                 />
-                <div className="flex justify-between text-xs text-gray-500">
+                <div className="flex justify-between text-xs text-muted-foreground">
                   <span>Small</span>
                   <span>Medium</span>
                   <span>Large</span>
                 </div>
               </div>
 
-              <div className="p-4 bg-gray-800/50 rounded-lg">
-                <p className="text-center text-white" style={{ fontSize: `${preferences.subtitleSize}px` }}>
+              <div className="p-4 bg-secondary/50 rounded-lg">
+                <p className="text-center text-foreground" style={{ fontSize: `${preferences.subtitleSize}px` }}>
                   Sample subtitle text
                 </p>
               </div>
@@ -431,14 +431,14 @@ export default function PreferencesSettingsPage() {
           </Card>
 
           {/* Content Preferences */}
-          <Card className="bg-gray-900/50 border-gray-800 p-6">
+          <Card className="bg-card/50 border-border p-6">
             <div className="flex items-center gap-3 mb-6">
               <div className="p-2 bg-red-500/10 rounded-lg">
                 <Shield className="w-5 h-5 text-red-500" />
               </div>
               <div>
-                <h2 className="text-xl font-semibold text-white">Content Preferences</h2>
-                <p className="text-sm text-gray-400">Control what content you see</p>
+                <h2 className="text-xl font-semibold text-foreground">Content Preferences</h2>
+                <p className="text-sm text-muted-foreground">Control what content you see</p>
               </div>
             </div>
 
@@ -451,7 +451,7 @@ export default function PreferencesSettingsPage() {
                     setPreferences({ ...preferences, maturityLevel: value })
                   }
                 >
-                  <SelectTrigger id="maturity-level" className="bg-gray-800 border-gray-700">
+                  <SelectTrigger id="maturity-level" className="bg-secondary border-border">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -460,17 +460,17 @@ export default function PreferencesSettingsPage() {
                     <SelectItem value="kids">Kids Only (All Ages)</SelectItem>
                   </SelectContent>
                 </Select>
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-muted-foreground">
                   Filters content based on age appropriateness
                 </p>
               </div>
 
-              <div className="flex items-center justify-between p-4 bg-gray-800/50 rounded-lg">
+              <div className="flex items-center justify-between p-4 bg-secondary/50 rounded-lg">
                 <div>
-                  <Label htmlFor="adult-content" className="text-white font-medium">
+                  <Label htmlFor="adult-content" className="text-foreground font-medium">
                     Show Adult Content
                   </Label>
-                  <p className="text-sm text-gray-400">
+                  <p className="text-sm text-muted-foreground">
                     Display mature-rated content (18+)
                   </p>
                 </div>
@@ -483,13 +483,13 @@ export default function PreferencesSettingsPage() {
 
               <div className="space-y-3">
                 <Label>Content Types</Label>
-                <p className="text-sm text-gray-400 mb-3">
+                <p className="text-sm text-muted-foreground mb-3">
                   Select the types of content you want to see
                 </p>
 
                 <div className="space-y-2">
-                  <div className="flex items-center justify-between p-3 bg-gray-800/50 rounded-lg">
-                    <Label htmlFor="content-movies" className="text-white">
+                  <div className="flex items-center justify-between p-3 bg-secondary/50 rounded-lg">
+                    <Label htmlFor="content-movies" className="text-foreground">
                       Movies
                     </Label>
                     <Switch
@@ -499,8 +499,8 @@ export default function PreferencesSettingsPage() {
                     />
                   </div>
 
-                  <div className="flex items-center justify-between p-3 bg-gray-800/50 rounded-lg">
-                    <Label htmlFor="content-tv" className="text-white">
+                  <div className="flex items-center justify-between p-3 bg-secondary/50 rounded-lg">
+                    <Label htmlFor="content-tv" className="text-foreground">
                       TV Shows
                     </Label>
                     <Switch
@@ -510,8 +510,8 @@ export default function PreferencesSettingsPage() {
                     />
                   </div>
 
-                  <div className="flex items-center justify-between p-3 bg-gray-800/50 rounded-lg">
-                    <Label htmlFor="content-docs" className="text-white">
+                  <div className="flex items-center justify-between p-3 bg-secondary/50 rounded-lg">
+                    <Label htmlFor="content-docs" className="text-foreground">
                       Documentaries
                     </Label>
                     <Switch
@@ -521,8 +521,8 @@ export default function PreferencesSettingsPage() {
                     />
                   </div>
 
-                  <div className="flex items-center justify-between p-3 bg-gray-800/50 rounded-lg">
-                    <Label htmlFor="content-anime" className="text-white">
+                  <div className="flex items-center justify-between p-3 bg-secondary/50 rounded-lg">
+                    <Label htmlFor="content-anime" className="text-foreground">
                       Anime
                     </Label>
                     <Switch
@@ -541,7 +541,7 @@ export default function PreferencesSettingsPage() {
             <Link href="/settings">
               <Button
                 variant="outline"
-                className="border-gray-700 text-gray-300 hover:bg-gray-800"
+                className="border-border text-foreground/80 hover:bg-secondary"
               >
                 Cancel
               </Button>

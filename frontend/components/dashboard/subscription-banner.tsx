@@ -80,33 +80,33 @@ export function SubscriptionBanner() {
             
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-1">
-                <h3 className="text-xl font-bold text-white">
+                <h3 className="text-xl font-bold text-foreground">
                   Unlock Premium Features
                 </h3>
-                <Badge className="bg-yellow-600 text-white animate-pulse">
+                <Badge className="bg-yellow-600 text-foreground animate-pulse">
                   <Sparkles className="w-3 h-3 mr-1" />
                   Limited Offer
                 </Badge>
               </div>
               
-              <p className="text-gray-300 mb-3">
+              <p className="text-foreground/80 mb-3">
                 Get unlimited AI recommendations, 4K streaming, ad-free experience, and more!
               </p>
               
               <div className="flex flex-wrap gap-2">
-                <span className="flex items-center gap-1 px-3 py-1 bg-white/10 rounded-full text-xs text-white">
+                <span className="flex items-center gap-1 px-3 py-1 bg-white/10 rounded-full text-xs text-foreground">
                   <Zap className="w-3 h-3" />
                   Unlimited AI Chat
                 </span>
-                <span className="flex items-center gap-1 px-3 py-1 bg-white/10 rounded-full text-xs text-white">
+                <span className="flex items-center gap-1 px-3 py-1 bg-white/10 rounded-full text-xs text-foreground">
                   <Zap className="w-3 h-3" />
                   No Ads
                 </span>
-                <span className="flex items-center gap-1 px-3 py-1 bg-white/10 rounded-full text-xs text-white">
+                <span className="flex items-center gap-1 px-3 py-1 bg-white/10 rounded-full text-xs text-foreground">
                   <Zap className="w-3 h-3" />
                   4K Quality
                 </span>
-                <span className="flex items-center gap-1 px-3 py-1 bg-white/10 rounded-full text-xs text-white">
+                <span className="flex items-center gap-1 px-3 py-1 bg-white/10 rounded-full text-xs text-foreground">
                   <Zap className="w-3 h-3" />
                   Priority Support
                 </span>
@@ -128,7 +128,7 @@ export function SubscriptionBanner() {
               onClick={handleDismiss}
               variant="ghost"
               size="icon"
-              className="text-gray-400 hover:text-white"
+              className="text-muted-foreground hover:text-foreground"
             >
               <X className="w-4 h-4" />
             </Button>
@@ -145,14 +145,14 @@ export function SubscriptionBanner() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div className="p-3 bg-blue-600 rounded-lg">
-              <Crown className="w-6 h-6 text-white" />
+              <Crown className="w-6 h-6 text-foreground" />
             </div>
             
             <div>
-              <h3 className="text-lg font-bold text-white mb-1">
+              <h3 className="text-lg font-bold text-foreground mb-1">
                 You're on the {subscription.plan_details.name} Plan
               </h3>
-              <p className="text-gray-300 text-sm">
+              <p className="text-foreground/80 text-sm">
                 Upgrade to Premium for unlimited features • 
                 Next billing: {new Date(subscription.current_period_end).toLocaleDateString()}
               </p>
@@ -163,7 +163,7 @@ export function SubscriptionBanner() {
             <Button
               onClick={handleUpgrade}
               variant="outline"
-              className="border-primary text-white hover:bg-primary/15"
+              className="border-primary text-foreground hover:bg-primary/15"
             >
               Upgrade to Premium
             </Button>
@@ -171,7 +171,7 @@ export function SubscriptionBanner() {
               onClick={handleDismiss}
               variant="ghost"
               size="icon"
-              className="text-gray-400 hover:text-white"
+              className="text-muted-foreground hover:text-foreground"
             >
               <X className="w-4 h-4" />
             </Button>
@@ -188,14 +188,14 @@ export function SubscriptionBanner() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div className="p-3 bg-orange-600 rounded-lg">
-              <Crown className="w-6 h-6 text-white" />
+              <Crown className="w-6 h-6 text-foreground" />
             </div>
             
             <div>
-              <h3 className="text-lg font-bold text-white mb-1">
+              <h3 className="text-lg font-bold text-foreground mb-1">
                 Subscription Cancelled
               </h3>
-              <p className="text-gray-300 text-sm">
+              <p className="text-foreground/80 text-sm">
                 You'll have access until {new Date(subscription.current_period_end).toLocaleDateString()} • 
                 Reactivate anytime!
               </p>

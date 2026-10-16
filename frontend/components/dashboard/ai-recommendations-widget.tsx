@@ -40,13 +40,13 @@ export function AIRecommendationsWidget() {
         </div>
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-2">
-            <h3 className="text-lg font-bold text-white">AI Recommendations</h3>
-            <Badge className="bg-yellow-600 text-white animate-pulse">
+            <h3 className="text-lg font-bold text-foreground">AI Recommendations</h3>
+            <Badge className="bg-yellow-600 text-foreground animate-pulse">
               <Sparkles className="w-3 h-3 mr-1" />
               New
             </Badge>
           </div>
-          <p className="text-gray-300 text-sm mb-4">
+          <p className="text-foreground/80 text-sm mb-4">
             {hasRecommendations 
               ? "Your personalized AI recommendations are ready!"
               : "Get AI-powered movie suggestions based on your taste"

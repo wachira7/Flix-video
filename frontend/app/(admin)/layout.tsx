@@ -31,10 +31,10 @@ export default function AdminLayout({
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-black">
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-gray-400">Verifying access...</p>
+          <p className="text-muted-foreground">Verifying access...</p>
         </div>
       </div>
     )
@@ -45,7 +45,7 @@ export default function AdminLayout({
   }
 
   return (
-    <div className="min-h-screen bg-black">
+    <div className="min-h-screen bg-background">
       <AdminSidebar />
       <main className="ml-64 transition-all duration-300">
         <div className="p-8">
