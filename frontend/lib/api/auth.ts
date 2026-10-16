@@ -1,3 +1,0 @@
-//frontend/lib/api/auth.ts
-
-// can refactor the Auth API related functions here in future....
