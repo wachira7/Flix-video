@@ -56,24 +56,24 @@ export default function CreateListPage() {
         {/* Header */}
         <Button
           variant="ghost"
-          onClick={() => router.push('/lists')}
+          onClick={() => router.push('/library?tab=lists')}
           className="mb-4"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
           Back to Lists
         </Button>
 
-        <h1 className="text-4xl font-bold text-white mb-2">Create New List</h1>
-        <p className="text-gray-400 mb-8">
+        <h1 className="text-4xl font-bold text-foreground mb-2">Create New List</h1>
+        <p className="text-muted-foreground mb-8">
           Organize your favorite movies and TV shows into custom lists
         </p>
 
         {/* Form */}
-        <Card className="bg-gray-900 border-gray-800 p-6">
+        <Card className="bg-card border-border p-6">
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Title */}
             <div>
-              <Label htmlFor="title" className="text-white mb-2 block">
+              <Label htmlFor="title" className="text-foreground mb-2 block">
                 List Title *
               </Label>
               <Input
@@ -82,7 +82,7 @@ export default function CreateListPage() {
                 placeholder="e.g., Best Sci-Fi Movies"
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                className="bg-gray-800 border-gray-700 text-white"
+                className="bg-secondary border-border text-foreground"
                 maxLength={100}
                 required
               />
@@ -90,7 +90,7 @@ export default function CreateListPage() {
 
             {/* Description */}
             <div>
-              <Label htmlFor="description" className="text-white mb-2 block">
+              <Label htmlFor="description" className="text-foreground mb-2 block">
                 Description (Optional)
               </Label>
               <Textarea
@@ -98,21 +98,21 @@ export default function CreateListPage() {
                 placeholder="Describe what this list is about..."
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                className="bg-gray-800 border-gray-700 text-white min-h-[100px]"
+                className="bg-secondary border-border text-foreground min-h-[100px]"
                 maxLength={500}
               />
-              <p className="text-gray-500 text-sm mt-1">
+              <p className="text-muted-foreground text-sm mt-1">
                 {formData.description.length}/500 characters
               </p>
             </div>
 
             {/* Public/Private Toggle */}
-            <div className="flex items-center justify-between p-4 bg-gray-800 rounded-lg">
+            <div className="flex items-center justify-between p-4 bg-secondary rounded-lg">
               <div>
-                <Label htmlFor="is_public" className="text-white font-semibold">
+                <Label htmlFor="is_public" className="text-foreground font-semibold">
                   Public List
                 </Label>
-                <p className="text-gray-400 text-sm">
+                <p className="text-muted-foreground text-sm">
                   Allow others to view this list
                 </p>
               </div>
@@ -124,12 +124,12 @@ export default function CreateListPage() {
             </div>
 
             {/* Ranked Toggle */}
-            <div className="flex items-center justify-between p-4 bg-gray-800 rounded-lg">
+            <div className="flex items-center justify-between p-4 bg-secondary rounded-lg">
               <div>
-                <Label htmlFor="is_ranked" className="text-white font-semibold">
+                <Label htmlFor="is_ranked" className="text-foreground font-semibold">
                   Ranked List
                 </Label>
-                <p className="text-gray-400 text-sm">
+                <p className="text-muted-foreground text-sm">
                   Items will be ordered by rank
                 </p>
               </div>
@@ -145,7 +145,7 @@ export default function CreateListPage() {
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => router.push('/lists')}
+                onClick={() => router.push('/library?tab=lists')}
                 className="flex-1"
                 disabled={loading}
               >

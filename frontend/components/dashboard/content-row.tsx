@@ -1,128 +1,137 @@
 // components/dashboard/content-row.tsx
-
+// Horizontal poster row with snap scrolling, arrow buttons that disable at
+// the ends, edge fades, and a staggered entrance when it scrolls into view.
 "use client"
 
-import { useRef, useEffect, useState } from "react"
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react"
+import Link from "next/link"
+import { motion, useReducedMotion, type Variants } from "framer-motion"
 import { ChevronLeft, ChevronRight } from "lucide-react"
+import type { MediaItem } from "@/lib/media"
+import { cn } from "@/lib/utils"
 import { MediaCard } from "./media-card"
-import type { Movie, TVShow } from "@/lib/api/tmdb"
 
 interface ContentRowProps {
   title: string
-  items: (Movie | TVShow)[]
+  items: MediaItem[]
+  subtitle?: ReactNode
+  href?: string
+  ranked?: boolean
+  /** Optional per-item extras, keyed by TMDB id */
+  progress?: Record<number, number>
+  reasons?: Record<number, string>
 }
 
-export function ContentRow({ title, items }: ContentRowProps) {
-  const scrollRef = useRef<HTMLDivElement>(null)
-  const [showLeftArrow, setShowLeftArrow] = useState(false)
-  const [showRightArrow, setShowRightArrow] = useState(true)
-  const [isPaused, setIsPaused] = useState(false)
+const list: Variants = { hidden: {}, show: { transition: { staggerChildren: 0.045 } } }
+const card: Variants = {
+  hidden: { opacity: 0, y: 24, scale: 0.96 },
+  show: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] } },
+}
 
-  const handleScroll = (direction: "left" | "right") => {
-    if (!scrollRef.current) return
-    scrollRef.current.scrollBy({
-      left: direction === "left" ? -800 : 800,
-      behavior: "smooth"
-    })
-  }
+export function ContentRow({ title, items, subtitle, href, ranked, progress, reasons }: ContentRowProps) {
+  const track = useRef<HTMLUListElement>(null)
+  const reduce = useReducedMotion()
+  const [edges, setEdges] = useState({ start: true, end: false })
 
-  const checkScroll = () => {
-    if (!scrollRef.current) return
-    
-    const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current
-    
-    setShowLeftArrow(scrollLeft > 20)
-    setShowRightArrow(scrollLeft < scrollWidth - clientWidth - 20)
-  }
-
-  // Auto-scroll
-  useEffect(() => {
-    if (isPaused) return
-
-    const interval = setInterval(() => {
-      if (!scrollRef.current) return
-      
-      const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current
-      const maxScroll = scrollWidth - clientWidth
-      
-      if (scrollLeft >= maxScroll - 20) {
-        scrollRef.current.scrollTo({ left: 0, behavior: "smooth" })
-      } else {
-        scrollRef.current.scrollBy({ left: 800, behavior: "smooth" })
-      }
-    }, 10000)
-
-    return () => clearInterval(interval)
-  }, [isPaused])
+  const measure = useCallback(() => {
+    const el = track.current
+    if (!el) return
+    setEdges({ start: el.scrollLeft < 8, end: el.scrollLeft + el.clientWidth > el.scrollWidth - 8 })
+  }, [])
 
   useEffect(() => {
-    const container = scrollRef.current
-    if (!container) return
+    measure()
+    const el = track.current
+    el?.addEventListener("scroll", measure, { passive: true })
+    window.addEventListener("resize", measure)
+    return () => {
+      el?.removeEventListener("scroll", measure)
+      window.removeEventListener("resize", measure)
+    }
+  }, [measure, items.length])
 
-    setTimeout(checkScroll, 100)
-    container.addEventListener('scroll', checkScroll)
+  const page = (dir: 1 | -1) => {
+    const el = track.current
+    if (el) el.scrollBy({ left: dir * el.clientWidth * 0.85, behavior: "smooth" })
+  }
 
-    return () => container.removeEventListener('scroll', checkScroll)
-  }, [items])
-
-  if (!items || items.length === 0) return null
+  if (!items?.length) return null
+  const shown = ranked ? items.slice(0, 10) : items
 
   return (
-    <div 
-      className="mb-10 relative"
-      onMouseEnter={() => setIsPaused(true)}
-      onMouseLeave={() => setIsPaused(false)}
-    >
-      <h2 className="text-2xl font-bold text-white mb-4">{title}</h2>
-      
-      {/* Wrapper with max-width to force overflow */}
-      <div className="relative" style={{ maxWidth: "100%" }}>
-        
-        {/* Left Arrow */}
-        {showLeftArrow && (
-          <button
-            onClick={() => handleScroll("left")}
-            className="absolute left-0 top-0 bottom-0 z-30 w-16 bg-linear-to-r from-black via-black/80 to-transparent hover:from-black/95 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-            style={{ pointerEvents: "auto" }}
-          >
-            <ChevronLeft className="w-10 h-10 text-white drop-shadow-lg" />
-          </button>
-        )}
-
-        {/* Scroll Container - CONSTRAINED WIDTH */}
-        <div
-          ref={scrollRef}
-          className="flex gap-4 overflow-x-scroll scrollbar-hide scroll-smooth group"
-          style={{ 
-            scrollbarWidth: "none", 
-            msOverflowStyle: "none",
-            width: "100%",
-            maxWidth:"none"  
-          }}
-        >
-          {items.map((item, index) => (
-            <div 
-              key={item.id} 
-              className="shrink-0"
-              style={{ width: "220px" }}
+    <section className="group/row relative" aria-label={title}>
+      <div className="mb-4 flex items-end justify-between gap-4">
+        <div className="min-w-0">
+          <h2 className="truncate text-2xl leading-tight sm:text-[1.7rem]">{title}</h2>
+          {subtitle && <p className="mt-1 text-sm text-muted-foreground">{subtitle}</p>}
+        </div>
+        <div className="flex shrink-0 items-center gap-2">
+          {href && (
+            <Link
+              href={href}
+              className="mr-1 text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
             >
-              <MediaCard media={item} index={index} />
-            </div>
+              See all
+            </Link>
+          )}
+          {[-1, 1].map((dir) => (
+            <button
+              key={dir}
+              type="button"
+              onClick={() => page(dir as 1 | -1)}
+              disabled={dir === -1 ? edges.start : edges.end}
+              aria-label={dir === -1 ? `Scroll ${title} left` : `Scroll ${title} right`}
+              className="hidden h-8 w-8 items-center justify-center rounded-full border text-foreground transition-[opacity,background-color,border-color] duration-200 hover:border-primary/60 hover:bg-accent disabled:pointer-events-none disabled:opacity-30 md:flex"
+            >
+              {dir === -1 ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+            </button>
           ))}
         </div>
-
-        {/* Right Arrow */}
-        {showRightArrow && (
-          <button
-            onClick={() => handleScroll("right")}
-            className="absolute right-0 top-0 bottom-0 z-30 w-16 bg-linear-to-l from-black via-black/80 to-transparent hover:from-black/95 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-            style={{ pointerEvents: "auto" }}
-          >
-            <ChevronRight className="w-10 h-10 text-white drop-shadow-lg" />
-          </button>
-        )}
       </div>
 
-    </div>
+      <div className="relative -mx-4 sm:-mx-6 lg:-mx-8">
+        <div
+          aria-hidden="true"
+          className={cn(
+            "pointer-events-none absolute inset-y-0 left-0 z-10 w-10 bg-linear-to-r from-background to-transparent transition-opacity duration-300 sm:w-16",
+            edges.start && "opacity-0"
+          )}
+        />
+        <div
+          aria-hidden="true"
+          className={cn(
+            "pointer-events-none absolute inset-y-0 right-0 z-10 w-10 bg-linear-to-l from-background to-transparent transition-opacity duration-300 sm:w-16",
+            edges.end && "opacity-0"
+          )}
+        />
+        <motion.ul
+          ref={track}
+          variants={list}
+          initial={reduce ? false : "hidden"}
+          whileInView="show"
+          viewport={{ once: true, amount: 0.15 }}
+          className="flex snap-x snap-mandatory scroll-px-4 gap-3 overflow-x-auto px-4 pt-2 pb-3 scrollbar-hide sm:scroll-px-6 sm:gap-4 sm:px-6 lg:scroll-px-8 lg:px-8"
+        >
+          {shown.map((item, i) => (
+            <motion.li
+              key={`${item.id}-${i}`}
+              variants={card}
+              className={cn(
+                "shrink-0 snap-start",
+                ranked ? "w-[clamp(150px,19vw,224px)]" : "w-[clamp(128px,15vw,190px)]"
+              )}
+            >
+              <MediaCard
+                media={item}
+                rank={ranked ? i + 1 : undefined}
+                progress={progress?.[item.id]}
+                reason={reasons?.[item.id]}
+                priority={i < 4}
+              />
+            </motion.li>
+          ))}
+        </motion.ul>
+      </div>
+    </section>
   )
 }

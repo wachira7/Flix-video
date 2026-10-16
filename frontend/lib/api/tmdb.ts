@@ -29,8 +29,6 @@ class TMDBClient {
   private async fetcher<T>(endpoint: string): Promise<T> {
     const url = `${TMDB_BASE_URL}${endpoint}${endpoint.includes("?") ? "&" : "?"}api_key=${TMDB_API_KEY}`
 
-    console.log("[v0] TMDB API URL:", url.replace(TMDB_API_KEY || "", "***"))
-
     const response = await fetch(url, {
       next: { revalidate: 3600 }, // Cache for 1 hour
     })
@@ -173,6 +171,24 @@ class TMDBClient {
   async getSimilarTV(tvId: number) {
     const data = await this.fetcher<{ results: TVShow[] }>(`/tv/${tvId}/similar`)
     return data.results
+  }
+
+  async getGenres(mediaType: "movie" | "tv") {
+    const data = await this.fetcher<{ genres: { id: number; name: string }[] }>(`/genre/${mediaType}/list`)
+    return data.genres
+  }
+
+  /** Filtered listing, e.g. one genre sorted by popularity */
+  async discover(
+    mediaType: "movie" | "tv",
+    { genre, sortBy = "popularity.desc", page = 1 }: { genre?: number; sortBy?: string; page?: number } = {}
+  ) {
+    const params = new URLSearchParams({ sort_by: sortBy, page: String(page), "vote_count.gte": "50" })
+    if (genre) params.set("with_genres", String(genre))
+    const data = await this.fetcher<{ results: Movie[] | TVShow[]; total_pages: number; page: number }>(
+      `/discover/${mediaType}?${params}`
+    )
+    return data
   }
 }
 

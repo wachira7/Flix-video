@@ -1,182 +1,195 @@
 // components/dashboard/hero-banner.tsx
+// Full-bleed rotating hero for the app home. Crossfading backdrops with a
+// slow push-in, reel-style progress, swipe on touch, arrow keys on focus.
 "use client"
 
-import { useState, useEffect } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import Image from "next/image"
-import { motion, AnimatePresence } from "framer-motion"
-import { Play, Info, Volume2, VolumeX, ChevronLeft, ChevronRight } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import type { Movie, TVShow } from "@/lib/api/tmdb"
-import { getImageUrl } from "@/lib/api/tmdb"
+import Link from "next/link"
+import { AnimatePresence, motion } from "framer-motion"
+import { Info, Play, Star } from "lucide-react"
+import { tmdbImage } from "@/components/landing/landing-types"
+import { hrefOf, titleOf, typeOf, yearOf, type MediaItem } from "@/lib/media"
+import { cn } from "@/lib/utils"
+import { TrailerDialog } from "./trailer-dialog"
+import { WatchlistButton } from "./watchlist-button"
+
+const SLIDE_MS = 8000
+const ease = [0.22, 1, 0.36, 1] as const
 
 interface HeroBannerProps {
-  movies: (Movie | TVShow)[]  // accept both types
+  movies: MediaItem[]
+  eyebrow?: string
 }
 
-export function HeroBanner({ movies }: HeroBannerProps) {
-  const [currentIndex, setCurrentIndex] = useState(0)
-  const [muted, setMuted] = useState(true)
-  const [isPaused, setIsPaused] = useState(false)
+export function HeroBanner({ movies, eyebrow = "Trending this week" }: HeroBannerProps) {
+  const slides = movies.filter((m) => m.backdrop_path).slice(0, 6)
+  const [active, setActive] = useState(0)
+  const [paused, setPaused] = useState(false)
+  const [trailerOpen, setTrailerOpen] = useState(false)
+  const touchX = useRef<number | null>(null)
 
-  const item = movies[currentIndex]
-  const imageUrl = getImageUrl(item.backdrop_path, "original")
+  const go = useCallback((dir: 1 | -1) => setActive((i) => (i + dir + slides.length) % slides.length), [slides.length])
 
-  // Helper functions to handle both Movie and TVShow types
-  const getTitle = (item: Movie | TVShow) => {
-    return 'title' in item ? item.title : item.name
-  }
-
-  const getReleaseYear = (item: Movie | TVShow) => {
-    const date = 'release_date' in item ? item.release_date : item.first_air_date
-    return date ? new Date(date).getFullYear() : 'N/A'
-  }
-
-  // Auto-rotate every 6.0 seconds
   useEffect(() => {
-    if (isPaused || movies.length <= 1) return
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) setPaused(true)
+    const onVis = () => setPaused(document.hidden)
+    document.addEventListener("visibilitychange", onVis)
+    return () => document.removeEventListener("visibilitychange", onVis)
+  }, [])
 
-    const interval = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % movies.length)
-    }, 6000) // 6.0 seconds
+  const halted = paused || trailerOpen
+  useEffect(() => {
+    if (halted || slides.length < 2) return
+    const t = setTimeout(() => go(1), SLIDE_MS)
+    return () => clearTimeout(t)
+  }, [active, halted, slides.length, go])
 
-    return () => clearInterval(interval)
-  }, [isPaused, movies.length])
-
-  const goToNext = () => {
-    setCurrentIndex((prev) => (prev + 1) % movies.length)
-  }
-
-  const goToPrevious = () => {
-    setCurrentIndex((prev) => (prev - 1 + movies.length) % movies.length)
-  }
+  if (!slides.length) return null
+  const item = slides[active]
+  const title = titleOf(item)
+  const type = typeOf(item)
+  const year = yearOf(item)
 
   return (
-    <div 
-      className="relative h-[70vh] w-full mb-10"
-      onMouseEnter={() => setIsPaused(true)}
-      onMouseLeave={() => setIsPaused(false)}
+    <section
+      aria-roledescription="carousel"
+      aria-label="Featured titles"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === "ArrowRight") go(1)
+        if (e.key === "ArrowLeft") go(-1)
+      }}
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+      onTouchStart={(e) => (touchX.current = e.touches[0].clientX)}
+      onTouchEnd={(e) => {
+        if (touchX.current === null) return
+        const dx = e.changedTouches[0].clientX - touchX.current
+        if (Math.abs(dx) > 50) go(dx < 0 ? 1 : -1)
+        touchX.current = null
+      }}
+      className="relative isolate -mx-4 -mt-20 flex min-h-[min(78svh,760px)] items-end overflow-hidden focus-visible:outline-none sm:-mx-6 lg:-mx-8"
     >
-      {/* Background Image with Animation */}
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={currentIndex}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.7 }}
-          className="absolute inset-0"
-        >
-          <Image
-            src={imageUrl || "/placeholder.svg"}
-            alt={getTitle(item)}
-            fill
-            className="object-cover"
-            priority
-          />
-          <div className="absolute inset-0 bg-linear-to-r from-black via-black/50 to-transparent" />
-          <div className="absolute inset-0 bg-linear-to-t from-black via-transparent to-transparent" />
-        </motion.div>
-      </AnimatePresence>
-
-      {/* Content */}
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={`content-${currentIndex}`}
-          initial={{ opacity: 0, y: 50 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -50 }}
-          transition={{ duration: 0.5 }}
-          className="relative h-full flex flex-col justify-end p-12 max-w-2xl"
-        >
-          <h1 className="text-5xl font-bold text-white mb-4">{getTitle(item)}</h1>
-          
-          <div className="flex items-center gap-4 mb-4 text-white">
-            <span className="text-green-500 font-semibold text-lg">
-              {Math.round(item.vote_average * 10)}% Match
-            </span>
-            <span className="text-gray-300">
-              {getReleaseYear(item)}
-            </span>
-            <span className="px-2 py-1 border border-gray-400 text-sm">HD</span>
-          </div>
-
-          <p className="text-gray-300 text-lg mb-6 line-clamp-3">
-            {item.overview}
-          </p>
-
-          <div className="flex items-center gap-4">
-            <Button
-              size="lg"
-              className="bg-white text-black hover:bg-gray-200 font-semibold"
+      {/* Backdrops */}
+      <div className="absolute inset-0 -z-20" aria-hidden="true">
+        {slides.map((s, i) => {
+          const src = tmdbImage(s.backdrop_path, "w1280")
+          return (
+            <div
+              key={s.id}
+              className={cn(
+                "absolute inset-0 transition-opacity duration-[1400ms] ease-out",
+                i === active ? "opacity-100" : "opacity-0"
+              )}
             >
-              <Play className="w-6 h-6 mr-2" fill="currentColor" />
-              Play
-            </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              className="border-gray-400 bg-gray-800/80 hover:bg-gray-700 text-white font-semibold"
-            >
-              <Info className="w-6 h-6 mr-2" />
-              More Info
-            </Button>
+              {src && (
+                <Image
+                  src={src}
+                  alt=""
+                  fill
+                  priority={i === 0}
+                  sizes="100vw"
+                  className={cn("object-cover object-[center_25%]", i === active && "kenburns")}
+                />
+              )}
+            </div>
+          )
+        })}
+      </div>
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,hsl(var(--background))_0%,hsl(var(--background)/0.8)_30%,transparent_70%),linear-gradient(0deg,hsl(var(--background))_0%,hsl(var(--background)/0.4)_35%,transparent_60%),linear-gradient(180deg,hsl(var(--background)/0.7)_0%,transparent_22%)]"
+      />
+      <div aria-hidden="true" className="film-grain absolute inset-0 -z-10" />
+
+      <div className="w-full px-4 pt-32 pb-10 sm:px-6 lg:px-12 lg:pb-14">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={item.id}
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -12 }}
+            transition={{ duration: 0.6, ease }}
+            className="max-w-2xl space-y-5"
+            aria-live="polite"
+          >
+            <p className="eyebrow">
+              {eyebrow} · #{active + 1}
+            </p>
+            <h1 className="text-[2.6rem] leading-[0.98] text-balance sm:text-6xl lg:text-7xl">{title}</h1>
+            <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-foreground/80 tabular-nums">
+              {item.vote_average > 0 && (
+                <span className="inline-flex items-center gap-1 font-semibold text-foreground">
+                  <Star className="h-4 w-4 fill-primary text-primary" aria-hidden="true" />
+                  {item.vote_average.toFixed(1)}
+                </span>
+              )}
+              {year && <span>{year}</span>}
+              <span className="rounded border border-foreground/30 px-1.5 py-px text-xs">
+                {type === "tv" ? "Series" : "Film"}
+              </span>
+            </p>
+            <p className="line-clamp-3 max-w-xl text-base leading-relaxed text-foreground/75 sm:text-lg">{item.overview}</p>
+            <div className="flex flex-wrap items-center gap-3 pt-1">
+              <button
+                type="button"
+                onClick={() => setTrailerOpen(true)}
+                className="inline-flex h-12 items-center gap-2 rounded-lg bg-primary px-6 text-[15px] font-semibold text-primary-foreground transition-[filter,transform] hover:brightness-110 active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background focus-visible:outline-none"
+              >
+                <Play className="h-4 w-4 fill-current" aria-hidden="true" />
+                Watch trailer
+              </button>
+              <Link
+                href={hrefOf(item)}
+                className="inline-flex h-12 items-center gap-2 rounded-lg border border-foreground/25 bg-background/30 px-5 text-[15px] font-semibold backdrop-blur-sm transition-colors hover:border-foreground/50 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+              >
+                <Info className="h-4 w-4" aria-hidden="true" />
+                Details
+              </Link>
+              <WatchlistButton key={item.id} variant="pill" mediaType={type} id={item.id} title={title} />
+            </div>
+          </motion.div>
+        </AnimatePresence>
+
+        {slides.length > 1 && (
+          <div className="mt-10 flex max-w-xs gap-1.5" role="tablist" aria-label="Choose featured title">
+            {slides.map((s, i) => (
+              <button
+                key={s.id}
+                type="button"
+                role="tab"
+                aria-selected={i === active}
+                aria-label={titleOf(s)}
+                onClick={() => setActive(i)}
+                className="group relative h-5 flex-1 focus-visible:outline-none"
+              >
+                <span className="absolute inset-x-0 top-1/2 h-[3px] -translate-y-1/2 overflow-hidden rounded-full bg-foreground/20 transition-colors group-hover:bg-foreground/35 group-focus-visible:ring-2 group-focus-visible:ring-ring">
+                  <span
+                    key={`${i}-${active}-${halted}`}
+                    className={cn(
+                      "absolute inset-y-0 left-0 bg-primary",
+                      i < active && "w-full",
+                      i > active && "w-0",
+                      i === active && (halted ? "w-full" : "reel-progress")
+                    )}
+                    style={{ "--slide-ms": `${SLIDE_MS}ms` } as React.CSSProperties}
+                  />
+                </span>
+              </button>
+            ))}
           </div>
-        </motion.div>
-      </AnimatePresence>
-
-      {/* Navigation Arrows */}
-      {movies.length > 1 && (
-        <>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={goToPrevious}
-            className="absolute left-4 top-1/2 -translate-y-1/2 z-20 bg-black/50 hover:bg-black/80 rounded-full w-12 h-12"
-          >
-            <ChevronLeft className="w-8 h-8 text-white" />
-          </Button>
-          
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={goToNext}
-            className="absolute right-4 top-1/2 -translate-y-1/2 z-20 bg-black/50 hover:bg-black/80 rounded-full w-12 h-12"
-          >
-            <ChevronRight className="w-8 h-8 text-white" />
-          </Button>
-        </>
-      )}
-
-      {/* Pagination Dots */}
-      {movies.length > 1 && (
-        <div className="absolute bottom-24 left-12 z-20 flex gap-2">
-          {movies.map((_, index) => (
-            <button
-              key={index}
-              onClick={() => setCurrentIndex(index)}
-              className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                index === currentIndex 
-                  ? 'bg-white w-8' 
-                  : 'bg-gray-500 hover:bg-gray-300'
-              }`}
-            />
-          ))}
-        </div>
-      )}
-
-      {/* Mute Button */}
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={() => setMuted(!muted)}
-        className="absolute bottom-12 right-12 z-20 bg-gray-800/80 hover:bg-gray-700 rounded-full"
-      >
-        {muted ? (
-          <VolumeX className="w-6 h-6 text-white" />
-        ) : (
-          <Volume2 className="w-6 h-6 text-white" />
         )}
-      </Button>
-    </div>
+      </div>
+
+      <TrailerDialog
+        key={`${type}-${item.id}`}
+        open={trailerOpen}
+        onOpenChange={setTrailerOpen}
+        title={title}
+        mediaType={type}
+        id={item.id}
+      />
+    </section>
   )
 }

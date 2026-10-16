@@ -32,7 +32,7 @@ export default function ListDetailPage() {
     } catch (error) {
       console.error("Load list error:", error)
       toast.error("Failed to load list")
-      router.push('/lists')
+      router.push('/library?tab=lists')
     } finally {
       setLoading(false)
     }
@@ -56,7 +56,7 @@ export default function ListDetailPage() {
     try {
       await listsAPI.delete(listId)
       toast.success("List deleted")
-      router.push('/lists')
+      router.push('/library?tab=lists')
     } catch (error) {
       toast.error("Failed to delete list")
     }
@@ -67,7 +67,7 @@ export default function ListDetailPage() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-gray-400">Loading list...</p>
+          <p className="text-muted-foreground">Loading list...</p>
         </div>
       </div>
     )
@@ -81,7 +81,7 @@ export default function ListDetailPage() {
       <div className="max-w-7xl mx-auto mb-8">
         <Button
           variant="ghost"
-          onClick={() => router.push('/lists')}
+          onClick={() => router.push('/library?tab=lists')}
           className="mb-4"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
@@ -91,23 +91,23 @@ export default function ListDetailPage() {
         <div className="flex items-start justify-between">
           <div>
             <div className="flex items-center gap-3 mb-2">
-              <h1 className="text-4xl font-bold text-white">{list.title}</h1>
+              <h1 className="text-4xl font-bold text-foreground">{list.title}</h1>
               {list.is_public ? (
                 <Badge variant="outline" className="text-green-400 border-green-400">
                   <Globe className="w-3 h-3 mr-1" />
                   Public
                 </Badge>
               ) : (
-                <Badge variant="outline" className="text-gray-400 border-gray-400">
+                <Badge variant="outline" className="text-muted-foreground border-muted-foreground/50">
                   <Lock className="w-3 h-3 mr-1" />
                   Private
                 </Badge>
               )}
             </div>
             {list.description && (
-              <p className="text-gray-400 text-lg">{list.description}</p>
+              <p className="text-muted-foreground text-lg">{list.description}</p>
             )}
-            <p className="text-gray-500 mt-2">
+            <p className="text-muted-foreground mt-2">
               {list.items?.length || 0} items
             </p>
           </div>
@@ -128,9 +128,9 @@ export default function ListDetailPage() {
       {/* Items Grid */}
       <div className="max-w-7xl mx-auto">
         {!list.items || list.items.length === 0 ? (
-          <Card className="bg-gray-900 border-gray-800 p-12 text-center">
-            <p className="text-gray-400 text-lg">This list is empty</p>
-            <p className="text-gray-500 mt-2">
+          <Card className="bg-card border-border p-12 text-center">
+            <p className="text-muted-foreground text-lg">This list is empty</p>
+            <p className="text-muted-foreground mt-2">
               Add movies and shows using the "Add to List" button on detail pages
             </p>
           </Card>
@@ -139,7 +139,7 @@ export default function ListDetailPage() {
             {list.items.map((item: any) => (
               <Card
                 key={item.id}
-                className="bg-gray-900 border-gray-800 overflow-hidden group relative"
+                className="bg-card border-border overflow-hidden group relative"
               >
                 <div className="aspect-2/3 relative">
                   <Image
@@ -160,11 +160,11 @@ export default function ListDetailPage() {
                   </div>
                 </div>
                 <div className="p-3">
-                  <h3 className="text-white font-semibold line-clamp-1 text-sm">
+                  <h3 className="text-foreground font-semibold line-clamp-1 text-sm">
                     {item.title || item.name || `${item.content_type} #${item.content_id}`}
                   </h3>
                   {item.notes && (
-                    <p className="text-gray-400 text-xs mt-1 line-clamp-2">
+                    <p className="text-muted-foreground text-xs mt-1 line-clamp-2">
                       {item.notes}
                     </p>
                   )}

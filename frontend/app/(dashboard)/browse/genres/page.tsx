@@ -1,1 +1,7 @@
-export default function Page() { return <div className="p-8"><h1 className="text-2xl text-white">Coming Soon</h1></div> }
+// app/(dashboard)/browse/genres/page.tsx
+// Merged into /browse. Kept as a redirect so old links keep working.
+import { redirect } from "next/navigation"
+
+export default function Page() {
+  redirect("/browse")
+}

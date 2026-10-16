@@ -1,67 +1,49 @@
 // app/(dashboard)/dashboard/page.tsx
-
-import { getTrendingMovies, getTrendingTV, getPopularMovies, getUpcomingMovies, getOnTheAirTV } from "@/app/actions/tmdb"
+import { tmdbClient, type Movie, type TVShow } from "@/lib/api/tmdb"
+import type { MediaItem } from "@/lib/media"
 import { HeroBanner } from "@/components/dashboard/hero-banner"
 import { ContentRow } from "@/components/dashboard/content-row"
-import { SubscriptionBanner } from "@/components/dashboard/subscription-banner"
-// import { UsageWidget } from "@/components/dashboard/usage-widget"
-// import { AIRecommendationsWidget } from "@/components/dashboard/ai-recommendations-widget" 
-import { tmdbClient } from "@/lib/api/tmdb"
-import type { Movie, TVShow } from "@/lib/api/tmdb"
+import { ContinueWatching } from "@/components/dashboard/continue-watching"
+import { HomeGreeting } from "@/components/dashboard/home-greeting"
 
-// Helper function to get random items from array
-function getRandomItems<T>(array: T[], count: number): T[] {
-  const shuffled = [...array].sort(() => Math.random() - 0.5)
-  return shuffled.slice(0, count)
+// Re-fetch TMDB lists at most once an hour
+export const revalidate = 3600
+
+async function list<T extends Movie | TVShow>(load: Promise<{ results: unknown[] }>, type: "movie" | "tv") {
+  try {
+    const res = await load
+    return (res.results as T[]).filter((r) => r.poster_path).map((r) => ({ ...r, media_type: type }) as MediaItem)
+  } catch {
+    return [] as MediaItem[]
+  }
 }
 
 export default async function DashboardPage() {
-  // Fetch all content in parallel
-  const [trendingMoviesRes, trendingTVRes, popularMoviesRes, upcomingMoviesRes, onTheAirTVRes, topRatedMoviesRes, topRatedTVRes] = 
-    await Promise.all([
-      getTrendingMovies(),
-      getTrendingTV(),
-      getPopularMovies(),
-      getUpcomingMovies(),
-      getOnTheAirTV(),
-      tmdbClient.getTopRated("movie"),
-      tmdbClient.getTopRated("tv"),
-    ])
+  const [trendingMovies, trendingTV, upcoming, topRated] = await Promise.all([
+    list<Movie>(tmdbClient.getTrending("movie", "week"), "movie"),
+    list<TVShow>(tmdbClient.getTrending("tv", "week"), "tv"),
+    list<Movie>(tmdbClient.getUpcoming(), "movie"),
+    list<Movie>(tmdbClient.getTopRated("movie"), "movie"),
+  ])
 
-  const trendingMovies = (trendingMoviesRes.success ? trendingMoviesRes.data : []) as Movie[]
-  const trendingTV = (trendingTVRes.success ? trendingTVRes.data : []) as TVShow[]
-  const popularMovies = (popularMoviesRes.success ? popularMoviesRes.data : []) as Movie[]
-  const upcomingMovies = (upcomingMoviesRes.success ? upcomingMoviesRes.data : []) as Movie[]
-  const onTheAirTV = (onTheAirTVRes.success ? onTheAirTVRes.data : []) as TVShow[]
-
-  const topRatedMovies = topRatedMoviesRes.results as Movie[]
-  const topRatedTV = topRatedTVRes.results as TVShow[]
-
-  const combinedTrending = [...trendingMovies, ...trendingTV]
-  const randomHeroItems = getRandomItems(combinedTrending, 10)
+  // Interleave films and series for the hero, in trending order
+  const hero: MediaItem[] = []
+  for (let i = 0; i < 4; i++) {
+    if (trendingMovies[i]) hero.push(trendingMovies[i])
+    if (trendingTV[i]) hero.push(trendingTV[i])
+  }
 
   return (
-    <div className="min-h-screen">
-      {/* Hero Banner - Full Width */}
-      {randomHeroItems.length > 0 && <HeroBanner movies={randomHeroItems} />}
+    <div className="space-y-14">
+      <HeroBanner movies={hero} />
 
-      {/* Main Container - Full Width */}
-      <div className=" px-6 py-8">
-        {/* Subscription Banner - Full Width */}
-        <div className="mb-8">
-          <SubscriptionBanner />
-        </div>
-
-        {/* Content Rows - Full Width */}
-        <div className="space-y-8">
-          <ContentRow title="Trending Movies" items={trendingMovies} />
-          <ContentRow title="Upcoming Movies" items={upcomingMovies} />
-          <ContentRow title="Trending TV Shows" items={trendingTV} />
-          <ContentRow title="On The Air TV Shows" items={onTheAirTV} />
-          <ContentRow title="Popular on FlixVideo" items={popularMovies} />
-          <ContentRow title="Top Rated Movies" items={topRatedMovies} />
-          <ContentRow title="Top Rated TV Shows" items={topRatedTV} />
-        </div>
+      <div className="space-y-14">
+        <HomeGreeting />
+        <ContinueWatching />
+        <ContentRow title="Top 10 films this week" items={trendingMovies} ranked href="/browse" />
+        <ContentRow title="Series everyone's watching" items={trendingTV} href="/browse?type=tv" />
+        <ContentRow title="Coming soon" subtitle="Upcoming releases worth a reminder" items={upcoming} href="/browse?list=new" />
+        <ContentRow title="All-time greats" subtitle="The highest rated films on TMDB" items={topRated} href="/browse?list=top-rated" />
       </div>
     </div>
   )
