@@ -78,7 +78,7 @@ const handlePageChange = (newPage: number) => {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
         <div>
           <div className="flex items-center gap-3 mb-2">
-            <Film className="w-8 h-8 text-purple-500" />
+            <Film className="w-8 h-8 text-primary" />
             <h1 className="text-4xl font-bold text-white">{getSortLabel(sortBy)}</h1>
           </div>
           <p className="text-gray-400">
@@ -149,7 +149,7 @@ const handlePageChange = (newPage: number) => {
                     onClick={() => handlePageChange(pageNum)}
                     className={
                       page === pageNum
-                        ? "bg-linear-to-r from-purple-700 to-fuchsia-600"
+                        ? "bg-linear-to-r from-primary/90 to-highlight"
                         : "border-gray-700 bg-gray-800 hover:bg-gray-700"
                     }
                   >

@@ -104,7 +104,7 @@ export function CommentForm({
             type="submit"
             size="sm"
             disabled={loading || !content.trim()}
-            className="bg-linear-to-r from-purple-700 to-fuchsia-600"
+            className="bg-linear-to-r from-primary/90 to-highlight"
           >
             {loading ? "Posting..." : existingComment ? "Update" : "Post"}
           </Button>

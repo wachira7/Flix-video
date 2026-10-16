@@ -86,7 +86,7 @@ export function Sidebar() {
         <div className="flex flex-col h-full">
           <div className="p-4 border-b border-gray-800 flex items-center justify-between">
             <Link href="/dashboard" className="flex items-center space-x-2">
-              <div className="bg-linear-to-r from-purple-700 to-fuchsia-600 p-2 rounded-lg">
+              <div className="bg-linear-to-r from-primary/90 to-highlight p-2 rounded-lg">
                 <Play className="w-6 h-6 text-white" fill="white" />
               </div>
               {!collapsed && (
@@ -135,7 +135,7 @@ export function Sidebar() {
         {/* Logo & Toggle */}
         <div className="p-4 border-b border-gray-800 flex items-center justify-between">
           <Link href="/dashboard" className="flex items-center space-x-2">
-            <div className="bg-linear-to-r from-purple-700 to-fuchsia-600 p-2 rounded-lg">
+            <div className="bg-linear-to-r from-primary/90 to-highlight p-2 rounded-lg">
               <Play className="w-6 h-6 text-white" fill="white" />
             </div>
             <AnimatePresence>
@@ -170,11 +170,11 @@ export function Sidebar() {
         {/* User Info UPDATES REACTIVELY */}
         <div className="p-4 border-b border-gray-800">
           <div className="flex items-center gap-3">
-            <Avatar className="border-2 border-purple-600">
+            <Avatar className="border-2 border-primary">
               {avatarUrl && (
                 <AvatarImage src={avatarUrl} alt={user?.email} />
               )}
-              <AvatarFallback className="bg-linear-to-r from-purple-700 to-fuchsia-600">
+              <AvatarFallback className="bg-linear-to-r from-primary/90 to-highlight">
                 {user?.email?.charAt(0).toUpperCase() || "U"}
               </AvatarFallback>
             </Avatar>
@@ -191,7 +191,7 @@ export function Sidebar() {
                   </p>
                   <p className={cn(
                     "text-xs truncate",
-                    subscriptionPlan === 'premium' ? "text-purple-400" : 
+                    subscriptionPlan === 'premium' ? "text-primary" : 
                     subscriptionPlan === 'basic' ? "text-blue-400" : 
                     "text-gray-400"
                   )}>
@@ -225,7 +225,7 @@ export function Sidebar() {
                   className={cn(
                     "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group",
                     isActive
-                      ? "bg-linear-to-r from-purple-700 to-fuchsia-600 text-white"
+                      ? "bg-linear-to-r from-primary/90 to-highlight text-white"
                       : "text-gray-400 hover:text-white hover:bg-gray-800"
                   )}
                   title={collapsed ? item.label : undefined}
@@ -268,7 +268,7 @@ export function Sidebar() {
                   className={cn(
                     "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200",
                     isActive
-                      ? "bg-linear-to-r from-purple-700 to-fuchsia-600 text-white"
+                      ? "bg-linear-to-r from-primary/90 to-highlight text-white"
                       : "text-gray-400 hover:text-white hover:bg-gray-800"
                   )}
                   title={collapsed ? item.label : undefined}
@@ -310,7 +310,7 @@ export function Sidebar() {
                   className={cn(
                     "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200",
                     isActive
-                      ? "bg-linear-to-r from-purple-700 to-fuchsia-600 text-white"
+                      ? "bg-linear-to-r from-primary/90 to-highlight text-white"
                       : "text-gray-400 hover:text-white hover:bg-gray-800"
                   )}
                   title={collapsed ? item.label : undefined}
@@ -347,7 +347,7 @@ export function Sidebar() {
                 className={cn(
                   "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200",
                   isActive
-                    ? "bg-linear-to-r from-purple-700 to-fuchsia-600 text-white"
+                    ? "bg-linear-to-r from-primary/90 to-highlight text-white"
                     : "text-gray-400 hover:text-white hover:bg-gray-800"
                 )}
                 title={collapsed ? item.label : undefined}

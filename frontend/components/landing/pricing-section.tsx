@@ -150,14 +150,14 @@ export function PricingSection() {
                 style={{
                   transformStyle: "preserve-3d",
                   background: plan.popular
-                    ? "linear-gradient(135deg, rgba(168, 85, 247, 0.1) 0%, rgba(236, 72, 153, 0.1) 100%)"
+                    ? "linear-gradient(135deg, rgba(232, 163, 61, 0.12) 0%, rgba(242, 196, 109, 0.06) 100%)"
                     : "rgba(0, 0, 0, 0.3)",
                   backdropFilter: "blur(10px)",
                 }}
               >
                 {plan.popular && (
                   <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                    <div className="bg-linear-to-r from-purple-600 to-pink-600 text-white px-4 py-1 rounded-full text-sm font-semibold flex items-center gap-1">
+                    <div className="bg-linear-to-r from-primary to-highlight text-primary-foreground px-4 py-1 rounded-full text-sm font-semibold flex items-center gap-1">
                       <Sparkles className="w-4 h-4" />
                       Most Popular
                     </div>

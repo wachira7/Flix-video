@@ -21,7 +21,7 @@ export function HeroSection() {
             repeat: Number.POSITIVE_INFINITY,
             ease: "easeInOut",
           }}
-          className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500/30 rounded-full blur-3xl"
+          className="absolute -top-40 -right-40 w-80 h-80 bg-primary/30 rounded-full blur-3xl"
         />
         <motion.div
           animate={{
@@ -34,7 +34,7 @@ export function HeroSection() {
             ease: "easeInOut",
             delay: 1,
           }}
-          className="absolute top-40 -left-40 w-80 h-80 bg-pink-500/30 rounded-full blur-3xl"
+          className="absolute top-40 -left-40 w-80 h-80 bg-primary/30 rounded-full blur-3xl"
         />
         <motion.div
           animate={{

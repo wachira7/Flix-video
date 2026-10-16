@@ -48,7 +48,7 @@ export default function ListsPage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
           <p className="text-gray-400">Loading lists...</p>
         </div>
       </div>
@@ -68,7 +68,7 @@ export default function ListsPage() {
           </div>
           <Button
             size="lg"
-            className="bg-purple-600 hover:bg-purple-700"
+            className="bg-primary hover:bg-primary/90"
             onClick={() => router.push('/lists/create')}
           >
             <Plus className="w-5 h-5 mr-2" />
@@ -86,7 +86,7 @@ export default function ListsPage() {
               Create your first list to start organizing your content
             </p>
             <Button
-              className="bg-purple-600 hover:bg-purple-700"
+              className="bg-primary hover:bg-primary/90"
               onClick={() => router.push('/lists/create')}
             >
               <Plus className="w-5 h-5 mr-2" />
@@ -98,12 +98,12 @@ export default function ListsPage() {
             {lists.map((list) => (
               <Card
                 key={list.id}
-                className="bg-gray-900 border-gray-800 hover:border-purple-600 transition-all group"
+                className="bg-gray-900 border-gray-800 hover:border-primary transition-all group"
               >
                 <div className="p-6">
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex-1">
-                      <h3 className="text-xl font-semibold text-white mb-1 group-hover:text-purple-400 transition-colors">
+                      <h3 className="text-xl font-semibold text-white mb-1 group-hover:text-primary transition-colors">
                         {list.title}
                       </h3>
                       {list.description && (

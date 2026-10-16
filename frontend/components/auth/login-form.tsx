@@ -97,7 +97,7 @@ export function LoginForm() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-linear-to-br from-purple-900 via-fuchsia-900 to-purple-900 relative">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-linear-to-br from-primary/15 via-highlight/15 to-primary/15 relative">
       {/* Back to Home Button */}
       <Link href="/">
         <motion.button
@@ -146,7 +146,7 @@ export function LoginForm() {
                 >
                   <button
                     onClick={handleGoogleLogin}
-                    className="w-14 h-14 rounded-full border-2 border-gray-300 flex items-center justify-center hover:border-purple-700 hover:shadow-lg transition-all duration-300 hover:scale-110"
+                    className="w-14 h-14 rounded-full border-2 border-gray-300 flex items-center justify-center hover:border-primary hover:shadow-lg transition-all duration-300 hover:scale-110"
                   >
                     <FcGoogle size={28} />
                   </button>
@@ -218,7 +218,7 @@ export function LoginForm() {
                   >
                     <Link
                       href="/forgot-password"
-                      className="text-sm text-purple-700 hover:text-purple-800 hover:underline"
+                      className="text-sm text-primary hover:text-primary hover:underline"
                     >
                       Forgot your password?
                     </Link>
@@ -232,7 +232,7 @@ export function LoginForm() {
                     <Button
                       type="submit"
                       disabled={loading}
-                      className="w-full bg-linear-to-r from-purple-700 to-fuchsia-600 hover:from-purple-800 hover:to-fuchsia-700"
+                      className="w-full bg-linear-to-r from-primary/90 to-highlight hover:from-primary/15 hover:to-highlight/90"
                     >
                       {loading ? (
                         <>
@@ -253,7 +253,7 @@ export function LoginForm() {
               initial={{ x: 100, opacity: 0, filter: "blur(10px)" }}
               animate={{ x: 0, opacity: 1, filter: "blur(0px)" }}
               transition={{ duration: 0.7, ease: "easeOut" }}
-              className="bg-linear-to-br from-purple-700 to-fuchsia-600 p-12 flex flex-col justify-center items-center text-white order-1 md:order-2 relative"
+              className="bg-linear-to-br from-primary/90 to-highlight p-12 flex flex-col justify-center items-center text-white order-1 md:order-2 relative"
               style={{
                 clipPath: "polygon(15% 0, 100% 0, 100% 100%, 0% 100%)",
               }}
@@ -271,7 +271,7 @@ export function LoginForm() {
                   initial={{ y: 20, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ delay: 0.4, duration: 0.6 }}
-                  className="text-purple-100 text-lg"
+                  className="text-foreground/80 text-lg"
                 >
                   Enter your personal details and start your journey with us
                 </motion.p>
@@ -283,7 +283,7 @@ export function LoginForm() {
                   <Link href="/signup">
                     <Button
                       variant="outline"
-                      className="border-2 border-white text-white hover:bg-white hover:text-purple-700 px-8 bg-transparent"
+                      className="border-2 border-white text-white hover:bg-white hover:text-primary px-8 bg-transparent"
                     >
                       SIGN UP
                     </Button>

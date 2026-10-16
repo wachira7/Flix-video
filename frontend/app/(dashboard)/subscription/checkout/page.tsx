@@ -119,8 +119,8 @@ function CheckoutContent() {
 
           {/* Stripe */}
           <Card
-            className={`p-6 bg-gray-900 border-2 cursor-pointer transition-all hover:border-purple-600 ${
-              selectedMethod === 'stripe' ? 'border-purple-600' : 'border-gray-800'
+            className={`p-6 bg-gray-900 border-2 cursor-pointer transition-all hover:border-primary ${
+              selectedMethod === 'stripe' ? 'border-primary' : 'border-gray-800'
             }`}
             onClick={() => handleSelectPayment('stripe')}
           >

@@ -107,7 +107,7 @@ export default function CreateWatchPartyPage() {
                     onClick={() => setFormData({ ...formData, content_type: 'movie' })}
                     className={`p-4 rounded-lg border-2 transition-all ${
                       formData.content_type === 'movie'
-                        ? 'border-purple-600 bg-purple-600/20'
+                        ? 'border-primary bg-primary/20'
                         : 'border-gray-700 hover:border-gray-600'
                     }`}
                   >
@@ -119,7 +119,7 @@ export default function CreateWatchPartyPage() {
                     onClick={() => setFormData({ ...formData, content_type: 'tv' })}
                     className={`p-4 rounded-lg border-2 transition-all ${
                       formData.content_type === 'tv'
-                        ? 'border-purple-600 bg-purple-600/20'
+                        ? 'border-primary bg-primary/20'
                         : 'border-gray-700 hover:border-gray-600'
                     }`}
                   >
@@ -239,7 +239,7 @@ export default function CreateWatchPartyPage() {
               <Button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-linear-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold py-6"
+                className="w-full bg-linear-to-r from-primary to-highlight hover:from-primary/90 hover:to-highlight/90 text-primary-foreground font-semibold py-6"
               >
                 {loading ? (
                   <span className="flex items-center gap-2">

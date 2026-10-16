@@ -73,7 +73,7 @@ export function CommentCard({ comment, currentUserId, onDelete, onCommentAdded }
     <div style={{ paddingLeft: `${paddingLeft}px` }}>
       <div className="flex items-start gap-3 py-3">
         <Avatar className="w-8 h-8">
-          <AvatarFallback className="bg-linear-to-r from-purple-700 to-fuchsia-600 text-xs">
+          <AvatarFallback className="bg-linear-to-r from-primary/90 to-highlight text-xs">
             {comment.username.charAt(0).toUpperCase()}
           </AvatarFallback>
         </Avatar>

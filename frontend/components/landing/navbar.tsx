@@ -37,8 +37,8 @@ export function Navbar() {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2">
-            <div className="bg-linear-to-r from-purple-600 to-pink-600 p-2 rounded-lg">
-              <Play className="w-6 h-6 text-white" fill="white" />
+            <div className="bg-linear-to-r from-primary to-highlight p-2 rounded-lg">
+              <Play className="w-6 h-6 text-primary-foreground" fill="currentColor" />
             </div>
             <span className="text-2xl font-bold gradient-text">FlixVideo</span>
           </Link>
@@ -76,8 +76,8 @@ export function Navbar() {
             <SheetContent side="right">
               <SheetHeader>
                 <SheetTitle className="flex items-center space-x-2">
-                  <div className="bg-linear-to-r from-purple-600 to-pink-600 p-2 rounded-lg">
-                    <Play className="w-5 h-5 text-white" fill="white" />
+                  <div className="bg-linear-to-r from-primary to-highlight p-2 rounded-lg">
+                    <Play className="w-5 h-5 text-primary-foreground" fill="currentColor" />
                   </div>
                   <span className="gradient-text">FlixVideo</span>
                 </SheetTitle>

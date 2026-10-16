@@ -52,7 +52,7 @@ export function ForgotPasswordForm() {
 
   if (emailSent) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4 bg-linear-to-br from-purple-900 via-purple-800 to-pink-800">
+      <div className="min-h-screen flex items-center justify-center p-4 bg-linear-to-br from-primary/15 via-primary/15 to-highlight/15">
         <Card className="w-full max-w-md p-8 bg-white">
           <div className="text-center space-y-4">
             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto">
@@ -64,7 +64,7 @@ export function ForgotPasswordForm() {
               instructions.
             </p>
             <Link href="/login">
-              <Button className="w-full bg-linear-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700">
+              <Button className="w-full bg-linear-to-r from-primary to-highlight hover:from-primary/90 hover:to-highlight/90">
                 Back to Login
               </Button>
             </Link>
@@ -75,7 +75,7 @@ export function ForgotPasswordForm() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-linear-to-br from-purple-900 via-purple-800 to-pink-800">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-linear-to-br from-primary/15 via-primary/15 to-highlight/15">
       <Card className="w-full max-w-md p-8 bg-white">
         <div className="space-y-6">
           <div className="text-center">
@@ -104,7 +104,7 @@ export function ForgotPasswordForm() {
             <Button
               type="submit"
               disabled={loading}
-              className="w-full bg-linear-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+              className="w-full bg-linear-to-r from-primary to-highlight hover:from-primary/90 hover:to-highlight/90"
             >
               {loading ? (
                 <>
@@ -118,7 +118,7 @@ export function ForgotPasswordForm() {
           </form>
 
           <div className="text-center">
-            <Link href="/login" className="inline-flex items-center text-sm text-purple-600 hover:text-purple-700">
+            <Link href="/login" className="inline-flex items-center text-sm text-primary hover:text-primary">
               <ArrowLeft className="w-4 h-4 mr-1" />
               Back to Login
             </Link>

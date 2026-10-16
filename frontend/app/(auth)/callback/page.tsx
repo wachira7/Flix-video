@@ -45,7 +45,7 @@ export default function CallbackPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-900">
       <div className="text-center">
-        <Loader2 className="w-16 h-16 mx-auto mb-4 animate-spin text-purple-600" />
+        <Loader2 className="w-16 h-16 mx-auto mb-4 animate-spin text-primary" />
         <h1 className="text-2xl font-bold text-white mb-2">Signing you in...</h1>
         <p className="text-gray-400">Please wait</p>
       </div>

@@ -96,7 +96,7 @@ export function RatingSection({ contentType, contentId, title }: RatingSectionPr
             <Button
               onClick={handleSubmit}
               disabled={loading || tempRating === userRating}
-              className="bg-linear-to-r from-purple-700 to-fuchsia-600"
+              className="bg-linear-to-r from-primary/90 to-highlight"
             >
               Update Rating
             </Button>
@@ -114,7 +114,7 @@ export function RatingSection({ contentType, contentId, title }: RatingSectionPr
           <Button
             onClick={handleSubmit}
             disabled={loading || tempRating < 1.0}
-            className="bg-linear-to-r from-purple-700 to-fuchsia-600"
+            className="bg-linear-to-r from-primary/90 to-highlight"
           >
             Submit Rating
           </Button>

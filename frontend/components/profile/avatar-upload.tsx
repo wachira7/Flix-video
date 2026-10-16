@@ -117,7 +117,7 @@ export function AvatarUpload({ currentAvatar, username, onAvatarUpdate }: Avatar
           {previewUrl ? (
             <AvatarImage src={previewUrl} alt={username || "User"} />
           ) : (
-            <AvatarFallback className="bg-linear-to-r from-purple-700 to-fuchsia-600 text-2xl">
+            <AvatarFallback className="bg-linear-to-r from-primary/90 to-highlight text-2xl">
               {username?.charAt(0).toUpperCase() || "U"}
             </AvatarFallback>
           )}
@@ -126,7 +126,7 @@ export function AvatarUpload({ currentAvatar, username, onAvatarUpdate }: Avatar
         <button
           onClick={() => fileInputRef.current?.click()}
           disabled={uploading}
-          className="absolute bottom-0 right-0 p-2 bg-purple-700 rounded-full hover:bg-purple-600 transition-colors disabled:opacity-50"
+          className="absolute bottom-0 right-0 p-2 bg-primary/90 rounded-full hover:bg-primary transition-colors disabled:opacity-50"
           type="button"
         >
           <Camera className="w-4 h-4 text-white" />

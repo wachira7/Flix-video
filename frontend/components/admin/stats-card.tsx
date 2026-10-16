@@ -18,7 +18,7 @@ export function StatsCard({
   change, 
   changeType = 'neutral',
   icon: Icon,
-  iconColor = 'text-purple-500'
+  iconColor = 'text-primary'
 }: StatsCardProps) {
   return (
     <Card className="bg-gray-900 border-gray-800 p-6">

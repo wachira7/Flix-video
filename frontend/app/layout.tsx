@@ -1,12 +1,27 @@
 // frontend/app/layout.tsx
 import type React from "react"
-import type { Metadata } from "next"
-import { Geist, Geist_Mono } from "next/font/google"
+import type { Metadata, Viewport } from "next"
+import { Bodoni_Moda, Instrument_Sans, Geist_Mono } from "next/font/google"
 import { Toaster } from "sonner"
 import "./globals.css"
 
-const _geist = Geist({ subsets: ["latin"] })
-const _geistMono = Geist_Mono({ subsets: ["latin"] })
+const bodoni = Bodoni_Moda({
+  subsets: ["latin"],
+  style: ["normal", "italic"],
+  axes: ["opsz"],
+  variable: "--font-bodoni",
+  display: "swap",
+})
+const instrument = Instrument_Sans({
+  subsets: ["latin"],
+  variable: "--font-instrument",
+  display: "swap",
+})
+const geistMono = Geist_Mono({
+  subsets: ["latin"],
+  variable: "--font-geist-mono",
+  display: "swap",
+})
 
 export const metadata: Metadata = {
   title: "FlixVideo - AI-Powered Streaming Platform",
@@ -15,13 +30,21 @@ export const metadata: Metadata = {
   // Removed icons - Next.js auto-detects app/icon.tsx
 }
 
+export const viewport: Viewport = {
+  themeColor: "#0F0D0B",
+}
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html
+      lang="en"
+      suppressHydrationWarning
+      className={`${bodoni.variable} ${instrument.variable} ${geistMono.variable}`}
+    >
       <head>
         <script
           dangerouslySetInnerHTML={{
@@ -29,7 +52,7 @@ export default function RootLayout({
               (function() {
                 const theme = localStorage.getItem('theme') || 'dark';
                 document.documentElement.classList.toggle('dark', theme === 'dark');
-                document.documentElement.style.backgroundColor = 'oklch(220 13% 8%)';
+                document.documentElement.style.backgroundColor = theme === 'dark' ? '#0F0D0B' : '#F8F5F0';
               })();
             `,
           }}
@@ -37,7 +60,7 @@ export default function RootLayout({
       </head>
       <body className="font-sans antialiased bg-background text-foreground">
         {children}
-        <Toaster 
+        <Toaster
           position="top-right"
           richColors
           closeButton

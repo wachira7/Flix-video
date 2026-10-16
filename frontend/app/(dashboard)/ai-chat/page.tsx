@@ -197,7 +197,7 @@ export default function AIChatPage() {
         <div className="p-4 border-b border-gray-800">
           <Button
             onClick={startNewChat}
-            className="w-full bg-purple-600 hover:bg-purple-700"
+            className="w-full bg-primary hover:bg-primary/90"
           >
             <Plus className="w-4 h-4 mr-2" />
             New Chat
@@ -240,7 +240,7 @@ export default function AIChatPage() {
                   onClick={() => loadConversation(conv.sessionId)}
                   className={`group flex items-center justify-between p-3 rounded-lg cursor-pointer transition-colors ${
                     conv.sessionId === sessionId
-                      ? "bg-purple-900/50 border border-purple-700"
+                      ? "bg-primary/20 border border-primary"
                       : "hover:bg-gray-800"
                   }`}
                 >
@@ -272,8 +272,8 @@ export default function AIChatPage() {
 
         {/* Header */}
         <div className="px-6 py-4 border-b border-gray-800 flex items-center gap-3">
-          <div className="p-2 bg-purple-600 rounded-lg">
-            <Brain className="w-5 h-5 text-white" />
+          <div className="p-2 bg-primary rounded-lg">
+            <Brain className="w-5 h-5 text-primary-foreground" />
           </div>
           <div>
             <h1 className="text-lg font-bold text-white">AI Movie Assistant</h1>
@@ -287,8 +287,8 @@ export default function AIChatPage() {
         <ScrollArea className="flex-1 p-6" ref={scrollRef}>
           {messages.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full py-12">
-              <div className="w-16 h-16 bg-purple-600/20 rounded-full flex items-center justify-center mb-6">
-                <Sparkles className="w-8 h-8 text-purple-400" />
+              <div className="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mb-6">
+                <Sparkles className="w-8 h-8 text-primary" />
               </div>
               <h2 className="text-xl font-bold text-white mb-2">
                 What would you like to watch?
@@ -303,7 +303,7 @@ export default function AIChatPage() {
                   <button
                     key={i}
                     onClick={() => { setInput(prompt); inputRef.current?.focus() }}
-                    className="text-left p-3 rounded-lg border border-gray-700 hover:border-purple-600 bg-gray-800/50 hover:bg-gray-800 transition-all text-sm text-gray-300"
+                    className="text-left p-3 rounded-lg border border-gray-700 hover:border-primary bg-gray-800/50 hover:bg-gray-800 transition-all text-sm text-gray-300"
                   >
                     {prompt}
                   </button>
@@ -324,12 +324,12 @@ export default function AIChatPage() {
                     {/* Avatar */}
                     <div className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
                       msg.role === "user"
-                        ? "bg-purple-600"
+                        ? "bg-primary"
                         : "bg-gray-700"
                     }`}>
                       {msg.role === "user"
                         ? <User className="w-4 h-4 text-white" />
-                        : <Bot className="w-4 h-4 text-purple-400" />
+                        : <Bot className="w-4 h-4 text-primary" />
                       }
                     </div>
 
@@ -337,7 +337,7 @@ export default function AIChatPage() {
                     <div className={`max-w-[75%] ${msg.role === "user" ? "items-end" : "items-start"} flex flex-col gap-1`}>
                       <div className={`px-4 py-3 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap ${
                         msg.role === "user"
-                          ? "bg-purple-600 text-white rounded-tr-sm"
+                          ? "bg-primary text-primary-foreground rounded-tr-sm"
                           : "bg-gray-800 text-gray-100 rounded-tl-sm"
                       }`}>
                         {msg.content}
@@ -358,14 +358,14 @@ export default function AIChatPage() {
                     className="flex gap-3"
                   >
                     <div className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center">
-                      <Bot className="w-4 h-4 text-purple-400" />
+                      <Bot className="w-4 h-4 text-primary" />
                     </div>
                     <div className="bg-gray-800 px-4 py-3 rounded-2xl rounded-tl-sm">
                       <div className="flex gap-1">
                         {[0, 1, 2].map(i => (
                           <div
                             key={i}
-                            className="w-2 h-2 bg-purple-400 rounded-full animate-bounce"
+                            className="w-2 h-2 bg-primary rounded-full animate-bounce"
                             style={{ animationDelay: `${i * 0.15}s` }}
                           />
                         ))}
@@ -387,13 +387,13 @@ export default function AIChatPage() {
               onChange={e => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Ask about movies, TV shows, recommendations..."
-              className="bg-gray-800 border-gray-700 text-white placeholder:text-gray-500 focus:border-purple-600 resize-none"
+              className="bg-gray-800 border-gray-700 text-white placeholder:text-gray-500 focus:border-primary resize-none"
               disabled={loading || (aiStatus && aiStatus.available_count === 0)}
             />
             <Button
               onClick={sendMessage}
               disabled={!input.trim() || loading || (aiStatus && aiStatus.available_count === 0)}
-              className="bg-purple-600 hover:bg-purple-700 shrink-0"
+              className="bg-primary hover:bg-primary/90 shrink-0"
               size="icon"
             >
               <Send className="w-4 h-4" />

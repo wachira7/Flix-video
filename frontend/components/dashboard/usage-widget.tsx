@@ -132,9 +132,9 @@ export function UsageWidget() {
             <div className="flex items-center gap-2">
               <h3 className="text-lg font-semibold text-white">Usage</h3>
               <Badge className={`
-                ${usage.plan === 'premium' ? 'bg-purple-600' : 
+                ${usage.plan === 'premium' ? 'bg-primary' : 
                   usage.plan === 'basic' ? 'bg-blue-600' : 
-                  'bg-gray-600'} text-white capitalize text-xs
+                  'bg-gray-600'} text-primary-foreground capitalize text-xs
               `}>
                 {usage.plan === 'premium' && <Crown className="w-3 h-3 mr-1" />}
                 {usage.plan}
@@ -243,7 +243,7 @@ export function UsageWidget() {
                       
                       <Button
                         onClick={() => router.push('/subscription')}
-                        className="w-full bg-linear-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+                        className="w-full bg-linear-to-r from-primary to-highlight hover:from-primary/90 hover:to-highlight/90"
                         size="sm"
                       >
                         <Crown className="w-3 h-3 mr-2" />

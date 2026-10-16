@@ -76,8 +76,8 @@ export function AIShowcase() {
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Left: Content */}
           <div className="space-y-6">
-            <div className="inline-flex items-center space-x-2 bg-purple-500/10 border border-purple-500/20 rounded-full px-4 py-2">
-              <Brain className="w-4 h-4 text-purple-500" />
+            <div className="inline-flex items-center space-x-2 bg-primary/10 border border-primary/20 rounded-full px-4 py-2">
+              <Brain className="w-4 h-4 text-primary" />
               <span className="text-sm font-medium">Powered by AI</span>
             </div>
 
@@ -109,7 +109,7 @@ export function AIShowcase() {
 
           {/* Right: Visual Demo */}
           <div className="relative" ref={demoRef}>
-            <Card className="bg-linear-to-br from-purple-500/10 to-pink-500/10 border-2">
+            <Card className="bg-linear-to-br from-primary/10 to-highlight/10 border-2">
               <CardContent className="p-8">
                 <div className="space-y-4">
                   {/* Mock AI recommendation cards */}
@@ -119,7 +119,7 @@ export function AIShowcase() {
                       className="flex items-center gap-4 p-4 bg-background rounded-lg border animate-pulse"
                       style={{ animationDelay: `${i * 200}ms` }}
                     >
-                      <div className="w-16 h-16 bg-linear-to-br from-purple-500 to-pink-500 rounded-lg" />
+                      <div className="w-16 h-16 bg-linear-to-br from-primary to-highlight rounded-lg" />
                       <div className="flex-1 space-y-2">
                         <div className="h-4 bg-muted rounded w-3/4" />
                         <div className="h-3 bg-muted rounded w-1/2" />

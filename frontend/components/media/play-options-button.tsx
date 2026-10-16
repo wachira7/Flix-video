@@ -60,7 +60,7 @@ export function PlayOptionsButton({
           {/* Start Watch Party */}
           <DropdownMenuItem
             onClick={handleStartWatchParty}
-            className="cursor-pointer text-white hover:bg-purple-600 focus:bg-purple-600"
+            className="cursor-pointer text-primary-foreground hover:bg-primary focus:bg-primary"
           >
             <Users className="w-5 h-5 mr-3" />
             <div className="flex flex-col">
@@ -74,7 +74,7 @@ export function PlayOptionsButton({
           {/* Where to Watch */}
           <DropdownMenuItem
             onClick={() => setShowStreamingModal(true)}
-            className="cursor-pointer text-white hover:bg-purple-600 focus:bg-purple-600"
+            className="cursor-pointer text-primary-foreground hover:bg-primary focus:bg-primary"
           >
             <ExternalLink className="w-5 h-5 mr-3" />
             <div className="flex flex-col">

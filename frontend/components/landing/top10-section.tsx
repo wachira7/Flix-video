@@ -81,8 +81,8 @@ export function Top10Section() {
                   className="flex items-center gap-4 p-4 bg-background rounded-lg border-2 hover:border-primary/50 transition-all cursor-pointer group"
                 >
                   {/* Rank */}
-                  <div className="w-12 h-12 flex items-center justify-center bg-linear-to-br from-purple-600 to-pink-600 rounded-lg shrink-0">
-                    <span className="text-2xl font-bold text-white">{index + 1}</span>
+                  <div className="w-12 h-12 flex items-center justify-center bg-linear-to-br from-primary to-highlight rounded-lg shrink-0">
+                    <span className="text-2xl font-bold text-primary-foreground">{index + 1}</span>
                   </div>
 
                   {/* Thumbnail */}

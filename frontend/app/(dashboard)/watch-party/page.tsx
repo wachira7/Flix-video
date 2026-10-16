@@ -90,7 +90,7 @@ export default function WatchPartyPage() {
           </div>
           <Button
             onClick={() => router.push('/watch-party/create')}
-            className="bg-linear-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+            className="bg-linear-to-r from-primary to-highlight hover:from-primary/90 hover:to-highlight/90"
           >
             <Plus className="w-5 h-5 mr-2" />
             Create Party
@@ -104,7 +104,7 @@ export default function WatchPartyPage() {
               key={status}
               variant={filter === status ? 'default' : 'outline'}
               onClick={() => setFilter(status)}
-              className={filter === status ? 'bg-purple-600 hover:bg-purple-700' : ''}
+              className={filter === status ? 'bg-primary hover:bg-primary/90' : ''}
             >
               {status.charAt(0).toUpperCase() + status.slice(1)}
             </Button>
@@ -129,7 +129,7 @@ export default function WatchPartyPage() {
             <p className="text-gray-400 mb-6">Create your first watch party to get started!</p>
             <Button
               onClick={() => router.push('/watch-party/create')}
-              className="bg-purple-600 hover:bg-purple-700"
+              className="bg-primary hover:bg-primary/90"
             >
               <Plus className="w-5 h-5 mr-2" />
               Create Party
@@ -144,7 +144,7 @@ export default function WatchPartyPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
               >
-                <Card className="p-6 bg-gray-900 border-gray-800 hover:border-purple-600 transition-all">
+                <Card className="p-6 bg-gray-900 border-gray-800 hover:border-primary transition-all">
                   {/* Status Badge */}
                   <div className="flex items-center justify-between mb-4">
                     <Badge className={`${getStatusColor(party.status)} text-white`}>
@@ -173,7 +173,7 @@ export default function WatchPartyPage() {
 
                   {/* Party Code */}
                   <div className="flex items-center gap-2 mb-4 p-3 bg-gray-800 rounded">
-                    <code className="text-purple-400 font-mono font-bold flex-1">
+                    <code className="text-primary font-mono font-bold flex-1">
                       {party.party_code}
                     </code>
                     <Button
@@ -196,7 +196,7 @@ export default function WatchPartyPage() {
                       <>
                         <Button
                           onClick={() => joinParty(party.party_code)}
-                          className="flex-1 bg-purple-600 hover:bg-purple-700"
+                          className="flex-1 bg-primary hover:bg-primary/90"
                         >
                           <Play className="w-4 h-4 mr-2" />
                           Join

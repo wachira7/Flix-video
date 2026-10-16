@@ -153,7 +153,7 @@ export default function CreateListPage() {
               </Button>
               <Button
                 type="submit"
-                className="flex-1 bg-purple-600 hover:bg-purple-700"
+                className="flex-1 bg-primary hover:bg-primary/90"
                 disabled={loading}
               >
                 {loading ? "Creating..." : "Create List"}

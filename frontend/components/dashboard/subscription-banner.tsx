@@ -67,15 +67,15 @@ export function SubscriptionBanner() {
   // Free plan or no subscription
   if (!subscription || subscription.plan_type === 'free') {
     return (
-      <Card className="relative p-6 mb-6 bg-linear-to-r from-purple-900/50 via-fuchsia-900/50 to-pink-900/50 border-purple-700 overflow-hidden">
+      <Card className="relative p-6 mb-6 bg-linear-to-r from-primary/20 via-highlight/20 to-highlight/20 border-primary overflow-hidden">
         {/* Background Effect */}
-        <div className="absolute inset-0 bg-linear-to-r from-purple-600/10 to-pink-600/10 animate-pulse" />
+        <div className="absolute inset-0 bg-linear-to-r from-primary/10 to-highlight/10 animate-pulse" />
         
         {/* Content */}
         <div className="relative flex items-center justify-between">
           <div className="flex items-start gap-4 flex-1">
-            <div className="p-3 bg-purple-600 rounded-lg">
-              <Crown className="w-6 h-6 text-white" />
+            <div className="p-3 bg-primary rounded-lg">
+              <Crown className="w-6 h-6 text-primary-foreground" />
             </div>
             
             <div className="flex-1">
@@ -118,7 +118,7 @@ export function SubscriptionBanner() {
             <Button
               onClick={handleUpgrade}
               size="lg"
-              className="bg-linear-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+              className="bg-linear-to-r from-primary to-highlight hover:from-primary/90 hover:to-highlight/90"
             >
               Upgrade Now
               <ArrowRight className="w-4 h-4 ml-2" />
@@ -141,7 +141,7 @@ export function SubscriptionBanner() {
   // Basic plan
   if (subscription.plan_type === 'basic' && subscription.status === 'active') {
     return (
-      <Card className="relative p-6 mb-6 bg-linear-to-r from-blue-900/50 to-purple-900/50 border-blue-700">
+      <Card className="relative p-6 mb-6 bg-linear-to-r from-blue-900/50 to-primary/20 border-blue-700">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div className="p-3 bg-blue-600 rounded-lg">
@@ -163,7 +163,7 @@ export function SubscriptionBanner() {
             <Button
               onClick={handleUpgrade}
               variant="outline"
-              className="border-purple-700 text-white hover:bg-purple-800"
+              className="border-primary text-white hover:bg-primary/15"
             >
               Upgrade to Premium
             </Button>

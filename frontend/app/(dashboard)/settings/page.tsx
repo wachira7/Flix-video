@@ -28,8 +28,8 @@ const settingsLinks = [
     label: "Devices",
     icon: Monitor,
     description: "Manage logged-in devices and sessions",
-    color: "text-purple-500",
-    bgColor: "bg-purple-500/10"
+    color: "text-primary",
+    bgColor: "bg-primary/10"
   },
   {
     href: "/settings/notifications",
@@ -44,8 +44,8 @@ const settingsLinks = [
     label: "Preferences",
     icon: Palette,
     description: "Language, theme, playback settings",
-    color: "text-pink-500",
-    bgColor: "bg-pink-500/10"
+    color: "text-primary",
+    bgColor: "bg-primary/10"
   },
   {
     href: "/settings/privacy",
@@ -62,7 +62,7 @@ export default function SettingsPage() {
     <div className="p-8 max-w-4xl mx-auto">
       {/* Header */}
       <div className="flex items-center gap-3 mb-8">
-        <SettingsIcon className="w-8 h-8 text-purple-500" />
+        <SettingsIcon className="w-8 h-8 text-primary" />
         <div>
           <h1 className="text-3xl font-bold text-white">Settings</h1>
           <p className="text-gray-400 mt-1">Manage your account and preferences</p>
@@ -76,14 +76,14 @@ export default function SettingsPage() {
           
           return (
             <Link key={link.href} href={link.href}>
-              <Card className="p-5 bg-gray-900 border-gray-800 hover:border-purple-700 transition-all duration-200 cursor-pointer group">
+              <Card className="p-5 bg-gray-900 border-gray-800 hover:border-primary transition-all duration-200 cursor-pointer group">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
                     <div className={`p-3 ${link.bgColor} rounded-lg transition-transform group-hover:scale-110`}>
                       <Icon className={`w-6 h-6 ${link.color}`} />
                     </div>
                     <div>
-                      <h3 className="text-lg font-semibold text-white group-hover:text-purple-400 transition-colors">
+                      <h3 className="text-lg font-semibold text-white group-hover:text-primary transition-colors">
                         {link.label}
                       </h3>
                       <p className="text-sm text-gray-400 mt-0.5">
@@ -91,7 +91,7 @@ export default function SettingsPage() {
                       </p>
                     </div>
                   </div>
-                  <ChevronRight className="w-5 h-5 text-gray-500 group-hover:text-purple-500 transition-colors" />
+                  <ChevronRight className="w-5 h-5 text-gray-500 group-hover:text-primary transition-colors" />
                 </div>
               </Card>
             </Link>

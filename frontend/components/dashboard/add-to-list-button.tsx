@@ -186,7 +186,7 @@ export function AddToListButton({ contentType, contentId, variant = "full" }: Ad
             <DropdownMenuSeparator className="bg-gray-800" />
             <DropdownMenuItem
               onClick={() => window.location.href = '/lists/create'}
-              className="text-purple-400 hover:bg-gray-800"
+              className="text-primary hover:bg-gray-800"
             >
               <Plus className="w-4 h-4 mr-2" />
               Create New List

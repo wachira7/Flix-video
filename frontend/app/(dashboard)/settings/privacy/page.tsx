@@ -189,8 +189,8 @@ export default function PrivacySettingsPage() {
             {/* Social Privacy */}
             <Card className="bg-gray-900/50 border-gray-800 p-6">
               <div className="flex items-center gap-3 mb-6">
-                <div className="p-2 bg-purple-500/10 rounded-lg">
-                  <Users className="w-5 h-5 text-purple-500" />
+                <div className="p-2 bg-primary/10 rounded-lg">
+                  <Users className="w-5 h-5 text-primary" />
                 </div>
                 <div>
                   <h2 className="text-xl font-semibold text-white">Social Privacy</h2>
@@ -486,8 +486,8 @@ export default function PrivacySettingsPage() {
             {/* Privacy Policy */}
             <Card className="bg-gray-900/50 border-gray-800 p-6">
               <div className="flex items-center gap-3 mb-4">
-                <div className="p-2 bg-purple-500/10 rounded-lg">
-                  <FileText className="w-5 h-5 text-purple-500" />
+                <div className="p-2 bg-primary/10 rounded-lg">
+                  <FileText className="w-5 h-5 text-primary" />
                 </div>
                 <div>
                   <h2 className="text-xl font-semibold text-white">Legal</h2>
@@ -528,7 +528,7 @@ export default function PrivacySettingsPage() {
               <Button
                 onClick={handleSave}
                 disabled={loading}
-                className="bg-linear-to-r from-purple-700 to-fuchsia-600 hover:from-purple-800 hover:to-fuchsia-700"
+                className="bg-linear-to-r from-primary/90 to-highlight hover:from-primary/15 hover:to-highlight/90"
               >
                 {loading ? "Saving..." : "Save Privacy Settings"}
               </Button>

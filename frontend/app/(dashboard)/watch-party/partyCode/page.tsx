@@ -303,7 +303,7 @@ export default function PartyRoomPage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
           <p className="text-gray-400">Loading watch party...</p>
         </div>
       </div>
@@ -331,7 +331,7 @@ export default function PartyRoomPage() {
           <div className="flex items-center gap-2">
             {/* Party Code */}
             <div className="flex items-center gap-2 bg-gray-800 px-3 py-2 rounded">
-              <code className="text-purple-400 font-mono font-bold">{partyCode}</code>
+              <code className="text-primary font-mono font-bold">{partyCode}</code>
               <Button size="sm" variant="ghost" onClick={copyPartyCode}>
                 <Copy className="w-4 h-4" />
               </Button>
@@ -381,7 +381,7 @@ export default function PartyRoomPage() {
                 onClick={handleSeek}
               >
                 <div 
-                  className="h-full bg-purple-600 rounded-full"
+                  className="h-full bg-primary rounded-full"
                   style={{ width: `${(currentTime / duration) * 100}%` }}
                 />
               </div>
@@ -457,7 +457,7 @@ export default function PartyRoomPage() {
             <button
               onClick={() => { setShowChat(true); setShowParticipants(false) }}
               className={`flex-1 p-4 font-semibold transition-colors ${
-                showChat ? 'text-purple-400 border-b-2 border-purple-400' : 'text-gray-400'
+                showChat ? 'text-primary border-b-2 border-primary' : 'text-gray-400'
               }`}
             >
               <MessageSquare className="w-5 h-5 inline mr-2" />
@@ -466,7 +466,7 @@ export default function PartyRoomPage() {
             <button
               onClick={() => { setShowChat(false); setShowParticipants(true) }}
               className={`flex-1 p-4 font-semibold transition-colors ${
-                showParticipants ? 'text-purple-400 border-b-2 border-purple-400' : 'text-gray-400'
+                showParticipants ? 'text-primary border-b-2 border-primary' : 'text-gray-400'
               }`}
             >
               <Users className="w-5 h-5 inline mr-2" />
@@ -497,7 +497,7 @@ export default function PartyRoomPage() {
                       ) : (
                         <div>
                           <div className="flex items-baseline gap-2 mb-1">
-                            <span className="font-semibold text-purple-400 text-sm">
+                            <span className="font-semibold text-primary text-sm">
                               {msg.username}
                             </span>
                             <span className="text-xs text-gray-500">
@@ -544,11 +544,11 @@ export default function PartyRoomPage() {
                 {participants.map((participant) => (
                 <Card
                     key={participant.socketId}
-                    className="flex items-center gap-3 p-3 bg-gray-800 border-gray-700 hover:border-purple-600 transition-all"
+                    className="flex items-center gap-3 p-3 bg-gray-800 border-gray-700 hover:border-primary transition-all"
                 >
                     <Avatar>
                     <AvatarImage src={participant.avatarUrl} />
-                    <AvatarFallback className="bg-purple-600">
+                    <AvatarFallback className="bg-primary">
                         {participant.username.charAt(0).toUpperCase()}
                     </AvatarFallback>
                     </Avatar>

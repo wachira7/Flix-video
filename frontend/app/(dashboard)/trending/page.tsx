@@ -37,7 +37,7 @@ export default function TrendingPage() {
   return (
     <div className="min-h-screen p-6 md:p-12">
       <div className="flex items-center gap-3 mb-8">
-        <TrendingUp className="w-8 h-8 text-purple-500" />
+        <TrendingUp className="w-8 h-8 text-primary" />
         <div>
           <h1 className="text-4xl font-bold text-white">Trending Now</h1>
           <p className="text-gray-400">What everyone's watching this week</p>

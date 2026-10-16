@@ -70,7 +70,7 @@ export function ReviewCard({ review, currentUserId, onDelete, onEdit }: ReviewCa
     <Card className="p-6 bg-gray-900 border-gray-800">
       <div className="flex items-start gap-4">
         <Avatar>
-          <AvatarFallback className="bg-linear-to-r from-purple-700 to-fuchsia-600">
+          <AvatarFallback className="bg-linear-to-r from-primary/90 to-highlight">
             {review.user_id.charAt(0).toUpperCase()}
           </AvatarFallback>
         </Avatar>
@@ -137,7 +137,7 @@ export function ReviewCard({ review, currentUserId, onDelete, onEdit }: ReviewCa
               variant="ghost"
               onClick={handleLike}
               disabled={loading || isOwnReview}
-              className={liked ? "text-purple-500" : "text-gray-400"}
+              className={liked ? "text-primary" : "text-gray-400"}
             >
               <ThumbsUp className="w-4 h-4 mr-2" fill={liked ? "currentColor" : "none"} />
               {likesCount}

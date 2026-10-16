@@ -63,7 +63,7 @@ export function AdminSidebar() {
                 exit={{ opacity: 0, width: 0 }}
                 className="flex items-center space-x-2"
               >
-                <div className="bg-gradient-to-r from-purple-700 to-fuchsia-600 p-2 rounded-lg">
+                <div className="bg-gradient-to-r from-primary/90 to-highlight p-2 rounded-lg">
                   <Shield className="w-6 h-6 text-white" />
                 </div>
                 <span className="text-xl font-bold text-white">Admin Panel</span>
@@ -88,7 +88,7 @@ export function AdminSidebar() {
         {/* User Info */}
         <div className="p-4 border-b border-gray-800">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-r from-purple-700 to-fuchsia-600 flex items-center justify-center text-white font-semibold">
+            <div className="w-10 h-10 rounded-full bg-gradient-to-r from-primary/90 to-highlight flex items-center justify-center text-white font-semibold">
               {user?.email?.charAt(0).toUpperCase() || "A"}
             </div>
             <AnimatePresence>
@@ -102,7 +102,7 @@ export function AdminSidebar() {
                   <p className="text-sm font-semibold text-white truncate">
                     {user?.email?.split('@')[0] || "Admin"}
                   </p>
-                  <p className="text-xs text-purple-400 truncate">
+                  <p className="text-xs text-primary truncate">
                     {user?.role === 'admin' ? '👑 Administrator' : '⭐ Moderator'}
                   </p>
                 </motion.div>
@@ -124,7 +124,7 @@ export function AdminSidebar() {
                 className={cn(
                   "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200",
                   isActive
-                    ? "bg-gradient-to-r from-purple-700 to-fuchsia-600 text-white"
+                    ? "bg-gradient-to-r from-primary/90 to-highlight text-white"
                     : "text-gray-400 hover:text-white hover:bg-gray-800"
                 )}
                 title={collapsed ? item.label : undefined}

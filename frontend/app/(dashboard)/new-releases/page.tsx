@@ -37,7 +37,7 @@ export default function NewReleasesPage() {
   return (
     <div className="min-h-screen p-6 md:p-12">
       <div className="flex items-center gap-3 mb-8">
-        <Sparkles className="w-8 h-8 text-fuchsia-500" />
+        <Sparkles className="w-8 h-8 text-primary" />
         <div>
           <h1 className="text-4xl font-bold text-white">New Releases</h1>
           <p className="text-gray-400">Upcoming movies and currently airing shows</p>

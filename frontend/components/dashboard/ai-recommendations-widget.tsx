@@ -33,10 +33,10 @@ export function AIRecommendationsWidget() {
   if (loading) return null
 
   return (
-    <Card className="p-6 bg-linear-to-br from-purple-900/50 to-pink-900/50 border-purple-700">
+    <Card className="p-6 bg-linear-to-br from-primary/20 to-highlight/20 border-primary">
       <div className="flex items-start gap-4">
-        <div className="p-3 bg-purple-600 rounded-lg shrink-0">
-          <Brain className="w-6 h-6 text-white" />
+        <div className="p-3 bg-primary rounded-lg shrink-0">
+          <Brain className="w-6 h-6 text-primary-foreground" />
         </div>
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-2">
@@ -54,7 +54,7 @@ export function AIRecommendationsWidget() {
           </p>
           <Button
             onClick={() => router.push('/ai-chat')}
-            className="w-full bg-linear-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+            className="w-full bg-linear-to-r from-primary to-highlight hover:from-primary/90 hover:to-highlight/90"
           >
             {hasRecommendations ? 'View Recommendations' : 'Generate Now'}
             <ArrowRight className="w-4 h-4 ml-2" />

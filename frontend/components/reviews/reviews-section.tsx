@@ -73,7 +73,7 @@ export function ReviewsSection({ contentType, contentId, title }: ReviewsSection
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <MessageSquare className="w-6 h-6 text-purple-500" />
+          <MessageSquare className="w-6 h-6 text-primary" />
           <h2 className="text-3xl font-bold text-white">
             Reviews ({reviews.length})
           </h2>
@@ -129,7 +129,7 @@ export function ReviewsSection({ contentType, contentId, title }: ReviewsSection
         <div className="space-y-4">
           {/* User's Own Review (if exists) */}
           {userReview && (
-            <div className="border-2 border-purple-700 rounded-lg">
+            <div className="border-2 border-primary rounded-lg">
               <ReviewCard
                 review={userReview}
                 currentUserId={user?.id}

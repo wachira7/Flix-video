@@ -88,7 +88,7 @@ export default function SubscriptionSuccessPage() {
         <div className="flex flex-col sm:flex-row gap-4 mb-6">
           <Button
             onClick={() => router.push('/dashboard')}
-            className="flex-1 bg-linear-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+            className="flex-1 bg-linear-to-r from-primary to-highlight hover:from-primary/90 hover:to-highlight/90"
             size="lg"
           >
             Start Exploring

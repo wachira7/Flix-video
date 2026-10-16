@@ -56,7 +56,7 @@ export default function AdminDashboardPage() {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
           <p className="text-gray-400">Loading dashboard...</p>
         </div>
       </div>
@@ -114,7 +114,7 @@ export default function AdminDashboardPage() {
             change="Last 7 days"
             changeType={parseInt(users.new_users_week) > 0 ? 'positive' : 'neutral'}
             icon={TrendingUp}
-            iconColor="text-purple-500"
+            iconColor="text-primary"
           />
           <StatsCard
             title="Banned Users"
@@ -151,7 +151,7 @@ export default function AdminDashboardPage() {
             title="Successful Payments"
             value={parseInt(revenue.successful_payments || 0).toLocaleString()}
             icon={CreditCard}
-            iconColor="text-purple-500"
+            iconColor="text-primary"
           />
           <StatsCard
             title="Failed Payments"
@@ -180,7 +180,7 @@ export default function AdminDashboardPage() {
             title="Total Lists"
             value={parseInt(content.total_lists || 0).toLocaleString()}
             icon={ListVideo}
-            iconColor="text-pink-500"
+            iconColor="text-primary"
           />
           <StatsCard
             title="Watch Parties"
@@ -248,7 +248,7 @@ export default function AdminDashboardPage() {
               { icon: Users, color: 'text-blue-500', label: 'Total Users', value: parseInt(users.total_users || 0).toLocaleString() },
               { icon: DollarSign, color: 'text-green-500', label: 'Total Revenue', value: `KES ${parseFloat(revenue.total_revenue || 0).toLocaleString()}` },
               { icon: MessageSquare, color: 'text-yellow-500', label: 'Reviews Written', value: parseInt(content.total_reviews || 0).toLocaleString() },
-              { icon: ListVideo, color: 'text-pink-500', label: 'Lists Created', value: parseInt(content.total_lists || 0).toLocaleString() },
+              { icon: ListVideo, color: 'text-primary', label: 'Lists Created', value: parseInt(content.total_lists || 0).toLocaleString() },
               { icon: Star, color: 'text-orange-500', label: 'Watch Parties', value: parseInt(content.total_parties || 0).toLocaleString() },
               { icon: Flag, color: 'text-red-500', label: 'Pending Reports', value: parseInt(moderation.pending_reports || 0).toLocaleString(), alert: parseInt(moderation.pending_reports) > 0 },
             ].map(({ icon: Icon, color, label, value, alert }) => (
@@ -273,7 +273,7 @@ export default function AdminDashboardPage() {
           {[
             { icon: Users, color: 'text-blue-500', label: 'Manage Users', desc: `${parseInt(users.total_users || 0)} total users`, path: '/admin/users' },
             { icon: DollarSign, color: 'text-green-500', label: 'Payments', desc: `KES ${parseFloat(revenue.total_revenue || 0).toLocaleString()} total`, path: '/admin/payments' },
-            { icon: TrendingUp, color: 'text-purple-500', label: 'Analytics', desc: 'Deep dive metrics', path: '/admin/analytics' },
+            { icon: TrendingUp, color: 'text-primary', label: 'Analytics', desc: 'Deep dive metrics', path: '/admin/analytics' },
             { icon: Flag, color: 'text-red-500', label: 'Moderation', desc: parseInt(moderation.pending_reports || 0) > 0 ? `⚠️ ${moderation.pending_reports} pending` : '✅ All clear', path: '/admin/moderation' },
           ].map(({ icon: Icon, color, label, desc, path }) => (
             <button

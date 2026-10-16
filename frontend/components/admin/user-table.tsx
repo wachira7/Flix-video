@@ -69,7 +69,7 @@ export function UserTable({ users, onBan, onUnban, onDelete, onViewDetails }: Us
                   {/* User Email + ID */}
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
-                      <div className="w-10 h-10 rounded-full bg-linear-to-r from-purple-700 to-fuchsia-600 flex items-center justify-center text-white font-semibold">
+                      <div className="w-10 h-10 rounded-full bg-linear-to-r from-primary/90 to-highlight flex items-center justify-center text-white font-semibold">
                         {user.email?.charAt(0).toUpperCase() || 'U'}
                       </div>
                       <div className="ml-4">
@@ -85,7 +85,7 @@ export function UserTable({ users, onBan, onUnban, onDelete, onViewDetails }: Us
                       variant="outline"
                       className={
                         user.is_admin || user.role === 'admin'
-                          ? 'border-purple-500 text-purple-400'
+                          ? 'border-primary text-primary'
                           : user.role === 'moderator'
                           ? 'border-blue-500 text-blue-400'
                           : 'border-gray-500 text-gray-400'

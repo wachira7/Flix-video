@@ -44,7 +44,7 @@ export default function PaymentsPage() {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
           <p className="text-gray-400">Loading payments...</p>
         </div>
       </div>
@@ -81,7 +81,7 @@ export default function PaymentsPage() {
             ? ((parseInt(stats.successful_payments) / parseInt(stats.total_payments)) * 100).toFixed(1)
             : 0}%`}
           icon={TrendingUp}
-          iconColor="text-purple-500"
+          iconColor="text-primary"
         />
         <StatsCard
           title="Failed Payments"
@@ -99,7 +99,7 @@ export default function PaymentsPage() {
           onClick={() => setActiveTab('all')}
           className={`pb-3 px-4 border-b-2 transition-colors ${
             activeTab === 'all'
-              ? 'border-purple-600 text-white'
+              ? 'border-primary text-white'
               : 'border-transparent text-gray-400 hover:text-white'
           }`}
         >
@@ -109,7 +109,7 @@ export default function PaymentsPage() {
           onClick={() => setActiveTab('failed')}
           className={`pb-3 px-4 border-b-2 transition-colors ${
             activeTab === 'failed'
-              ? 'border-purple-600 text-white'
+              ? 'border-primary text-white'
               : 'border-transparent text-gray-400 hover:text-white'
           }`}
         >

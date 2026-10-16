@@ -139,7 +139,7 @@ export function VideoPlayer({
       <Button
         size="lg"
         variant="outline"
-        className="border-gray-400 bg-gray-800/80 hover:border-purple-600 hover:bg-gray-700 transition-all font-semibold"
+        className="border-gray-400 bg-gray-800/80 hover:border-primary hover:bg-gray-700 transition-all font-semibold"
         onClick={handleOpen}
       >
         <Play className="w-5 h-5 mr-2" fill="currentColor" />

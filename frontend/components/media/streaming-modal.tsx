@@ -76,7 +76,7 @@ export function StreamingModal({
       case 'stream': return 'bg-green-600'
       case 'free': return 'bg-blue-600'
       case 'rent': return 'bg-orange-600'
-      case 'buy': return 'bg-purple-600'
+      case 'buy': return 'bg-primary'
       default: return 'bg-gray-600'
     }
   }
@@ -111,7 +111,7 @@ export function StreamingModal({
 
         {loading ? (
           <div className="flex items-center justify-center py-12">
-            <Loader2 className="w-8 h-8 text-purple-600 animate-spin" />
+            <Loader2 className="w-8 h-8 text-primary animate-spin" />
           </div>
         ) : streamingOptions.length === 0 ? (
           <div className="py-12 text-center">
@@ -152,7 +152,7 @@ export function StreamingModal({
                 {groupedOptions[type].map((option, index) => (
                   <Card
                     key={index}
-                    className="p-4 bg-gray-800 border-gray-700 hover:border-purple-600 transition-all"
+                    className="p-4 bg-gray-800 border-gray-700 hover:border-primary transition-all"
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-4">
@@ -188,7 +188,7 @@ export function StreamingModal({
 
                       <Button
                         onClick={() => window.open(option.url, '_blank')}
-                        className="bg-purple-600 hover:bg-purple-700"
+                        className="bg-primary hover:bg-primary/90"
                       >
                         <ExternalLink className="w-4 h-4 mr-2" />
                         Watch

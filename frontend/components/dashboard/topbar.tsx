@@ -52,7 +52,7 @@ export function Topbar() {
               placeholder="Search movies, TV shows..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 bg-gray-800 border-gray-700 text-white placeholder:text-gray-500 focus:border-purple-600"
+              className="pl-10 bg-gray-800 border-gray-700 text-white placeholder:text-gray-500 focus:border-primary"
             />
           </div>
         </form>
@@ -70,7 +70,7 @@ export function Topbar() {
                     {avatarUrl && (
                       <AvatarImage src={avatarUrl} alt={user?.email} />
                     )}
-                    <AvatarFallback className="bg-linear-to-r from-purple-700 to-fuchsia-600">
+                    <AvatarFallback className="bg-linear-to-r from-primary/90 to-highlight">
                       {user?.email?.charAt(0).toUpperCase() || "U"}
                     </AvatarFallback>
                   </Avatar>

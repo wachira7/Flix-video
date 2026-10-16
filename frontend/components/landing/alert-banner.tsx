@@ -13,7 +13,7 @@ export function AlertBanner() {
   if (!isVisible) return null;
 
   return (
-    <Alert className="fixed top-0 w-full z-60 rounded-none border-x-0 border-t-0 bg-linear-to-r from-purple-600 to-pink-600 text-white border-b-0">
+    <Alert className="fixed top-0 w-full z-60 rounded-none border-x-0 border-t-0 bg-linear-to-r from-primary to-highlight text-primary-foreground border-b-0">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between gap-4">
           <AlertDescription className="flex items-center gap-2 text-white">

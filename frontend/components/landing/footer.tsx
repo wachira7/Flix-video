@@ -48,8 +48,8 @@ export function Footer() {
           {/* Brand Column */}
           <div className="col-span-2">
             <Link href="/" className="flex items-center space-x-2 mb-4">
-              <div className="bg-linear-to-r from-purple-600 to-pink-600 p-2 rounded-lg">
-                <Play className="w-6 h-6 text-white" fill="white" />
+              <div className="bg-linear-to-r from-primary to-highlight p-2 rounded-lg">
+                <Play className="w-6 h-6 text-primary-foreground" fill="currentColor" />
               </div>
               <span className="text-2xl font-bold gradient-text">FlixVideo</span>
             </Link>

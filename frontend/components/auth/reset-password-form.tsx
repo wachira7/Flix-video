@@ -101,13 +101,13 @@ export function ResetPasswordForm() {
 
   if (!token) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4 bg-linear-to-br from-purple-900 via-purple-800 to-pink-800">
+      <div className="min-h-screen flex items-center justify-center p-4 bg-linear-to-br from-primary/15 via-primary/15 to-highlight/15">
         <Card className="w-full max-w-md p-8 bg-white">
           <div className="text-center space-y-4">
             <h2 className="text-2xl font-bold text-gray-900">Invalid Reset Link</h2>
             <p className="text-gray-600">This password reset link is invalid or has expired.</p>
             <Link href="/forgot-password">
-              <Button className="w-full bg-linear-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700">
+              <Button className="w-full bg-linear-to-r from-primary to-highlight hover:from-primary/90 hover:to-highlight/90">
                 Request New Link
               </Button>
             </Link>
@@ -118,7 +118,7 @@ export function ResetPasswordForm() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-linear-to-br from-purple-900 via-purple-800 to-pink-800">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-linear-to-br from-primary/15 via-primary/15 to-highlight/15">
       <Card className="w-full max-w-md p-8 bg-white">
         <div className="space-y-6">
           <div className="text-center">
@@ -198,7 +198,7 @@ export function ResetPasswordForm() {
             <Button
               type="submit"
               disabled={loading}
-              className="w-full bg-linear-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+              className="w-full bg-linear-to-r from-primary to-highlight hover:from-primary/90 hover:to-highlight/90"
             >
               {loading ? (
                 <>

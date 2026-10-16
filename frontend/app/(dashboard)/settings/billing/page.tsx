@@ -139,7 +139,7 @@ export default function BillingSettingsPage() {
         <div className="space-y-6">
           {/* Current Subscription */}
           {subscription && subscription.status === 'active' ? (
-            <Card className="p-6 bg-linear-to-br from-purple-900/50 to-fuchsia-900/50 border-purple-700">
+            <Card className="p-6 bg-linear-to-br from-primary/20 to-highlight/20 border-primary">
               <div className="flex items-start justify-between mb-4">
                 <div>
                   <h2 className="text-2xl font-bold text-white mb-1">
@@ -152,7 +152,7 @@ export default function BillingSettingsPage() {
                 <Badge className="bg-green-600">Active</Badge>
               </div>
               
-              <Separator className="bg-purple-800/50 my-4" />
+              <Separator className="bg-primary/20 my-4" />
               
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
@@ -177,7 +177,7 @@ export default function BillingSettingsPage() {
                 <Button 
                   onClick={handleUpgrade}
                   variant="outline" 
-                  className="border-purple-700 text-white hover:bg-purple-800"
+                  className="border-primary text-white hover:bg-primary/15"
                 >
                   Change Plan
                 </Button>
@@ -207,7 +207,7 @@ export default function BillingSettingsPage() {
                   </p>
                   <Button 
                     onClick={handleUpgrade}
-                    className="bg-purple-600 hover:bg-purple-700"
+                    className="bg-primary hover:bg-primary/90"
                   >
                     Reactivate Subscription
                   </Button>
@@ -226,7 +226,7 @@ export default function BillingSettingsPage() {
                 </p>
                 <Button 
                   onClick={handleUpgrade}
-                  className="bg-linear-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+                  className="bg-linear-to-r from-primary to-highlight hover:from-primary/90 hover:to-highlight/90"
                 >
                   View Plans
                 </Button>

@@ -108,7 +108,7 @@ export function NotificationsDropdown() {
       case 'subscription':
         return <CreditCard className="w-5 h-5 text-green-500" />
       case 'watch_party':
-        return <Users className="w-5 h-5 text-purple-500" />
+        return <Users className="w-5 h-5 text-primary" />
       case 'content':
         return <Film className="w-5 h-5 text-blue-500" />
       case 'system':
@@ -150,7 +150,7 @@ export function NotificationsDropdown() {
               variant="ghost"
               size="sm"
               onClick={handleMarkAllAsRead}
-              className="text-purple-400 hover:text-purple-300"
+              className="text-primary hover:text-primary"
             >
               <Check className="w-4 h-4 mr-1" />
               Mark all read
@@ -162,7 +162,7 @@ export function NotificationsDropdown() {
         <ScrollArea className="h-[400px]">
           {loading ? (
             <div className="flex items-center justify-center py-12">
-              <div className="w-8 h-8 border-4 border-purple-600 border-t-transparent rounded-full animate-spin" />
+              <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
             </div>
           ) : notifications.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 px-4">
@@ -195,7 +195,7 @@ export function NotificationsDropdown() {
                           {notification.title}
                         </h4>
                         {!notification.read && (
-                          <div className="w-2 h-2 bg-purple-600 rounded-full shrink-0 mt-1" />
+                          <div className="w-2 h-2 bg-primary rounded-full shrink-0 mt-1" />
                         )}
                       </div>
                       <p className="text-sm text-gray-400 mt-1 line-clamp-2">
@@ -248,7 +248,7 @@ export function NotificationsDropdown() {
             <Button
               variant="ghost"
               size="sm"
-              className="text-purple-400 hover:text-purple-300"
+              className="text-primary hover:text-primary"
               onClick={() => {
                 setIsOpen(false)
                 router.push('/settings/notifications')

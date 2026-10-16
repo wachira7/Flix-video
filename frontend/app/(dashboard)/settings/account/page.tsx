@@ -113,7 +113,7 @@ export default function AccountSettingsPage() {
                 )}
               </div>
               {!userData.email_verified && (
-                <Button size="sm" variant="link" className="text-purple-500 mt-1 p-0">
+                <Button size="sm" variant="link" className="text-primary mt-1 p-0">
                   Send verification email
                 </Button>
               )}
@@ -168,7 +168,7 @@ export default function AccountSettingsPage() {
         {/* Change Password */}
         <Card className="p-6 bg-gray-900 border-gray-800">
           <div className="flex items-center gap-3 mb-6">
-            <Lock className="w-6 h-6 text-purple-500" />
+            <Lock className="w-6 h-6 text-primary" />
             <h2 className="text-xl font-semibold text-white">Change Password</h2>
           </div>
 
@@ -220,7 +220,7 @@ export default function AccountSettingsPage() {
             <Button
               type="submit"
               disabled={saving}
-              className="bg-linear-to-r from-purple-700 to-fuchsia-600"
+              className="bg-linear-to-r from-primary/90 to-highlight"
             >
               {saving ? "Updating..." : "Update Password"}
             </Button>

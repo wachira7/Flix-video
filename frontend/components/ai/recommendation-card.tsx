@@ -50,7 +50,7 @@ export function RecommendationCard({ recommendation }: RecommendationCardProps) 
   }
 
   return (
-    <Card className="group overflow-hidden bg-gray-900 border-gray-800 hover:border-purple-600 transition-all duration-300 hover:scale-105">
+    <Card className="group overflow-hidden bg-gray-900 border-gray-800 hover:border-primary transition-all duration-300 hover:scale-105">
       {/* Poster */}
       <div className="relative aspect-2/3 overflow-hidden bg-gray-800">
         {loading ? (
@@ -69,7 +69,7 @@ export function RecommendationCard({ recommendation }: RecommendationCardProps) 
 
         {/* Confidence Badge */}
         <div className="absolute top-2 right-2">
-          <Badge className="bg-linear-to-r from-purple-600 to-pink-600 text-white">
+          <Badge className="bg-linear-to-r from-primary to-highlight text-primary-foreground">
             <TrendingUp className="w-3 h-3 mr-1" />
             {recommendation.confidence}%
           </Badge>
@@ -80,7 +80,7 @@ export function RecommendationCard({ recommendation }: RecommendationCardProps) 
           <div className="flex gap-2 w-full">
             <Button
               onClick={handleViewDetails}
-              className="flex-1 bg-purple-600 hover:bg-purple-700"
+              className="flex-1 bg-primary hover:bg-primary/90"
               size="sm"
             >
               <Play className="w-4 h-4 mr-2" />
@@ -109,7 +109,7 @@ export function RecommendationCard({ recommendation }: RecommendationCardProps) 
             <Badge
               key={tag}
               variant="outline"
-              className="border-purple-700 text-purple-300 text-xs"
+              className="border-primary text-primary text-xs"
             >
               {tag}
             </Badge>

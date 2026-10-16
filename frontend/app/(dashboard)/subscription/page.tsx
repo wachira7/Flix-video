@@ -82,7 +82,7 @@ export default function SubscriptionPage() {
       {/* Current Plan Badge */}
       {currentPlan !== 'free' && (
         <div className="mb-8 text-center">
-          <Badge className="bg-purple-600 text-white px-4 py-2">
+          <Badge className="bg-primary text-primary-foreground px-4 py-2">
             Current Plan: {currentPlan.charAt(0).toUpperCase() + currentPlan.slice(1)}
           </Badge>
         </div>
@@ -100,7 +100,7 @@ export default function SubscriptionPage() {
               key={plan.id}
               className={`relative p-8 bg-gray-900 border-2 transition-all hover:scale-105 ${
                 isPremium
-                  ? 'border-purple-600 shadow-lg shadow-purple-600/50'
+                  ? 'border-primary shadow-lg shadow-primary/25'
                   : isCurrentPlan
                   ? 'border-green-600'
                   : 'border-gray-800'
@@ -109,7 +109,7 @@ export default function SubscriptionPage() {
               {/* Popular Badge */}
               {plan.popular && (
                 <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                  <Badge className="bg-linear-to-r from-purple-600 to-pink-600 text-white px-4 py-1">
+                  <Badge className="bg-linear-to-r from-primary to-highlight text-primary-foreground px-4 py-1">
                     <Crown className="w-4 h-4 mr-1 inline" />
                     Most Popular
                   </Badge>
@@ -176,7 +176,7 @@ export default function SubscriptionPage() {
                 disabled={isCurrentPlan}
                 className={`w-full ${
                   isPremium
-                    ? 'bg-linear-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700'
+                    ? 'bg-linear-to-r from-primary to-highlight hover:from-primary/90 hover:to-highlight/90'
                     : 'bg-gray-800 hover:bg-gray-700'
                 }`}
               >
@@ -231,7 +231,7 @@ function Feature({ text, enabled }: { text: string; enabled: boolean }) {
 function FeatureCard({ icon, title }: { icon: React.ReactNode; title: string }) {
   return (
     <div className="p-4 bg-gray-900 border border-gray-800 rounded-lg">
-      <div className="text-purple-500 mb-2 flex justify-center">
+      <div className="text-primary mb-2 flex justify-center">
         {icon}
       </div>
       <p className="text-white text-sm">{title}</p>

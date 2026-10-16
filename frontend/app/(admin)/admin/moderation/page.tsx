@@ -61,7 +61,7 @@ export default function ModerationPage() {
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold text-white mb-2 flex items-center gap-2">
-          <Shield className="w-8 h-8 text-purple-500" />
+          <Shield className="w-8 h-8 text-primary" />
           Content Moderation
         </h1>
         <p className="text-gray-400">Review and manage reported content</p>
@@ -72,21 +72,21 @@ export default function ModerationPage() {
         <Button
           variant={statusFilter === 'pending' ? 'default' : 'outline'}
           onClick={() => setStatusFilter('pending')}
-          className={statusFilter === 'pending' ? 'bg-purple-600' : 'border-gray-700'}
+          className={statusFilter === 'pending' ? 'bg-primary' : 'border-gray-700'}
         >
           Pending
         </Button>
         <Button
           variant={statusFilter === 'reviewed' ? 'default' : 'outline'}
           onClick={() => setStatusFilter('reviewed')}
-          className={statusFilter === 'reviewed' ? 'bg-purple-600' : 'border-gray-700'}
+          className={statusFilter === 'reviewed' ? 'bg-primary' : 'border-gray-700'}
         >
           Reviewed
         </Button>
         <Button
           variant={statusFilter === 'all' ? 'default' : 'outline'}
           onClick={() => setStatusFilter('all')}
-          className={statusFilter === 'all' ? 'bg-purple-600' : 'border-gray-700'}
+          className={statusFilter === 'all' ? 'bg-primary' : 'border-gray-700'}
         >
           All Reports
         </Button>
@@ -95,7 +95,7 @@ export default function ModerationPage() {
       {/* Reports */}
       {loading ? (
         <div className="flex items-center justify-center py-12">
-          <div className="w-8 h-8 border-4 border-purple-600 border-t-transparent rounded-full animate-spin" />
+          <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
         </div>
       ) : reports.length === 0 ? (
         <Card className="bg-gray-900 border-gray-800 p-12 text-center">

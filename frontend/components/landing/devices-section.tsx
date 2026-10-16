@@ -108,7 +108,7 @@ export function DevicesSection() {
               }}
               className="text-center space-y-4 p-6 rounded-lg hover:bg-background transition-colors"
             >
-              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-linear-to-br from-purple-500/20 to-pink-500/20 border-2 border-primary/20">
+              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-linear-to-br from-primary/20 to-highlight/20 border-2 border-primary/20">
                 <device.icon className="w-10 h-10 text-primary" />
               </div>
               <div className="font-semibold">{device.name}</div>

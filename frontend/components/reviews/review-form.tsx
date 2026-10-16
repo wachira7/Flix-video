@@ -76,7 +76,7 @@ export function ReviewForm({ contentType, contentId, existingReview, onSuccess, 
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         {trigger || (
-          <Button className="bg-linear-to-r from-purple-700 to-fuchsia-600">
+          <Button className="bg-linear-to-r from-primary/90 to-highlight">
             {existingReview ? (
               <>
                 <Edit className="w-4 h-4 mr-2" />
@@ -163,7 +163,7 @@ export function ReviewForm({ contentType, contentId, existingReview, onSuccess, 
             <Button
               type="submit"
               disabled={loading || !content.trim()}
-              className="bg-linear-to-r from-purple-700 to-fuchsia-600"
+              className="bg-linear-to-r from-primary/90 to-highlight"
             >
               {loading ? "Submitting..." : existingReview ? "Update Review" : "Post Review"}
             </Button>

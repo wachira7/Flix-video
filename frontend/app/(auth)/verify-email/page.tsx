@@ -52,7 +52,7 @@ export default function VerifyEmailPage() {
       <Card className="w-full max-w-md p-8 bg-gray-900 border-gray-800 text-center">
         {status === 'loading' && (
           <>
-            <Loader2 className="w-16 h-16 mx-auto mb-4 animate-spin text-purple-600" />
+            <Loader2 className="w-16 h-16 mx-auto mb-4 animate-spin text-primary" />
             <h1 className="text-2xl font-bold text-white mb-2">Verifying Email</h1>
             <p className="text-gray-400">Please wait...</p>
           </>
@@ -66,7 +66,7 @@ export default function VerifyEmailPage() {
             <p className="text-gray-500 text-sm">Redirecting to login in 3 seconds...</p>
             <Button 
               onClick={() => router.push('/login')}
-              className="w-full bg-linear-to-r from-purple-700 to-fuchsia-600"
+              className="w-full bg-linear-to-r from-primary/90 to-highlight"
             >
               Continue to Login
             </Button>

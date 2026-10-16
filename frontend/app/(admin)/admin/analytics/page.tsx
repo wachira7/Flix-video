@@ -75,7 +75,7 @@ export default function AnalyticsPage() {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
           <p className="text-gray-400">Loading analytics...</p>
         </div>
       </div>
@@ -115,13 +115,13 @@ export default function AnalyticsPage() {
           title="Total Views"
           value={contentAnalytics?.totalViews?.toLocaleString() || "0"}
           icon={Eye}
-          iconColor="text-purple-500"
+          iconColor="text-primary"
         />
         <StatsCard
           title="Engagement Rate"
           value={`${engagementAnalytics?.avgEngagementRate || 0}%`}
           icon={Heart}
-          iconColor="text-pink-500"
+          iconColor="text-primary"
         />
         <StatsCard
           title="Active Users"

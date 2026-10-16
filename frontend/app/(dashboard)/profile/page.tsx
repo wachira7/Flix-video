@@ -136,7 +136,7 @@ export default function ProfilePage() {
         >
           <ArrowLeft className="w-5 h-5" />
         </Button>
-        <User className="w-8 h-8 text-purple-500" />
+        <User className="w-8 h-8 text-primary" />
         <h1 className="text-3xl font-bold text-white">My Profile</h1>
       </div>
 
@@ -288,7 +288,7 @@ export default function ProfilePage() {
             <Button
               type="submit"
               disabled={saving}
-              className="bg-linear-to-r from-purple-700 to-fuchsia-600"
+              className="bg-linear-to-r from-primary/90 to-highlight"
             >
               {saving ? "Saving..." : "Save Changes"}
             </Button>

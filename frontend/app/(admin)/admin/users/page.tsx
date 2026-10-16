@@ -131,10 +131,10 @@ export default function UsersManagementPage() {
           {/* Active filters badge - only shows when filters are applied */}
           {activeFiltersCount > 0 && (
             <div className="flex items-center gap-2">
-              <div className="flex items-center gap-2 px-3 py-1 bg-purple-500/10 
-                              border border-purple-500 rounded-full">
-                <Filter className="w-3 h-3 text-purple-400" />
-                <span className="text-purple-400 text-sm font-medium">
+              <div className="flex items-center gap-2 px-3 py-1 bg-primary/10 
+                              border border-primary rounded-full">
+                <Filter className="w-3 h-3 text-primary" />
+                <span className="text-primary text-sm font-medium">
                   {activeFiltersCount} active
                 </span>
               </div>
@@ -211,7 +211,7 @@ export default function UsersManagementPage() {
       {/* Users Table */}
       {loading ? (
         <div className="flex items-center justify-center py-12">
-          <div className="w-8 h-8 border-4 border-purple-600 border-t-transparent rounded-full animate-spin" />
+          <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
         </div>
       ) : filteredUsers.length === 0 ? (
         <Card className="bg-gray-900 border-gray-800 p-12 text-center">
@@ -222,7 +222,7 @@ export default function UsersManagementPage() {
               Try adjusting your filters or{' '}
               <button
                 onClick={handleClearFilters}
-                className="text-purple-400 hover:text-purple-300 underline"
+                className="text-primary hover:text-primary underline"
               >
                 clear all filters
               </button>

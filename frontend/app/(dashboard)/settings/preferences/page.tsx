@@ -193,8 +193,8 @@ export default function PreferencesSettingsPage() {
           {/* Appearance */}
           <Card className="bg-gray-900/50 border-gray-800 p-6">
             <div className="flex items-center gap-3 mb-6">
-              <div className="p-2 bg-purple-500/10 rounded-lg">
-                <Palette className="w-5 h-5 text-purple-500" />
+              <div className="p-2 bg-primary/10 rounded-lg">
+                <Palette className="w-5 h-5 text-primary" />
               </div>
               <div>
                 <h2 className="text-xl font-semibold text-white">Appearance</h2>
@@ -549,7 +549,7 @@ export default function PreferencesSettingsPage() {
             <Button
               onClick={handleSave}
               disabled={loading}
-              className="bg-linear-to-r from-purple-600 to-fuchsia-600 hover:from-purple-700 hover:to-fuchsia-700"
+              className="bg-linear-to-r from-primary to-highlight hover:from-primary/90 hover:to-highlight/90"
             >
               {loading ? "Saving..." : "Save Preferences"}
             </Button>

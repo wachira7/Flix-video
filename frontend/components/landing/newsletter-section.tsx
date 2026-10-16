@@ -33,8 +33,8 @@ export function NewsletterSection() {
     <section className="py-20 bg-secondary/30">
       <div className="container mx-auto px-4">
         <div className="max-w-2xl mx-auto text-center space-y-6">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-linear-to-br from-purple-500 to-pink-500">
-            <Mail className="w-8 h-8 text-white" />
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-linear-to-br from-primary to-highlight">
+            <Mail className="w-8 h-8 text-primary-foreground" />
           </div>
 
           <h2 className="text-4xl md:text-5xl font-bold">

@@ -66,7 +66,7 @@ export default function NotificationsSettingsPage() {
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-start gap-3 flex-1">
-                <Film className="w-5 h-5 text-purple-500 mt-0.5" />
+                <Film className="w-5 h-5 text-primary mt-0.5" />
                 <div>
                   <Label htmlFor="email-new-releases" className="text-white font-medium cursor-pointer">
                     New Releases
@@ -123,7 +123,7 @@ export default function NotificationsSettingsPage() {
 
             <div className="flex items-center justify-between">
               <div className="flex items-start gap-3 flex-1">
-                <MessageCircle className="w-5 h-5 text-pink-500 mt-0.5" />
+                <MessageCircle className="w-5 h-5 text-primary mt-0.5" />
                 <div>
                   <Label htmlFor="email-reviews" className="text-white font-medium cursor-pointer">
                     Reviews & Comments
@@ -162,14 +162,14 @@ export default function NotificationsSettingsPage() {
         {/* Push Notifications */}
         <Card className="p-6 bg-gray-900 border-gray-800">
           <div className="flex items-center gap-3 mb-6">
-            <Smartphone className="w-6 h-6 text-purple-500" />
+            <Smartphone className="w-6 h-6 text-primary" />
             <h2 className="text-xl font-semibold text-white">Push Notifications</h2>
           </div>
 
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-start gap-3 flex-1">
-                <Film className="w-5 h-5 text-purple-500 mt-0.5" />
+                <Film className="w-5 h-5 text-primary mt-0.5" />
                 <div>
                   <Label htmlFor="push-new-releases" className="text-white font-medium cursor-pointer">
                     New Releases
@@ -228,7 +228,7 @@ export default function NotificationsSettingsPage() {
         <div className="flex justify-end">
           <Button
             onClick={handleSave}
-            className="bg-linear-to-r from-purple-700 to-fuchsia-600"
+            className="bg-linear-to-r from-primary/90 to-highlight"
           >
             Save Preferences
           </Button>

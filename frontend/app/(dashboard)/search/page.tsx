@@ -110,7 +110,7 @@ export default function SearchPage() {
                 className="pl-10 bg-gray-800 border-gray-700 text-white placeholder:text-gray-500"
               />
             </div>
-            <Button type="submit" className="bg-linear-to-r from-purple-700 to-fuchsia-600">
+            <Button type="submit" className="bg-linear-to-r from-primary/90 to-highlight">
               Search
             </Button>
           </form>

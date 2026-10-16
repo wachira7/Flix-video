@@ -104,7 +104,7 @@ export default async function TVDetailPage({
             <Button 
               size="lg" 
               variant="outline" 
-              className="border-gray-400 bg-gray-800/80 hover:border-purple-600 hover:bg-gray-700 transition-all"
+              className="border-gray-400 bg-gray-800/80 hover:border-primary hover:bg-gray-700 transition-all"
             >
               <Plus className="w-6 h-6" />
             </Button>

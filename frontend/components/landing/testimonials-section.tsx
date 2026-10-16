@@ -140,7 +140,7 @@ export function TestimonialsSection() {
                       {/* Author */}
                       <div className="flex items-center gap-3 pt-4 border-t">
                         <Avatar>
-                          <AvatarFallback className="bg-linear-to-br from-purple-500 to-pink-500 text-white">
+                          <AvatarFallback className="bg-linear-to-br from-primary to-highlight text-primary-foreground">
                             {testimonial.avatar}
                           </AvatarFallback>
                         </Avatar>
