@@ -137,12 +137,12 @@ export default function ProfilePage() {
           <ArrowLeft className="w-5 h-5" />
         </Button>
         <User className="w-8 h-8 text-primary" />
-        <h1 className="text-3xl font-bold text-foreground">My Profile</h1>
+        <h1 className="text-3xl text-foreground">My Profile</h1>
       </div>
 
       <form onSubmit={handleSubmit}>
         <Card className="p-6 bg-card border-border mb-6">
-          <h2 className="text-xl font-semibold text-foreground mb-6">Avatar</h2>
+          <h2 className="text-xl text-foreground mb-6">Avatar</h2>
           <AvatarUpload
             currentAvatar={profile.avatar_url}
             username={profile.username}
@@ -151,7 +151,7 @@ export default function ProfilePage() {
         </Card>
 
         <Card className="p-6 bg-card border-border space-y-6">
-          <h2 className="text-xl font-semibold text-foreground">Personal Information</h2>
+          <h2 className="text-xl text-foreground">Personal Information</h2>
 
           {/* Username */}
           <div>

@@ -127,7 +127,7 @@ export default function BillingSettingsPage() {
           </Button>
         </Link>
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Billing Settings</h1>
+          <h1 className="text-3xl text-foreground">Billing Settings</h1>
           <p className="text-muted-foreground mt-1">Manage payments and subscription</p>
         </div>
       </div>
@@ -142,7 +142,7 @@ export default function BillingSettingsPage() {
             <Card className="p-6 bg-linear-to-br from-primary/20 to-highlight/20 border-primary">
               <div className="flex items-start justify-between mb-4">
                 <div>
-                  <h2 className="text-2xl font-bold text-foreground mb-1">
+                  <h2 className="text-2xl text-foreground mb-1">
                     {subscription.plan_details.name}
                   </h2>
                   <p className="text-foreground/80">
@@ -196,7 +196,7 @@ export default function BillingSettingsPage() {
               <div className="flex items-start gap-4">
                 <AlertCircle className="w-6 h-6 text-orange-500 shrink-0" />
                 <div className="flex-1">
-                  <h2 className="text-xl font-bold text-foreground mb-2">Subscription Cancelled</h2>
+                  <h2 className="text-xl text-foreground mb-2">Subscription Cancelled</h2>
                   <p className="text-muted-foreground mb-4">
                     Your subscription has been cancelled. You'll have access to premium features until{' '}
                     {new Date(subscription.current_period_end).toLocaleDateString('en-US', {
@@ -220,7 +220,7 @@ export default function BillingSettingsPage() {
                 <div className="w-16 h-16 bg-secondary rounded-full flex items-center justify-center mx-auto mb-4">
                   <CreditCard className="w-8 h-8 text-muted-foreground/70" />
                 </div>
-                <h2 className="text-xl font-bold text-foreground mb-2">No Active Subscription</h2>
+                <h2 className="text-xl text-foreground mb-2">No Active Subscription</h2>
                 <p className="text-muted-foreground mb-6">
                   Upgrade to unlock premium features and unlimited entertainment
                 </p>
@@ -239,7 +239,7 @@ export default function BillingSettingsPage() {
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
                 <CreditCard className="w-6 h-6 text-green-500" />
-                <h2 className="text-xl font-semibold text-foreground">Payment Methods</h2>
+                <h2 className="text-xl text-foreground">Payment Methods</h2>
               </div>
             </div>
             <PaymentMethods />
@@ -249,7 +249,7 @@ export default function BillingSettingsPage() {
           <Card className="p-6 bg-card border-border">
             <div className="flex items-center gap-3 mb-6">
               <Calendar className="w-6 h-6 text-blue-500" />
-              <h2 className="text-xl font-semibold text-foreground">Billing History</h2>
+              <h2 className="text-xl text-foreground">Billing History</h2>
             </div>
 
             {invoices.length === 0 ? (

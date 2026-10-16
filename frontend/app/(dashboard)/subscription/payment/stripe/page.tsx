@@ -19,7 +19,7 @@ function CardPaymentContent() {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-6">
         <Card className="p-8 bg-card border-border text-center">
-          <h2 className="text-xl font-bold text-foreground mb-4">Invalid Payment</h2>
+          <h2 className="text-xl text-foreground mb-4">Invalid Payment</h2>
           <p className="text-muted-foreground mb-6">No amount specified</p>
           <Link href="/subscription">
             <Button>Back to Plans</Button>

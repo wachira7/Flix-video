@@ -98,7 +98,7 @@ export default function PreferencesSettingsPage() {
               Back to Settings
             </Button>
           </Link>
-          <h1 className="text-3xl font-bold text-foreground mb-2">Preferences</h1>
+          <h1 className="text-3xl text-foreground mb-2">Preferences</h1>
           <p className="text-muted-foreground">Customize your viewing experience</p>
         </div>
 
@@ -110,7 +110,7 @@ export default function PreferencesSettingsPage() {
                 <Globe className="w-5 h-5 text-blue-500" />
               </div>
               <div>
-                <h2 className="text-xl font-semibold text-foreground">Language & Region</h2>
+                <h2 className="text-xl text-foreground">Language & Region</h2>
                 <p className="text-sm text-muted-foreground">Choose your preferred language and timezone</p>
               </div>
             </div>
@@ -197,7 +197,7 @@ export default function PreferencesSettingsPage() {
                 <Palette className="w-5 h-5 text-primary" />
               </div>
               <div>
-                <h2 className="text-xl font-semibold text-foreground">Appearance</h2>
+                <h2 className="text-xl text-foreground">Appearance</h2>
                 <p className="text-sm text-muted-foreground">Customize the look and feel</p>
               </div>
             </div>
@@ -234,7 +234,7 @@ export default function PreferencesSettingsPage() {
                 <Play className="w-5 h-5 text-green-500" />
               </div>
               <div>
-                <h2 className="text-xl font-semibold text-foreground">Playback Settings</h2>
+                <h2 className="text-xl text-foreground">Playback Settings</h2>
                 <p className="text-sm text-muted-foreground">Control how content plays</p>
               </div>
             </div>
@@ -372,7 +372,7 @@ export default function PreferencesSettingsPage() {
                 <Subtitles className="w-5 h-5 text-yellow-500" />
               </div>
               <div>
-                <h2 className="text-xl font-semibold text-foreground">Subtitle Settings</h2>
+                <h2 className="text-xl text-foreground">Subtitle Settings</h2>
                 <p className="text-sm text-muted-foreground">Customize subtitle appearance</p>
               </div>
             </div>
@@ -437,7 +437,7 @@ export default function PreferencesSettingsPage() {
                 <Shield className="w-5 h-5 text-red-500" />
               </div>
               <div>
-                <h2 className="text-xl font-semibold text-foreground">Content Preferences</h2>
+                <h2 className="text-xl text-foreground">Content Preferences</h2>
                 <p className="text-sm text-muted-foreground">Control what content you see</p>
               </div>
             </div>

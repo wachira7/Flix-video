@@ -50,7 +50,7 @@ export default function NotificationsSettingsPage() {
           </Button>
         </Link>
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Notification Settings</h1>
+          <h1 className="text-3xl text-foreground">Notification Settings</h1>
           <p className="text-muted-foreground mt-1">Choose what notifications you want to receive</p>
         </div>
       </div>
@@ -60,7 +60,7 @@ export default function NotificationsSettingsPage() {
         <Card className="p-6 bg-card border-border">
           <div className="flex items-center gap-3 mb-6">
             <Mail className="w-6 h-6 text-blue-500" />
-            <h2 className="text-xl font-semibold text-foreground">Email Notifications</h2>
+            <h2 className="text-xl text-foreground">Email Notifications</h2>
           </div>
 
           <div className="space-y-4">
@@ -163,7 +163,7 @@ export default function NotificationsSettingsPage() {
         <Card className="p-6 bg-card border-border">
           <div className="flex items-center gap-3 mb-6">
             <Smartphone className="w-6 h-6 text-primary" />
-            <h2 className="text-xl font-semibold text-foreground">Push Notifications</h2>
+            <h2 className="text-xl text-foreground">Push Notifications</h2>
           </div>
 
           <div className="space-y-4">

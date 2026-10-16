@@ -64,7 +64,7 @@ export default function SettingsPage() {
       <div className="flex items-center gap-3 mb-8">
         <SettingsIcon className="w-8 h-8 text-primary" />
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Settings</h1>
+          <h1 className="text-3xl text-foreground">Settings</h1>
           <p className="text-muted-foreground mt-1">Manage your account and preferences</p>
         </div>
       </div>

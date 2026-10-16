@@ -47,7 +47,7 @@ export default function SubscriptionSuccessPage() {
         </div>
 
         {/* Success Message */}
-        <h1 className="text-3xl font-bold text-foreground mb-2">
+        <h1 className="text-3xl text-foreground mb-2">
           Payment Successful! 🎉
         </h1>
         <p className="text-muted-foreground text-lg mb-8">
@@ -56,7 +56,7 @@ export default function SubscriptionSuccessPage() {
 
         {/* What's Next */}
         <div className="bg-secondary rounded-lg p-6 mb-8 text-left">
-          <h2 className="text-foreground font-semibold mb-4 flex items-center gap-2">
+          <h2 className="text-foreground mb-4 flex items-center gap-2">
             <Sparkles className="w-5 h-5 text-yellow-500" />
             What's New for You
           </h2>

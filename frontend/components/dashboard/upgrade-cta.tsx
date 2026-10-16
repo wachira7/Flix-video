@@ -125,7 +125,7 @@ export function UpgradeCTA({
         <Lock className="w-8 h-8 text-primary-foreground" />
       </div>
       
-      <h2 className="text-2xl font-bold text-foreground mb-2">
+      <h2 className="text-2xl text-foreground mb-2">
         {displayTitle}
       </h2>
       

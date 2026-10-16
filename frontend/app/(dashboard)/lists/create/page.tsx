@@ -63,7 +63,7 @@ export default function CreateListPage() {
           Back to Lists
         </Button>
 
-        <h1 className="text-4xl font-bold text-foreground mb-2">Create New List</h1>
+        <h1 className="text-4xl text-foreground mb-2">Create New List</h1>
         <p className="text-muted-foreground mb-8">
           Organize your favorite movies and TV shows into custom lists
         </p>

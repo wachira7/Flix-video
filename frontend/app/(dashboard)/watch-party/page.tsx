@@ -85,7 +85,7 @@ export default function WatchPartyPage() {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-4xl font-bold text-foreground mb-2">Watch Parties</h1>
+            <h1 className="text-4xl text-foreground mb-2">Watch Parties</h1>
             <p className="text-muted-foreground">Host or join synchronized viewing sessions</p>
           </div>
           <Button

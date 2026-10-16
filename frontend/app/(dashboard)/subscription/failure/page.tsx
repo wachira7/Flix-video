@@ -65,7 +65,7 @@ export default function SubscriptionFailurePage() {
           <div className="w-24 h-24 bg-red-500/10 border-2 border-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
             <XCircle className="w-12 h-12 text-red-500" />
           </div>
-          <h1 className="text-3xl font-bold text-foreground mb-2">
+          <h1 className="text-3xl text-foreground mb-2">
             Payment Failed
           </h1>
           <p className="text-muted-foreground text-lg">
@@ -107,7 +107,7 @@ export default function SubscriptionFailurePage() {
 
         {/* Troubleshooting Steps */}
         <div className="bg-secondary rounded-lg p-6 mb-8">
-          <h2 className="text-foreground font-semibold mb-4 flex items-center gap-2">
+          <h2 className="text-foreground mb-4 flex items-center gap-2">
             <HelpCircle className="w-5 h-5 text-blue-500" />
             What You Can Do
           </h2>

@@ -76,7 +76,7 @@ export default function DevicesSettingsPage() {
           </Button>
         </Link>
         <div className="flex-1">
-          <h1 className="text-3xl font-bold text-foreground">Device Management</h1>
+          <h1 className="text-3xl text-foreground">Device Management</h1>
           <p className="text-muted-foreground mt-1">Manage devices that have access to your account</p>
         </div>
         {devices.length > 1 && (
@@ -109,7 +109,7 @@ export default function DevicesSettingsPage() {
 
         {/* Active Devices */}
         <Card className="p-6 bg-card border-border">
-          <h2 className="text-xl font-semibold text-foreground mb-6">Active Devices</h2>
+          <h2 className="text-xl text-foreground mb-6">Active Devices</h2>
 
           <div className="space-y-4">
             {devices.map((device) => {

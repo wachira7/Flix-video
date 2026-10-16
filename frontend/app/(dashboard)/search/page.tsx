@@ -97,7 +97,7 @@ export default function SearchPage() {
       <div className="max-w-7xl mx-auto">
         {/* Search Header */}
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-foreground mb-6">Search</h1>
+          <h1 className="text-4xl text-foreground mb-6">Search</h1>
           
           <form onSubmit={handleSubmit} className="flex gap-4 mb-6">
             <div className="flex-1 relative">

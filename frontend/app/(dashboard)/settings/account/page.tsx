@@ -78,7 +78,7 @@ export default function AccountSettingsPage() {
           </Button>
         </Link>
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Account Settings</h1>
+          <h1 className="text-3xl text-foreground">Account Settings</h1>
           <p className="text-muted-foreground mt-1">Manage your account details and security</p>
         </div>
       </div>
@@ -88,7 +88,7 @@ export default function AccountSettingsPage() {
         <Card className="p-6 bg-card border-border">
           <div className="flex items-center gap-3 mb-6">
             <User className="w-6 h-6 text-blue-500" />
-            <h2 className="text-xl font-semibold text-foreground">Account Information</h2>
+            <h2 className="text-xl text-foreground">Account Information</h2>
           </div>
 
           <div className="space-y-4">
@@ -169,7 +169,7 @@ export default function AccountSettingsPage() {
         <Card className="p-6 bg-card border-border">
           <div className="flex items-center gap-3 mb-6">
             <Lock className="w-6 h-6 text-primary" />
-            <h2 className="text-xl font-semibold text-foreground">Change Password</h2>
+            <h2 className="text-xl text-foreground">Change Password</h2>
           </div>
 
           <form onSubmit={handlePasswordChange} className="space-y-4">

@@ -120,7 +120,7 @@ export default function UsersManagementPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-foreground mb-2">User Management</h1>
+          <h1 className="text-3xl text-foreground mb-2">User Management</h1>
           <p className="text-muted-foreground">
             {totalUsers.toLocaleString()} total users
           </p>

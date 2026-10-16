@@ -316,7 +316,7 @@ export default function PartyRoomPage() {
       <div className="bg-card border-b border-border p-4">
         <div className="flex items-center justify-between max-w-7xl mx-auto">
           <div className="flex items-center gap-4">
-            <h1 className="text-xl font-bold text-foreground">{party?.title}</h1>
+            <h1 className="text-xl text-foreground">{party?.title}</h1>
             {party?.content_type === 'tv_show' && (
               <Badge variant="outline">S{party.season_number}E{party.episode_number}</Badge>
             )}

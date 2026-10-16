@@ -74,7 +74,7 @@ export function ReviewsSection({ contentType, contentId, title }: ReviewsSection
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <MessageSquare className="w-6 h-6 text-primary" />
-          <h2 className="text-3xl font-bold text-foreground">
+          <h2 className="text-3xl text-foreground">
             Reviews ({reviews.length})
           </h2>
         </div>

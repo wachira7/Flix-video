@@ -63,7 +63,7 @@ export default function PrivacySettingsPage() {
     <div className="min-h-screen bg-linear-to-b from-card via-background to-card p-6">
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2">Privacy Settings</h1>
+          <h1 className="text-3xl text-foreground mb-2">Privacy Settings</h1>
           <p className="text-muted-foreground">Control your privacy and data</p>
         </div>
 
@@ -84,7 +84,7 @@ export default function PrivacySettingsPage() {
                   <UserCheck className="w-5 h-5 text-blue-500" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-semibold text-foreground">Profile Privacy</h2>
+                  <h2 className="text-xl text-foreground">Profile Privacy</h2>
                   <p className="text-sm text-muted-foreground">Control who can see your profile</p>
                 </div>
               </div>
@@ -193,7 +193,7 @@ export default function PrivacySettingsPage() {
                   <Users className="w-5 h-5 text-primary" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-semibold text-foreground">Social Privacy</h2>
+                  <h2 className="text-xl text-foreground">Social Privacy</h2>
                   <p className="text-sm text-muted-foreground">Manage social interactions</p>
                 </div>
               </div>
@@ -284,7 +284,7 @@ export default function PrivacySettingsPage() {
                   <Database className="w-5 h-5 text-green-500" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-semibold text-foreground">Data & Privacy</h2>
+                  <h2 className="text-xl text-foreground">Data & Privacy</h2>
                   <p className="text-sm text-muted-foreground">Control how your data is used</p>
                 </div>
               </div>
@@ -382,7 +382,7 @@ export default function PrivacySettingsPage() {
                   <FileText className="w-5 h-5 text-yellow-500" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-semibold text-foreground">Data Management</h2>
+                  <h2 className="text-xl text-foreground">Data Management</h2>
                   <p className="text-sm text-muted-foreground">Download or delete your data</p>
                 </div>
               </div>
@@ -490,7 +490,7 @@ export default function PrivacySettingsPage() {
                   <FileText className="w-5 h-5 text-primary" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-semibold text-foreground">Legal</h2>
+                  <h2 className="text-xl text-foreground">Legal</h2>
                   <p className="text-sm text-muted-foreground">Review our policies</p>
                 </div>
               </div>

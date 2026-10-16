@@ -91,7 +91,7 @@ export default function ListDetailPage() {
         <div className="flex items-start justify-between">
           <div>
             <div className="flex items-center gap-3 mb-2">
-              <h1 className="text-4xl font-bold text-foreground">{list.title}</h1>
+              <h1 className="text-4xl text-foreground">{list.title}</h1>
               {list.is_public ? (
                 <Badge variant="outline" className="text-green-400 border-green-400">
                   <Globe className="w-3 h-3 mr-1" />

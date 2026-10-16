@@ -276,7 +276,7 @@ export default function AIChatPage() {
             <Brain className="w-5 h-5 text-primary-foreground" />
           </div>
           <div>
-            <h1 className="text-lg font-bold text-foreground">AI Movie Assistant</h1>
+            <h1 className="text-lg text-foreground">AI Movie Assistant</h1>
             <p className="text-xs text-muted-foreground">
               Powered by {provider === "claude" ? "Claude AI" : "GPT-4"} — Ask me anything about movies & TV
             </p>
@@ -290,7 +290,7 @@ export default function AIChatPage() {
               <div className="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mb-6">
                 <Sparkles className="w-8 h-8 text-primary" />
               </div>
-              <h2 className="text-xl font-bold text-foreground mb-2">
+              <h2 className="text-xl text-foreground mb-2">
                 What would you like to watch?
               </h2>
               <p className="text-muted-foreground text-center mb-8 max-w-md">

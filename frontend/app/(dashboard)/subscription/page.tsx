@@ -71,7 +71,7 @@ export default function SubscriptionPage() {
     <div className="p-8 max-w-7xl mx-auto">
       {/* Header */}
       <div className="text-center mb-12">
-        <h1 className="text-4xl font-bold text-foreground mb-4">
+        <h1 className="text-4xl text-foreground mb-4">
           Choose Your Plan
         </h1>
         <p className="text-muted-foreground text-lg">
@@ -198,7 +198,7 @@ export default function SubscriptionPage() {
 
       {/* Features Comparison */}
       <div className="mt-16 text-center">
-        <h2 className="text-2xl font-bold text-foreground mb-4">
+        <h2 className="text-2xl text-foreground mb-4">
           All Plans Include
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
