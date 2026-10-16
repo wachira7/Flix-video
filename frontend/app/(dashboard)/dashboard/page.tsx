@@ -5,6 +5,7 @@ import { HeroBanner } from "@/components/dashboard/hero-banner"
 import { ContentRow } from "@/components/dashboard/content-row"
 import { ContinueWatching } from "@/components/dashboard/continue-watching"
 import { HomeGreeting } from "@/components/dashboard/home-greeting"
+import { MoodShortcuts } from "@/components/dashboard/mood-shortcuts"
 
 // Re-fetch TMDB lists at most once an hour
 export const revalidate = 3600
@@ -38,7 +39,10 @@ export default async function DashboardPage() {
       <HeroBanner movies={hero} />
 
       <div className="space-y-14">
-        <HomeGreeting />
+        <div className="space-y-5">
+          <HomeGreeting />
+          <MoodShortcuts />
+        </div>
         <ContinueWatching />
         <ContentRow title="Top 10 films this week" items={trendingMovies} ranked href="/browse" />
         <ContentRow title="Series everyone's watching" items={trendingTV} href="/browse?type=tv" />
