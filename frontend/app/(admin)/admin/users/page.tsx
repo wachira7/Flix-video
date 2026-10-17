@@ -3,6 +3,7 @@
 
 import { useState, useEffect } from "react"
 import { adminAPI, User } from "@/lib/api/admin"
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 import { UserTable } from "@/components/admin/user-table"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -102,10 +103,12 @@ export default function UsersManagementPage() {
     }
   }
 
+  const [details, setDetails] = useState<User | null>(null)
+
   const handleViewDetails = async (userId: string) => {
     try {
       const result = await adminAPI.getUserDetails(userId)
-      alert(`User Details:\n\nEmail: ${result.user.email}\nRole: ${result.user.role}\nStatus: ${result.user.status}\nCreated: ${new Date(result.user.created_at).toLocaleDateString()}`)
+      setDetails(result.user)
     } catch (error: any) {
       toast.error("Failed to load user details")
     }
@@ -263,6 +266,33 @@ export default function UsersManagementPage() {
           </Button>
         </div>
       )}
+      <Sheet open={!!details} onOpenChange={(open) => !open && setDetails(null)}>
+        <SheetContent className="w-full border-border bg-background sm:max-w-md">
+          <SheetHeader>
+            <SheetTitle className="font-display text-3xl font-normal">{details?.full_name || details?.username || details?.email}</SheetTitle>
+          </SheetHeader>
+          {details && (
+            <dl className="mt-6 divide-y divide-border px-4 text-sm">
+              {[
+                ["Email", details.email],
+                ["Username", details.username ? `@${details.username}` : "Not set"],
+                ["Role", details.role],
+                ["Status", details.status],
+                ["Email verified", details.email_verified ? "Yes" : "No"],
+                ["Joined", new Date(details.created_at).toLocaleString()],
+                ["Last sign-in", details.last_login_at ? new Date(details.last_login_at).toLocaleString() : "Never"],
+                ...(details.ban_reason ? [["Ban reason", details.ban_reason]] : []),
+                ["User ID", details.id],
+              ].map(([label, value]) => (
+                <div key={label} className="flex justify-between gap-6 py-3">
+                  <dt className="text-muted-foreground">{label}</dt>
+                  <dd className="min-w-0 text-right break-all">{value}</dd>
+                </div>
+              ))}
+            </dl>
+          )}
+        </SheetContent>
+      </Sheet>
     </div>
   )
 }

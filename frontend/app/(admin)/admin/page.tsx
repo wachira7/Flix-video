@@ -6,7 +6,7 @@ import { StatsCard } from "@/components/admin/stats-card"
 import { adminAPI } from "@/lib/api/admin"
 import { 
   Users, 
-  DollarSign,   // ← NOW USED! 💰
+  DollarSign,
   CreditCard, 
   TrendingUp, 
   Activity, 
@@ -90,8 +90,8 @@ export default function AdminDashboardPage() {
 
       {/* User Stats */}
       <div>
-        <h2 className="text-lg text-foreground/80 mb-4 uppercase tracking-wider">
-          👥 User Statistics
+        <h2 className="eyebrow mb-4">
+          Users
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <StatsCard
@@ -125,10 +125,10 @@ export default function AdminDashboardPage() {
         </div>
       </div>
 
-      {/* Revenue Stats ← NEW SECTION USING DollarSign */}
+      {/* Revenue */}
       <div>
-        <h2 className="text-lg text-foreground/80 mb-4 uppercase tracking-wider">
-          💰 Revenue Statistics
+        <h2 className="eyebrow mb-4">
+          Revenue
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <StatsCard
@@ -136,7 +136,7 @@ export default function AdminDashboardPage() {
             value={`KES ${parseFloat(revenue.total_revenue || 0).toLocaleString()}`}
             change="All time"
             changeType="positive"
-            icon={DollarSign}   // ← DollarSign USED HERE! 💰
+            icon={DollarSign}
             iconColor="text-green-500"
           />
           <StatsCard
@@ -166,8 +166,8 @@ export default function AdminDashboardPage() {
 
       {/* Content Stats */}
       <div>
-        <h2 className="text-lg text-foreground/80 mb-4 uppercase tracking-wider">
-          🎬 Content Statistics
+        <h2 className="eyebrow mb-4">
+          Content
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <StatsCard

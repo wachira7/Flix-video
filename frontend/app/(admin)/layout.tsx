@@ -45,12 +45,10 @@ export default function AdminLayout({
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="dark min-h-svh bg-background text-foreground">
       <AdminSidebar />
-      <main className="ml-64 transition-all duration-300">
-        <div className="p-8">
-          {children}
-        </div>
+      <main className="px-4 py-6 sm:px-6 lg:pl-[calc(248px+2rem)] lg:pr-8 lg:py-8">
+        <div className="mx-auto max-w-7xl">{children}</div>
       </main>
       <Toaster 
         position="top-right"
