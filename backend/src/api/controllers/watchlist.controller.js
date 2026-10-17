@@ -45,7 +45,7 @@ const addToWatchlist = async (req, res) => {
       [userId, dbContentType, contentId]
     );
 
-    watchlistAdds.labels(contentType).inc();
+    watchlistAdds.inc({ content_type: contentType });
 
     res.status(HTTP_STATUS.CREATED).json({
       success: true,
@@ -82,7 +82,6 @@ const removeFromWatchlist = async (req, res) => {
       });
     }
 
-    watchlistAdds.labels(contentType).dec();
 
     res.json({
       success: true,
