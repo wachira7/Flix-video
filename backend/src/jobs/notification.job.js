@@ -56,6 +56,18 @@ const notificationWorker = new Worker(
 
 // ── Email implementations ─────────────────────────────────────────
 
+const { withDefaults } = require('../config/user-settings');
+
+/** Whether the user wants this kind of email (defaults to yes) */
+async function emailAllowed(userId, key) {
+  try {
+    const { rows } = await global.pgPool.query('SELECT settings FROM users WHERE id = $1', [userId]);
+    return withDefaults(rows[0]?.settings).notifications[key] !== false;
+  } catch {
+    return true;
+  }
+}
+
 async function sendPaymentSuccessEmail(userId, data) {
   logger.info('Sending payment success email', { userId });
 
@@ -154,6 +166,9 @@ async function sendSubscriptionExpiringEmail(userId, data) {
       data:{ plan: data.plan, expiry_date: data.expiry_date, days_remaining: data.days_remaining }
     });
 
+  // Email is optional for this type (Settings > Notifications); in-app above always happens
+  if (!(await emailAllowed(userId, 'billing_reminders'))) return;
+
   const { error } = await resend.emails.send({
     from: FROM_EMAIL,
     to: data.email,
@@ -196,6 +211,9 @@ async function sendWatchPartyInvite(userId, data) {
       data:{ party_code: data.party_code, host_name: data.host_name, content_title: data.content_title }
     });
 
+  // Email is optional for this type (Settings > Notifications); in-app above always happens
+  if (!(await emailAllowed(userId, 'watch_party_invites'))) return;
+
   const { error } = await resend.emails.send({
     from: FROM_EMAIL,
     to: data.email,
@@ -237,6 +255,9 @@ async function sendNewReviewNotification(userId, data) {
         message: `${data.reviewer_name} just reviewed ${data.content_title}`,
         data: { content_id: data.content_id, content_title: data.content_title, reviewer_name: data.reviewer_name, rating: data.rating }
       });
+
+  // Email is optional for this type (Settings > Notifications); in-app above always happens
+  if (!(await emailAllowed(userId, 'review_activity'))) return;
 
   const { error } = await resend.emails.send({
     from: FROM_EMAIL,

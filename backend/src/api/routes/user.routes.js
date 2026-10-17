@@ -16,6 +16,15 @@ const {
   deleteWatchHistory,
   clearWatchHistory
 } = require('../controllers/user.controller');
+const {
+  getSettings,
+  updateSettings,
+  listSessions,
+  revokeSession,
+  revokeOtherSessions,
+  exportMyData,
+  deleteMyAccount
+} = require('../controllers/account.controller');
 
 // ─── Existing Routes ──────────────────────────────────────────────
 
@@ -403,5 +412,55 @@ router.delete('/watch-history/:contentType/:contentId', protect, deleteWatchHist
  *         description: Unauthorized
  */
 router.delete('/watch-history', protect, clearWatchHistory);
+
+// ─── Account: settings, sessions, export, deletion ────────────────
+
+/**
+ * @swagger
+ * /api/users/settings:
+ *   get:
+ *     summary: Get my settings (notifications, preferences, privacy)
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *   patch:
+ *     summary: Update some of my settings
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ */
+router.get('/settings', protect, getSettings);
+router.patch('/settings', protect, updateSettings);
+
+/**
+ * @swagger
+ * /api/users/sessions:
+ *   get:
+ *     summary: List my signed-in devices
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ */
+router.get('/sessions', protect, listSessions);
+router.post('/sessions/revoke-others', protect, revokeOtherSessions);
+router.delete('/sessions/:sessionId', protect, revokeSession);
+
+/**
+ * @swagger
+ * /api/users/me/export:
+ *   get:
+ *     summary: Download all my data as JSON
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ * /api/users/me/delete:
+ *   post:
+ *     summary: Delete my account (body - confirm "DELETE", password for email accounts)
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ */
+router.get('/me/export', protect, exportMyData);
+router.post('/me/delete', protect, deleteMyAccount);
 
 module.exports = router;
