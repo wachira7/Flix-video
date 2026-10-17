@@ -79,35 +79,17 @@ const getMyProfile = async (req, res) => {
 const updateProfile = async (req, res) => {
   try {
     const userId = req.user.id;
-    const {
-      username,
-      full_name,
-      bio,
-      date_of_birth,
-      gender,
-      country,
-      city,
-      timezone,
-      language,
-      is_public
-    } = req.body;
-
-    // Sanitize data
-    const sanitizedData = {
-      username: username?.trim() || null,
-      full_name: full_name?.trim() || null,
-      bio: bio?.trim() || null,
-      date_of_birth: date_of_birth?.trim() || null,
-      gender: gender?.trim() || null,
-      country: country?.trim() || null,
-      city: city?.trim() || null,
-      timezone: timezone?.trim() || null,
-      language: language || 'en',
-      is_public: is_public !== undefined ? is_public : null
-    };
-
-    // console.log('📅 Received date_of_birth:', date_of_birth);
-    // console.log('📅 After sanitization:', sanitizedData.date_of_birth);
+    // A field left out of the request keeps its value; a field sent empty
+    // (or null) is cleared. Previously COALESCE made clearing impossible.
+    const TEXT_FIELDS = ['username', 'full_name', 'bio', 'date_of_birth', 'gender', 'country', 'city', 'timezone'];
+    const sanitizedData = {};
+    for (const field of TEXT_FIELDS) {
+      if (!(field in req.body)) continue;
+      const value = req.body[field];
+      sanitizedData[field] = typeof value === 'string' ? value.trim() || null : null;
+    }
+    if ('language' in req.body) sanitizedData.language = req.body.language || 'en';
+    if ('is_public' in req.body) sanitizedData.is_public = Boolean(req.body.is_public);
 
     // Check if profile exists
     const existing = await global.pgPool.query(
@@ -138,44 +120,26 @@ const updateProfile = async (req, res) => {
           sanitizedData.country, 
           sanitizedData.city, 
           sanitizedData.timezone, 
-          sanitizedData.language, 
-          sanitizedData.is_public
+          sanitizedData.language ?? 'en', 
+          sanitizedData.is_public ?? true
         ]
       );
     } else {
-      // Update with explicit date cast and return date as text
+      // Update only the fields the request included
+      const fields = Object.keys(sanitizedData);
+      const assignments = fields.map((field, i) =>
+        field === 'date_of_birth' ? `${field} = $${i + 2}::date` : `${field} = $${i + 2}`
+      );
       result = await global.pgPool.query(
         `UPDATE user_profiles SET
-          username = COALESCE($2, username),
-          full_name = COALESCE($3, full_name),
-          bio = COALESCE($4, bio),
-          date_of_birth = COALESCE($5::date, date_of_birth),
-          gender = COALESCE($6, gender),
-          country = COALESCE($7, country),
-          city = COALESCE($8, city),
-          timezone = COALESCE($9, timezone),
-          language = COALESCE($10, language),
-          is_public = COALESCE($11, is_public),
-          updated_at = NOW()
+          ${[...assignments, 'updated_at = NOW()'].join(',\n          ')}
         WHERE user_id = $1
         RETURNING 
           id, user_id, username, full_name, avatar_url, bio,
           date_of_birth::text as date_of_birth,
           gender, country, city, timezone, language, is_public,
           created_at, updated_at`,
-        [
-          userId, 
-          sanitizedData.username, 
-          sanitizedData.full_name, 
-          sanitizedData.bio, 
-          sanitizedData.date_of_birth, 
-          sanitizedData.gender, 
-          sanitizedData.country, 
-          sanitizedData.city, 
-          sanitizedData.timezone, 
-          sanitizedData.language, 
-          sanitizedData.is_public
-        ]
+        [userId, ...fields.map((field) => sanitizedData[field])]
       );
     }
 
