@@ -1,201 +1,150 @@
-// frontend/app/(dashboard)/subscription/checkout/page.tsx
-
+// app/(dashboard)/subscription/checkout/page.tsx
+// One-page checkout: order summary + M-Pesa / card / crypto.
 "use client"
 
-import { useState, useEffect, Suspense } from "react"
-import { useRouter, useSearchParams } from "next/navigation"
-import { subscriptionAPI, type Plan } from "@/lib/api/subscriptions"
-import { Card } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Skeleton } from "@/components/ui/skeleton"
-import { toast } from "sonner"
-import { ArrowLeft, CreditCard, Smartphone, Bitcoin } from "lucide-react"
+import { Suspense, useState } from "react"
 import Link from "next/link"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
+import { AnimatePresence, motion } from "framer-motion"
+import { ArrowLeft, Bitcoin, Check, CreditCard, Loader2, Lock, ShieldCheck, Smartphone } from "lucide-react"
+import { toast } from "sonner"
+import { paymentsAPI } from "@/lib/api/payments"
+import { formatKes, planById, PLANS } from "@/lib/plans"
+import { MpesaCheckout } from "@/components/payment/mpesa-checkout"
+import { CryptoForm } from "@/components/payment/crypto-form"
+import { cn } from "@/lib/utils"
 
-function CheckoutContent() {
-  const router = useRouter()
-  const searchParams = useSearchParams()
-  const planId = searchParams.get('plan')
+type Method = "mpesa" | "card" | "crypto"
 
-  const [plan, setPlan] = useState<Plan | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [selectedMethod, setSelectedMethod] = useState<'stripe' | 'mpesa' | 'crypto' | null>(null)
+const METHODS: { id: Method; label: string; icon: typeof Smartphone; hint: string }[] = [
+  { id: "mpesa", label: "M-Pesa", icon: Smartphone, hint: "Prompt on your phone" },
+  { id: "card", label: "Card", icon: CreditCard, hint: "Visa, Mastercard" },
+  { id: "crypto", label: "Crypto", icon: Bitcoin, hint: "BTC, ETH, USDT" },
+]
 
-  useEffect(() => {
-    if (!planId) {
-      router.push('/subscription')
-      return
-    }
-    fetchPlan()
-  }, [planId])
-
-  const fetchPlan = async () => {
+function CardCheckout({ planId, price, name }: { planId: string; price: number; name: string }) {
+  const [busy, setBusy] = useState(false)
+  const go = async () => {
+    setBusy(true)
     try {
-      const response = await subscriptionAPI.getPlans()
-      const selectedPlan = response.plans.find((p: Plan) => p.id === planId)
-      
-      if (!selectedPlan) {
-        toast.error('Plan not found')
-        router.push('/subscription')
-        return
-      }
-
-      setPlan(selectedPlan)
-    } catch (error) {
-      console.error('Fetch plan error:', error)
-      toast.error('Failed to load plan details')
-    } finally {
-      setLoading(false)
+      const r = await paymentsAPI.createStripeCheckout(price, planId, `FlixVideo ${name} plan`)
+      if (r.checkout_url) window.location.href = r.checkout_url
+      else throw new Error("no url")
+    } catch (e) {
+      const message = (e as { response?: { data?: { error?: string } } }).response?.data?.error
+      toast.error(message || "We couldn't open the card checkout. Please try again.")
+      setBusy(false)
     }
   }
+  return (
+    <div className="space-y-5">
+      <p className="text-sm text-muted-foreground">
+        You&apos;ll go to Stripe&apos;s secure page to enter your card, then come straight back here. FlixVideo never sees your card number.
+      </p>
+      <button type="button" onClick={go} disabled={busy} className="flex h-12 w-full items-center justify-center gap-2 rounded-lg bg-primary text-[15px] font-semibold text-primary-foreground transition-[filter] hover:brightness-110 disabled:opacity-70">
+        {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Lock className="h-4 w-4" />}
+        {busy ? "Opening secure checkout" : `Pay ${formatKes(price)} by card`}
+      </button>
+    </div>
+  )
+}
 
-  const handleSelectPayment = (method: 'stripe' | 'mpesa' | 'crypto') => {
-    setSelectedMethod(method)
-    // Navigate to specific payment page
-    router.push(`/subscription/payment/${method}?plan=${planId}&amount=${plan?.price}`)
-  }
+function Checkout() {
+  const router = useRouter()
+  const pathname = usePathname()
+  const params = useSearchParams()
+  const plan = planById(params.get("plan"))
+  const method = (["mpesa", "card", "crypto"].includes(params.get("method") ?? "") ? params.get("method") : "mpesa") as Method
 
-  if (loading) {
+  if (!plan || plan.price === 0) {
     return (
-      <div className="p-8 max-w-4xl mx-auto">
-        <Skeleton className="h-12 w-48 mb-8 bg-secondary" />
-        <Skeleton className="h-96 bg-secondary" />
+      <div className="mx-auto max-w-md pt-16 text-center">
+        <h1 className="text-4xl">Pick a plan first</h1>
+        <p className="mt-3 text-muted-foreground">Choose Basic or Premium to continue to payment.</p>
+        <Link href="/subscription" className="mt-6 inline-flex h-11 items-center rounded-lg bg-primary px-5 text-sm font-semibold text-primary-foreground">
+          See plans
+        </Link>
       </div>
     )
   }
 
-  if (!plan) {
-    return null
-  }
+  const setMethod = (m: Method) => router.replace(`${pathname}?plan=${plan.id}&method=${m}`, { scroll: false })
+  const others = PLANS.filter((p) => p.price > 0 && p.id !== plan.id)
 
   return (
-    <div className="p-8 max-w-4xl mx-auto">
-      {/* Back Button */}
-      <Link href="/subscription">
-        <Button variant="ghost" className="mb-6">
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Back to Plans
-        </Button>
+    <div className="mx-auto max-w-5xl space-y-8 pt-4">
+      <Link href="/subscription" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground">
+        <ArrowLeft className="h-4 w-4" /> Plans
       </Link>
+      <h1 className="text-4xl leading-tight sm:text-5xl">
+        Upgrade to <em className="italic text-primary">{plan.name}</em>
+      </h1>
 
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl text-foreground mb-2">Complete Your Purchase</h1>
-        <p className="text-muted-foreground">Choose your preferred payment method</p>
-      </div>
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
+        <section className="min-w-0 rounded-2xl border bg-card/60 p-5 sm:p-7">
+          <h2 className="text-2xl">How would you like to pay?</h2>
+          <div role="tablist" aria-label="Payment method" className="mt-5 grid grid-cols-3 gap-2">
+            {METHODS.map((m) => (
+              <button
+                key={m.id}
+                role="tab"
+                type="button"
+                aria-selected={method === m.id}
+                onClick={() => setMethod(m.id)}
+                className={cn(
+                  "relative flex flex-col items-center gap-1 rounded-xl border px-2 py-3 text-center transition-colors",
+                  method === m.id ? "border-primary/70 bg-primary/10" : "hover:border-muted-foreground/50"
+                )}
+              >
+                <m.icon className={cn("h-5 w-5", method === m.id ? "text-primary" : "text-muted-foreground")} />
+                <span className="text-sm font-semibold">{m.label}</span>
+                <span className="hidden text-[11px] text-muted-foreground sm:block">{m.hint}</span>
+              </button>
+            ))}
+          </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Left: Order Summary */}
-        <Card className="md:col-span-1 p-6 bg-card border-border h-fit">
-          <h2 className="text-xl text-foreground mb-4">Order Summary</h2>
-          
-          <div className="space-y-4">
-            <div>
-              <p className="text-muted-foreground text-sm">Plan</p>
-              <p className="text-foreground font-semibold">{plan.name}</p>
+          <div className="mt-7">
+            <AnimatePresence mode="wait">
+              <motion.div key={method} initial={{ opacity: 0, x: 12 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -12 }} transition={{ duration: 0.2 }}>
+                {method === "mpesa" && <MpesaCheckout plan={plan} />}
+                {method === "card" && <CardCheckout planId={plan.id} price={plan.price} name={plan.name} />}
+                {method === "crypto" && <CryptoForm planId={plan.id} amount={plan.price} />}
+              </motion.div>
+            </AnimatePresence>
+          </div>
+        </section>
+
+        <aside className="min-w-0 space-y-4 lg:sticky lg:top-24 lg:self-start">
+          <div className="rounded-2xl border bg-card/60 p-6">
+            <p className="eyebrow">Order summary</p>
+            <div className="mt-4 flex items-baseline justify-between">
+              <span className="font-display text-2xl">{plan.name}</span>
+              <span className="tabular-nums">{formatKes(plan.price)}</span>
             </div>
-
-            <div>
-              <p className="text-muted-foreground text-sm">Billing</p>
-              <p className="text-foreground">{plan.billing_period || 'One-time'}</p>
-            </div>
-
-            <div className="border-t border-border pt-4">
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-muted-foreground">Subtotal</span>
-                <span className="text-foreground">KES {plan.price.toLocaleString()}</span>
-              </div>
-              <div className="flex justify-between items-center font-bold text-lg">
-                <span className="text-foreground">Total</span>
-                <span className="text-foreground">KES {plan.price.toLocaleString()}</span>
-              </div>
+            <p className="text-sm text-muted-foreground">Billed monthly. Cancel any time.</p>
+            <ul className="mt-5 space-y-2.5 border-t pt-5">
+              {plan.features.map((f) => (
+                <li key={f} className="flex gap-2.5 text-sm">
+                  <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
+                  {f}
+                </li>
+              ))}
+            </ul>
+            <div className="mt-5 flex items-baseline justify-between border-t pt-4">
+              <span className="text-sm text-muted-foreground">Due today</span>
+              <span className="font-display text-3xl tabular-nums">{formatKes(plan.price)}</span>
             </div>
           </div>
-        </Card>
-
-        {/* Right: Payment Methods */}
-        <div className="md:col-span-2 space-y-4">
-          <h2 className="text-xl text-foreground mb-4">Select Payment Method</h2>
-
-          {/* Stripe */}
-          <Card
-            className={`p-6 bg-card border-2 cursor-pointer transition-all hover:border-primary ${
-              selectedMethod === 'stripe' ? 'border-primary' : 'border-border'
-            }`}
-            onClick={() => handleSelectPayment('stripe')}
-          >
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-blue-600 rounded-lg">
-                <CreditCard className="w-6 h-6 text-foreground" />
-              </div>
-              <div className="flex-1">
-                <h3 className="text-foreground font-semibold mb-1">Credit/Debit Card</h3>
-                <p className="text-muted-foreground text-sm">Pay securely with Visa, Mastercard, or Amex</p>
-              </div>
-              <Button
-                onClick={() => handleSelectPayment('stripe')}
-                className="bg-blue-600 hover:bg-blue-700"
-              >
-                Select
-              </Button>
-            </div>
-          </Card>
-
-          {/* M-Pesa */}
-          <Card
-            className={`p-6 bg-card border-2 cursor-pointer transition-all hover:border-green-600 ${
-              selectedMethod === 'mpesa' ? 'border-green-600' : 'border-border'
-            }`}
-            onClick={() => handleSelectPayment('mpesa')}
-          >
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-green-600 rounded-lg">
-                <Smartphone className="w-6 h-6 text-foreground" />
-              </div>
-              <div className="flex-1">
-                <h3 className="text-foreground font-semibold mb-1">M-Pesa</h3>
-                <p className="text-muted-foreground text-sm">Pay instantly with your M-Pesa mobile money</p>
-              </div>
-              <Button
-                onClick={() => handleSelectPayment('mpesa')}
-                className="bg-green-600 hover:bg-green-700"
-              >
-                Select
-              </Button>
-            </div>
-          </Card>
-
-          {/* Crypto */}
-          <Card
-            className={`p-6 bg-card border-2 cursor-pointer transition-all hover:border-orange-600 ${
-              selectedMethod === 'crypto' ? 'border-orange-600' : 'border-border'
-            }`}
-            onClick={() => handleSelectPayment('crypto')}
-          >
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-orange-600 rounded-lg">
-                <Bitcoin className="w-6 h-6 text-foreground" />
-              </div>
-              <div className="flex-1">
-                <h3 className="text-foreground font-semibold mb-1">Cryptocurrency</h3>
-                <p className="text-muted-foreground text-sm">Pay with Bitcoin, Ethereum, USDT, and more</p>
-              </div>
-              <Button
-                onClick={() => handleSelectPayment('crypto')}
-                className="bg-orange-600 hover:bg-orange-700"
-              >
-                Select
-              </Button>
-            </div>
-          </Card>
-        </div>
-      </div>
-
-      {/* Security Notice */}
-      <div className="mt-8 p-4 bg-card border border-border rounded-lg">
-        <p className="text-muted-foreground text-sm text-center">
-          🔒 Your payment information is encrypted and secure. We never store your card details.
-        </p>
+          {others.map((o) => (
+            <Link key={o.id} href={`${pathname}?plan=${o.id}&method=${method}`} className="block rounded-xl border px-4 py-3 text-sm text-muted-foreground transition-colors hover:border-primary/50 hover:text-foreground">
+              Switch to <span className="font-medium text-foreground">{o.name}</span> for {formatKes(o.price)} a month →
+            </Link>
+          ))}
+          <p className="flex items-center gap-2 px-1 text-xs text-muted-foreground">
+            <ShieldCheck className="h-4 w-4 text-success" aria-hidden="true" />
+            Payments are processed by Safaricom, Stripe or NOWPayments.
+          </p>
+        </aside>
       </div>
     </div>
   )
@@ -203,8 +152,8 @@ function CheckoutContent() {
 
 export default function CheckoutPage() {
   return (
-    <Suspense fallback={<div className="p-8 max-w-4xl mx-auto"><Skeleton className="h-96 bg-secondary" /></div>}>
-      <CheckoutContent />
+    <Suspense fallback={null}>
+      <Checkout />
     </Suspense>
   )
 }

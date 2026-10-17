@@ -1,57 +1,17 @@
 // components/landing/pricing-section.tsx
-// Plan details mirror backend/src/config/plans.js. Keep the two in sync.
+// Plan details live in lib/plans.ts (mirrors backend/src/config/plans.js).
 import Link from "next/link"
 import { Check } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
+import { PLANS } from "@/lib/plans"
 
-const plans = [
-  {
-    name: "Free",
-    price: "0",
-    blurb: "For finding something good tonight.",
-    features: [
-      "1 AI pick a day",
-      "3 watchlists and 5 custom lists",
-      "2 watch parties a day, up to 5 guests",
-      "Ratings and reviews",
-      "Includes ads",
-    ],
-    cta: "Start free",
-    href: "/signup",
-  },
-  {
-    name: "Basic",
-    price: "499",
-    blurb: "For people who watch most weeks.",
-    features: [
-      "5 AI picks a day",
-      "10 watchlists and 20 custom lists",
-      "10 watch parties a day, up to 10 guests",
-      "HD quality",
-      "Export your lists",
-      "No ads",
-    ],
-    cta: "Choose Basic",
-    href: "/signup?plan=basic",
-  },
-  {
-    name: "Premium",
-    price: "999",
-    blurb: "Everything, with the AI assistant.",
-    features: [
-      "Unlimited AI picks",
-      "AI assistant, 50 conversations a month",
-      "Unlimited watchlists and lists",
-      "Unlimited watch parties, up to 50 guests",
-      "Custom themes and early access",
-      "Priority support, no ads",
-    ],
-    cta: "Choose Premium",
-    href: "/signup?plan=premium",
-    featured: true,
-  },
-]
+const plans = PLANS.map((p) => ({
+  ...p,
+  price: String(p.price),
+  cta: p.id === "free" ? "Start free" : `Choose ${p.name}`,
+  href: p.id === "free" ? "/signup" : `/signup?plan=${p.id}`,
+}))
 
 export function PricingSection() {
   return (
