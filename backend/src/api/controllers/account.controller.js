@@ -7,6 +7,7 @@ const { HTTP_STATUS, ERROR_MESSAGES } = require('../../utils/constants');
 const { getCollection } = require('../../config/database');
 const { withDefaults, validatePatch, merge } = require('../../config/user-settings');
 const logger = require('../../utils/logger');
+const { deleteAccount } = require('../../services/account-deletion.service');
 
 const mongo = (name) => {
   try {
@@ -199,10 +200,7 @@ const exportMyData = async (req, res) => {
 // @access  Private
 // @body    { confirm: "DELETE", password? }  password is required for email accounts
 //
-// Personal data and activity are removed. Payment and subscription rows are
-// kept for accounting but are no longer linked to any personal details,
-// because the user row is anonymised rather than deleted (its foreign keys
-// cascade, which would erase financial records).
+// See services/account-deletion.service.js for what is removed and kept.
 const deleteMyAccount = async (req, res) => {
   const userId = req.user.id;
   const { confirm, password } = req.body || {};
@@ -211,9 +209,8 @@ const deleteMyAccount = async (req, res) => {
     return res.status(HTTP_STATUS.BAD_REQUEST).json({ success: false, error: 'Type DELETE to confirm' });
   }
 
-  const client = await global.pgPool.connect();
   try {
-    const { rows } = await client.query('SELECT password_hash, provider FROM users WHERE id = $1', [userId]);
+    const { rows } = await global.pgPool.query('SELECT password_hash FROM users WHERE id = $1', [userId]);
     const user = rows[0];
     if (!user) return res.status(HTTP_STATUS.NOT_FOUND).json({ success: false, error: ERROR_MESSAGES.USER_NOT_FOUND });
 
@@ -223,71 +220,12 @@ const deleteMyAccount = async (req, res) => {
       if (!ok) return res.status(HTTP_STATUS.UNAUTHORIZED).json({ success: false, error: 'That password is not right' });
     }
 
-    await client.query('BEGIN');
-
-    // Personal activity
-    for (const sql of [
-      'DELETE FROM watchlist WHERE user_id = $1',
-      'DELETE FROM favorites WHERE user_id = $1',
-      'DELETE FROM ratings WHERE user_id = $1',
-      'DELETE FROM review_comments WHERE user_id = $1',
-      'DELETE FROM reviews WHERE user_id = $1',
-      'DELETE FROM lists WHERE user_id = $1',
-      'DELETE FROM notifications WHERE user_id = $1',
-      'DELETE FROM follows WHERE follower_id = $1 OR following_id = $1',
-    ]) {
-      await client.query('SAVEPOINT step');
-      try {
-        await client.query(sql, [userId]);
-        await client.query('RELEASE SAVEPOINT step');
-      } catch (e) {
-        // A table or column that doesn't exist in this database shouldn't block deletion
-        await client.query('ROLLBACK TO SAVEPOINT step');
-        logger.warn('Account deletion step skipped', { sql, error: e.message });
-      }
-    }
-
-    // End parties they host, cancel subscriptions, sign out everywhere
-    await client.query("UPDATE watch_parties SET status = 'ended' WHERE host_user_id = $1 AND status <> 'ended'", [userId]);
-    await client.query("UPDATE subscriptions SET status = 'cancelled' WHERE user_id = $1 AND status IN ('active', 'trialing', 'past_due')", [userId]);
-    await client.query('UPDATE devices SET is_active = FALSE WHERE user_id = $1', [userId]);
-
-    // Anonymise the profile and the account
-    await client.query(
-      `UPDATE user_profiles
-       SET username = NULL, full_name = NULL, avatar_url = NULL, bio = NULL, date_of_birth = NULL,
-           gender = NULL, country = NULL, city = NULL, is_public = FALSE, updated_at = NOW()
-       WHERE user_id = $1`,
-      [userId]
-    );
-    await client.query(
-      `UPDATE users
-       SET email = 'deleted-' || id || '@deleted.invalid',
-           password_hash = NULL, google_id = NULL, phone = NULL, avatar_url = NULL,
-           verification_token = NULL, password_reset_token = NULL,
-           settings = '{}'::jsonb, plan_type = 'free',
-           status = 'deleted', deleted_at = NOW(), sessions_valid_after = NOW(), updated_at = NOW()
-       WHERE id = $1`,
-      [userId]
-    );
-
-    await client.query('COMMIT');
+    await deleteAccount(userId);
   } catch (error) {
-    await client.query('ROLLBACK').catch(() => {});
     logger.error('Delete account error', { error: error.message });
     return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ success: false, error: ERROR_MESSAGES.SERVER_ERROR });
-  } finally {
-    client.release();
   }
 
-  // Mongo data (best effort; the account is already deleted)
-  await Promise.all(
-    ['watch_history', 'ai_conversations', 'watch_party_messages', 'notifications'].map((name) =>
-      mongo(name)?.deleteMany({ userId }).catch((e) => logger.warn('Mongo cleanup failed', { name, error: e.message }))
-    )
-  );
-
-  logger.info('Account deleted', { userId });
   res.json({ success: true, message: 'Your account has been deleted' });
 };
 

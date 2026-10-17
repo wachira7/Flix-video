@@ -1,4 +1,5 @@
 // src/api/controllers/admin.controller.js
+const { deleteAccount } = require('../../services/account-deletion.service');
 const { HTTP_STATUS, ERROR_MESSAGES } = require('../../utils/constants');
 const { logAdminActivity } = require('../middlewares/admin.middleware');
 
@@ -365,12 +366,14 @@ const deleteUser = async (req, res) => {
       req.ip
     );
 
-    // Delete user (CASCADE will delete all related data)
-    await global.pgPool.query('DELETE FROM users WHERE id = $1', [userId]);
+    // Same deletion as a user deleting their own account: personal data is
+    // removed and the account anonymised, but payment records are kept
+    // (a real DELETE would cascade into payments and subscriptions)
+    await deleteAccount(userId);
 
     res.json({
       success: true,
-      message: 'User deleted permanently'
+      message: 'User deleted. Their payment records are kept, without personal details.'
     });
 
   } catch (error) {
