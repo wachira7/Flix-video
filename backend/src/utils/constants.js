@@ -63,7 +63,7 @@ const USERNAME_REQUIREMENTS = {
 // Email configuration
 const EMAIL_CONFIG = {
   FROM_NAME: 'FlixVideo',
-  FROM_EMAIL: 'onboarding@resend.dev',
+  FROM_EMAIL: process.env.EMAIL_FROM || 'onboarding@resend.dev', // see config/email.js
   SUPPORT_EMAIL: 'support@flixvideo.com'
 };
 
