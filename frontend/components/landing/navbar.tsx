@@ -3,6 +3,7 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
+import { usePathname } from "next/navigation"
 import { Menu } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
@@ -10,16 +11,18 @@ import { cn } from "@/lib/utils"
 import { Wordmark } from "./wordmark"
 
 const navLinks = [
-  { label: "How it works", href: "#how-it-works" },
-  { label: "This week", href: "#this-week" },
-  { label: "Pricing", href: "#pricing" },
-  { label: "FAQ", href: "#faq" },
+  { label: "How it works", href: "/#how-it-works" },
+  { label: "This week", href: "/#this-week" },
+  { label: "Pricing", href: "/#pricing" },
+  { label: "FAQ", href: "/#faq" },
+  { label: "About", href: "/about" },
 ]
 
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const [open, setOpen] = useState(false)
   const [activeId, setActiveId] = useState<string | null>(null)
+  const pathname = usePathname()
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24)
@@ -31,11 +34,12 @@ export function Navbar() {
   // Underline the link for whichever section is in the middle of the screen
   useEffect(() => {
     const sections = navLinks
-      .map((l) => document.querySelector<HTMLElement>(l.href))
+      .filter((l) => l.href.startsWith("/#"))
+      .map((l) => document.querySelector<HTMLElement>(l.href.slice(1)))
       .filter((el): el is HTMLElement => !!el)
     const io = new IntersectionObserver(
       (entries) => {
-        for (const e of entries) if (e.isIntersecting) setActiveId(`#${e.target.id}`)
+        for (const e of entries) if (e.isIntersecting) setActiveId(`/#${e.target.id}`)
       },
       { rootMargin: "-45% 0px -50% 0px" }
     )
@@ -60,10 +64,10 @@ export function Navbar() {
             <li key={link.href}>
               <Link
                 href={link.href}
-                aria-current={activeId === link.href ? "true" : undefined}
+                aria-current={(activeId === link.href || pathname === link.href) ? "true" : undefined}
                 className={cn(
                   "relative py-1 text-sm transition-colors after:absolute after:inset-x-0 after:-bottom-0.5 after:h-px after:origin-left after:bg-primary after:transition-transform after:duration-300 hover:text-foreground",
-                  activeId === link.href
+                  (activeId === link.href || pathname === link.href)
                     ? "text-foreground after:scale-x-100"
                     : "text-muted-foreground after:scale-x-0 hover:after:scale-x-100"
                 )}
