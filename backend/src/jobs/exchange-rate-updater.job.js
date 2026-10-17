@@ -1,5 +1,5 @@
 //backend/src/jobs/exchange-rate-updater.job.js
-const { Worker } = require('bullmq');
+const { Worker } = require('./worker');
 const axios = require('axios');
 const logger = require('../utils/logger');
 
