@@ -2,7 +2,6 @@
 const { HTTP_STATUS, ERROR_MESSAGES } = require('../../utils/constants');
 const logger = require('../../utils/logger');
 const AIConversation = require('../../models/aiConversation.model');
-const { redisClient } = require('../../config/cache')
 const { v4: uuidv4 } = require('uuid');
 const { getProviderStatus } = require('../../services/ai.service'); 
 // ─── AI Chat ──────────────────────────────────────────────────────
@@ -30,26 +29,19 @@ const sendMessage = async (req, res) => {
      }
 
      
-    const plan = req.user.plan_type || 'free'
-
-    if (plan === 'free') {
-      const key = `ai_chat:${userId}:daily`
-      const count = await redisClient.get(key)
-        if (count && parseInt(count) >= 5) {
-            return res.status(HTTP_STATUS.FORBIDDEN).json({
-            success: false,
-            error: 'Free plan is limited to 5 AI messages per day. Upgrade to Premium for unlimited access.'
-            })
-        }
-        await redisClient.incr(key)
-        await redisClient.expire(key, 86400)
-    }
+    // Plan and monthly limits are enforced by the route (ai.routes.js)
 
     // Use existing session or create new one
     const sessionId = session_id || uuidv4();
 
     // Load or create conversation
     let conversation = await AIConversation.getBySession(sessionId);
+    if (conversation && String(conversation.userId) !== String(userId)) {
+      return res.status(HTTP_STATUS.NOT_FOUND).json({
+        success: false,
+        error: 'Conversation not found'
+      });
+    }
     if (!conversation) {
       conversation = await AIConversation.create({
         userId,

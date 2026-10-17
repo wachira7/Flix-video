@@ -3,6 +3,8 @@ const express = require('express');
 const router = express.Router();
 const rateLimit = require('express-rate-limit');
 const { protect } = require('../middlewares/auth.middleware');
+const { requirePlan, checkUsageLimit } = require('../middlewares/subscription.middleware');
+const AIConversation = require('../../models/aiConversation.model');
 const { sendMessage, getConversations, getConversation, deleteConversation, deleteAllConversations, getAIStatus } = require('../controllers/ai.controller');
 
 // ─── Rate Limiter ─────────────────────────────────────────────────
@@ -14,6 +16,30 @@ const aiLimiter = rateLimit({
     error: 'AI chat limit reached. Try again in an hour.'
   }
 });
+
+// ─── Plan gate ────────────────────────────────────────────────────
+// AI chat is a Premium feature with a monthly cap on NEW conversations
+// (config/plans.js: chat_conversations_monthly). Follow-up messages in a
+// conversation the user already owns don't count against it.
+const newConversationLimit = checkUsageLimit('chat_conversations_monthly', 'monthly');
+
+const limitNewConversations = async (req, res, next) => {
+  try {
+    const sessionId = req.body?.session_id;
+    if (sessionId) {
+      const conversation = await AIConversation.getBySession(sessionId);
+      if (conversation) {
+        if (String(conversation.userId) !== String(req.user.id)) {
+          return res.status(404).json({ success: false, error: 'Conversation not found' });
+        }
+        return next();
+      }
+    }
+    return newConversationLimit(req, res, next);
+  } catch (error) {
+    next(error);
+  }
+};
 
 // ─── Routes ───────────────────────────────────────────────────────
 
@@ -67,8 +93,8 @@ router.get('/status', getAIStatus);
  *     description: |
  *       Sends a user message to the configured AI provider (Claude or OpenAI) and returns a response.
  *       Conversation history is persisted in MongoDB for context continuity.
- *       Free plan users are limited to 5 messages per day.
- *       Rate limited to 20 messages per hour.
+ *       Premium only, with up to 50 new conversations a month.
+ *       Rate limited to 10 messages per hour.
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -121,13 +147,15 @@ router.get('/status', getAIStatus);
  *       401:
  *         description: Unauthorized
  *       403:
- *         description: Daily limit reached (free plan)
+ *         description: Not on the Premium plan (upgrade_required is true)
+ *       404:
+ *         description: session_id belongs to another user
  *       429:
- *         description: Rate limit exceeded (20 messages per hour)
+ *         description: Monthly conversation limit or hourly rate limit reached
  *       503:
  *         description: AI service unavailable
  */
-router.post('/chat', protect, aiLimiter, sendMessage);
+router.post('/chat', protect, aiLimiter, requirePlan('premium'), limitNewConversations, sendMessage);
 
 /**
  * @swagger
