@@ -71,7 +71,7 @@ export function ReviewsSection({ contentType, contentId, title }: ReviewsSection
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <MessageSquare className="w-6 h-6 text-primary" />
           <h2 className="text-3xl text-foreground">
@@ -79,10 +79,10 @@ export function ReviewsSection({ contentType, contentId, title }: ReviewsSection
           </h2>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex flex-wrap items-center gap-3">
           {/* Sort Dropdown */}
           <Select value={sortBy} onValueChange={(value: any) => setSortBy(value)}>
-            <SelectTrigger className="w-48 bg-secondary border-border text-foreground">
+            <SelectTrigger className="w-40 bg-secondary border-border text-foreground sm:w-48">
               <SelectValue />
             </SelectTrigger>
             <SelectContent className="bg-secondary border-border text-foreground">

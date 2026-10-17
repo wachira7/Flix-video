@@ -156,6 +156,9 @@
   body {
     @apply bg-background text-foreground;
     font-feature-settings: "kern", "liga";
+    /* Scroll reveals park elements off to the side; never let that widen
+       the page. clip (unlike hidden) keeps position: sticky working. */
+    overflow-x: clip;
   }
 
   html {
@@ -569,6 +572,15 @@
 .reveal-ready .reveal[data-reveal="zoom"],
 .reveal-ready .reveal-stagger[data-reveal="zoom"] > * {
   transform: translate3d(0, 40px, 0) scale(0.9);
+}
+/* On phones, side entrances rise instead: sliding in from off-screen
+   would widen the page */
+@media (max-width: 767px) {
+  .reveal-ready .reveal[data-reveal="left"],
+  .reveal-ready .reveal[data-reveal="right"],
+  .reveal-ready .reveal-stagger[data-reveal="right"] > * {
+    transform: translate3d(0, 40px, 0);
+  }
 }
 /* Leaving through the top of the screen */
 .reveal-ready .reveal[data-exit="up"],

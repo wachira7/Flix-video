@@ -251,7 +251,7 @@ function SearchPageInner() {
 
         {q && (
           <div className="flex flex-wrap items-center justify-between gap-4">
-            <div role="tablist" aria-label="Result type" className="inline-flex rounded-full border bg-card/60 p-1">
+            <div role="tablist" aria-label="Result type" className="inline-flex max-w-full overflow-x-auto rounded-full border bg-card/60 p-1 scrollbar-hide">
               {TABS.map((t) => (
                 <button
                   key={t.id}
@@ -260,7 +260,7 @@ function SearchPageInner() {
                   aria-selected={tab === t.id}
                   onClick={() => setTab(t.id)}
                   className={cn(
-                    "relative z-10 rounded-full px-4 py-1.5 text-sm font-medium transition-colors",
+                    "relative z-10 shrink-0 rounded-full px-3 py-1.5 text-sm font-medium whitespace-nowrap transition-colors sm:px-4",
                     tab === t.id ? "text-primary-foreground" : "text-muted-foreground hover:text-foreground"
                   )}
                 >

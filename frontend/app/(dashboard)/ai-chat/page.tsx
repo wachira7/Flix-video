@@ -222,7 +222,7 @@ function AIChat() {
   const historyProps = { items: history, active: sessionId, onPick: open, onDelete: remove, onNew: newChat }
 
   return (
-    <div className="grid gap-8 pt-2 lg:grid-cols-[260px_minmax(0,1fr)]">
+    <div className="grid grid-cols-[minmax(0,1fr)] gap-8 pt-2 lg:grid-cols-[260px_minmax(0,1fr)]">
       <aside className="sticky top-20 hidden h-[calc(100svh-7rem)] lg:block">
         <HistoryList {...historyProps} />
       </aside>

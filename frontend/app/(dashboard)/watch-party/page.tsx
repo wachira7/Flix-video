@@ -88,7 +88,7 @@ export default function WatchPartiesPage() {
 
   return (
     <div className="space-y-10 pt-4">
-      <header className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_380px] lg:items-end">
+      <header className="grid grid-cols-[minmax(0,1fr)] gap-8 lg:grid-cols-[minmax(0,1fr)_380px] lg:items-end">
         <div className="space-y-3">
           <p className="eyebrow">Together</p>
           <h1 className="text-4xl leading-none sm:text-5xl">

@@ -80,7 +80,7 @@ function Checkout() {
         Upgrade to <em className="italic text-primary">{plan.name}</em>
       </h1>
 
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
+      <div className="grid grid-cols-[minmax(0,1fr)] gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
         <section className="min-w-0 rounded-2xl border bg-card/60 p-5 sm:p-7">
           <h2 className="text-2xl">How would you like to pay?</h2>
           <div role="tablist" aria-label="Payment method" className="mt-5 grid grid-cols-3 gap-2">

@@ -51,7 +51,7 @@ export function TitleDetail({ data }: { data: TitleDetailData }) {
         />
         <div aria-hidden="true" className="film-grain absolute inset-0 -z-10" />
 
-        <div className="grid items-end gap-10 px-4 pt-36 pb-12 sm:px-6 md:grid-cols-[minmax(0,220px)_minmax(0,1fr)] lg:px-12 lg:pt-44 lg:pb-16">
+        <div className="grid grid-cols-[minmax(0,1fr)] items-end gap-10 px-4 pt-36 pb-12 sm:px-6 md:grid-cols-[minmax(0,220px)_minmax(0,1fr)] lg:px-12 lg:pt-44 lg:pb-16">
           {poster && (
             <div className="hero-reveal relative hidden aspect-2/3 overflow-hidden rounded-xl border border-white/10 shadow-[0_30px_80px_-30px_rgb(0_0_0/0.9)] md:block" style={{ "--delay": "0.1s" } as React.CSSProperties}>
               <Image src={poster} alt={`${data.title} poster`} fill sizes="220px" className="object-cover" />
@@ -114,7 +114,7 @@ export function TitleDetail({ data }: { data: TitleDetailData }) {
       </section>
 
       {/* Body */}
-      <div className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_300px] lg:gap-14">
+      <div className="grid grid-cols-[minmax(0,1fr)] gap-12 lg:grid-cols-[minmax(0,1fr)_300px] lg:gap-14">
         <div className="min-w-0 space-y-14">
           <WhereToWatch mediaType={data.mediaType} id={data.id} title={data.title} />
           <CastRow cast={data.cast} />
