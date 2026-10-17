@@ -69,7 +69,7 @@ const createWatchParty = async (req, res) => {
     );
 
     watchPartiesTotal.inc();
-    watchPartyParticipants.inc({ partyCode });
+    watchPartyParticipants.inc();
 
     res.status(HTTP_STATUS.CREATED).json({
       success: true,
@@ -152,7 +152,7 @@ const joinWatchParty = async (req, res) => {
       [party.id]
     );
 
-    watchPartyParticipants.inc({ partyCode });
+    watchPartyParticipants.inc();
 
     const hostResult = await global.pgPool.query(
      `SELECT u.email, up.username as host_name,
@@ -223,7 +223,7 @@ const leaveWatchParty = async (req, res) => {
       });
     }
 
-    watchPartyParticipants.dec({ partyCode: result.rows[0].party_code });
+    watchPartyParticipants.dec();
 
     res.json({
       success: true,

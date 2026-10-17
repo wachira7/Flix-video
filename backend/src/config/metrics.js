@@ -60,7 +60,8 @@ const ratingsTotal = new client.Counter({
 
 const watchlistAdds = new client.Counter({
   name: 'flixvideo_watchlist_adds_total',
-  help: 'Total watchlist additions'
+  help: 'Total watchlist additions',
+  labelNames: ['content_type'] // movie, tv
 });
 
 const favoritesTotal = new client.Counter({
