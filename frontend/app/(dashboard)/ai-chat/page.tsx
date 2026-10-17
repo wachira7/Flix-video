@@ -4,16 +4,18 @@
 "use client"
 
 import { Suspense, useCallback, useEffect, useRef, useState } from "react"
+import Link from "next/link"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { AnimatePresence, motion } from "framer-motion"
 import { formatDistanceToNow } from "date-fns"
-import { History, Laugh, Moon, Plus, Popcorn, Rocket, Sparkles, Timer, Trash2, Users } from "lucide-react"
+import { ArrowRight, History, Laugh, Lock, Moon, Plus, Popcorn, Rocket, Sparkles, Timer, Trash2, Users } from "lucide-react"
 import { v4 as uuidv4 } from "uuid"
 import { toast } from "sonner"
 import { apiClient } from "@/lib/api/client"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { ChatMessage, type ChatMessageData } from "@/components/ai/chat-message"
 import { ChatComposer } from "@/components/ai/chat-interface"
+import { formatKes, planById } from "@/lib/plans"
 import { cn } from "@/lib/utils"
 
 interface ConversationSummary {
@@ -40,12 +42,61 @@ const STARTERS = [
   { icon: Timer, label: "One sitting", prompt: "A limited series I can finish in a weekend" },
 ]
 
-function errorText(error: unknown) {
-  const e = error as { response?: { status?: number; data?: { error?: string } } }
-  if (!e.response) return "We couldn't reach FlixVideo. Check your connection and try again."
-  if (e.response.status === 429) return "You've sent a lot of messages. Give it a minute, then try again."
-  if (e.response.status === 503) return "The AI is taking a break right now. Please try again shortly."
-  return e.response.data?.error || "Something went wrong. Please try again."
+type ChatError = { kind: "upgrade" } | { kind: "message"; text: string }
+
+interface ApiError {
+  response?: {
+    status?: number
+    data?: { error?: string; upgrade_required?: boolean; limit_info?: { limit?: number; period?: string } }
+  }
+}
+
+function chatError(error: unknown): ChatError {
+  const res = (error as ApiError).response
+  if (!res) return { kind: "message", text: "We couldn't reach FlixVideo. Check your connection and try again." }
+  // AI chat is a Premium feature
+  if (res.status === 403 && res.data?.upgrade_required) return { kind: "upgrade" }
+  if (res.status === 429 && res.data?.limit_info?.period === "monthly") {
+    const limit = res.data.limit_info.limit
+    return {
+      kind: "message",
+      text: `You've started ${limit ?? "all your"} conversations this month, the most your plan allows. You can keep going in any chat from your history.`,
+    }
+  }
+  if (res.status === 429) return { kind: "message", text: "You've sent a lot of messages. Give it a few minutes, then try again." }
+  if (res.status === 404) return { kind: "message", text: "That conversation isn't available. Start a new chat instead." }
+  if (res.status === 503) return { kind: "message", text: "The AI is taking a break right now. Please try again shortly." }
+  return { kind: "message", text: res.data?.error || "Something went wrong. Please try again." }
+}
+
+function UpgradeCard() {
+  const premium = planById("premium")
+  return (
+    <motion.div
+      role="alert"
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: 6 }}
+      className="sheen-border mb-3 flex flex-col gap-4 rounded-xl border bg-card/80 p-4 backdrop-blur sm:flex-row sm:items-center"
+    >
+      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/15 text-primary">
+        <Lock className="h-4 w-4" aria-hidden="true" />
+      </span>
+      <div className="flex-1">
+        <p className="font-semibold">FlixVideo AI is part of Premium</p>
+        <p className="mt-0.5 text-sm text-muted-foreground">
+          Get picks with the reason each one fits, for {premium ? `${formatKes(premium.price)} a month` : "a small monthly fee"}. Pay with M-Pesa in a minute.
+        </p>
+      </div>
+      <Link
+        href="/subscription/checkout?plan=premium"
+        className="button-sweep inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-lg bg-primary px-4 text-sm font-semibold text-primary-foreground"
+      >
+        Get Premium
+        <ArrowRight className="h-4 w-4" aria-hidden="true" />
+      </Link>
+    </motion.div>
+  )
 }
 
 function HistoryList({
@@ -120,7 +171,7 @@ function AIChat() {
   const [messages, setMessages] = useState<ChatMessageData[]>([])
   const [input, setInput] = useState("")
   const [busy, setBusy] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<ChatError | null>(null)
   const [history, setHistory] = useState<ConversationSummary[] | null>(null)
   const [online, setOnline] = useState<boolean | null>(null)
   const [drawer, setDrawer] = useState(false)
@@ -160,7 +211,7 @@ function AIChat() {
         setMessages((m) => [...m, { role: "assistant", content: r.response, timestamp: new Date() }])
         refreshHistory()
       } catch (e) {
-        setError(errorText(e))
+        setError(chatError(e))
         setInput(content)
         setMessages((m) => m.slice(0, -1))
       } finally {
@@ -313,16 +364,18 @@ function AIChat() {
         </div>
 
         <div className="sticky bottom-16 z-10 mx-auto mt-4 w-full max-w-3xl bg-linear-to-t from-background from-70% to-transparent pt-8 pb-4 lg:bottom-0 lg:pb-6">
-          <AnimatePresence>
-            {error && (
+          <AnimatePresence mode="wait">
+            {error?.kind === "upgrade" && <UpgradeCard key="upgrade" />}
+            {error?.kind === "message" && (
               <motion.p
+                key="message"
                 role="alert"
                 initial={{ opacity: 0, y: 6 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0 }}
                 className="mb-2 rounded-lg border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm"
               >
-                {error}
+                {error.text}
               </motion.p>
             )}
           </AnimatePresence>
