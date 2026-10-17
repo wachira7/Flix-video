@@ -169,6 +169,10 @@
     font-weight: 500;
     letter-spacing: -0.01em;
     text-wrap: balance;
+    /* Bodoni Moda's hyphen vanishes above optical size ~22 (and its
+       hairlines get very thin), so headings use a fixed optical size */
+    font-optical-sizing: none;
+    font-variation-settings: "opsz" 18;
   }
 
   ::selection {
@@ -188,6 +192,8 @@
 @layer utilities {
   .font-display {
     font-family: var(--font-display);
+    font-optical-sizing: none;
+    font-variation-settings: "opsz" 18;
   }
 
   /* Small uppercase section label */
