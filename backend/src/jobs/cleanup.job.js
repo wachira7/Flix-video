@@ -1,5 +1,5 @@
 // src/jobs/cleanup.job.js
-const { Worker } = require('bullmq');
+const { Worker } = require('./worker');
 const logger = require('../utils/logger');
 
 const { connection } = require('./queues');
