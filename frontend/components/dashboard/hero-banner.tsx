@@ -11,6 +11,7 @@ import { Info, Play, Star } from "lucide-react"
 import { tmdbImage } from "@/components/landing/landing-types"
 import { hrefOf, titleOf, typeOf, yearOf, type MediaItem } from "@/lib/media"
 import { cn } from "@/lib/utils"
+import { useSettingsOrDefaults } from "@/lib/hooks/use-settings"
 import { TrailerDialog } from "./trailer-dialog"
 import { WatchlistButton } from "./watchlist-button"
 
@@ -38,7 +39,9 @@ export function HeroBanner({ movies, eyebrow = "Trending this week" }: HeroBanne
     return () => document.removeEventListener("visibilitychange", onVis)
   }, [])
 
-  const halted = paused || trailerOpen
+  // Settings > Preferences > Rotate the Home banner
+  const autoplay = useSettingsOrDefaults().preferences.autoplay_hero
+  const halted = paused || trailerOpen || !autoplay
   useEffect(() => {
     if (halted || slides.length < 2) return
     const t = setTimeout(() => go(1), SLIDE_MS)

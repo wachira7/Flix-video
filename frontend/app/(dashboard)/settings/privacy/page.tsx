@@ -1,541 +1,172 @@
-// frontend/app/(dashboard)/settings/privacy/page.tsx - CREATE/UPDATE
-
+// app/(dashboard)/settings/privacy/page.tsx
 "use client"
 
 import { useState } from "react"
-import { Card } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Switch } from "@/components/ui/switch"
-import { Label } from "@/components/ui/label"
+import { AnimatePresence, motion } from "framer-motion"
+import { Download, Loader2, Trash2 } from "lucide-react"
 import { toast } from "sonner"
-import { Shield, Eye, EyeOff, Users, Activity, FileText, Lock, Globe, Database, UserCheck } from "lucide-react"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
+import { accountAPI } from "@/lib/api/account"
+import { logout } from "@/lib/auth"
+import { useSettings } from "@/lib/hooks/use-settings"
+import { LoadError, SettingRow, SettingsCard, SettingsHeader, ToggleRow } from "@/components/settings/settings-ui"
 
-export default function PrivacySettingsPage() {
-  const [loading, setLoading] = useState(false)
-  const [privacy, setPrivacy] = useState({
-    profileVisibility: "friends",
-    showWatchHistory: true,
-    showFavorites: true,
-    showRatings: false,
-    allowFriendRequests: true,
-    showOnlineStatus: true,
-    shareActivity: true,
-    allowTagging: true,
-    dataCollection: true,
-    personalizedAds: false,
-    thirdPartySharing: false,
-    analyticsTracking: true,
-  })
+function DeleteAccount() {
+  const [open, setOpen] = useState(false)
+  const [password, setPassword] = useState("")
+  const [typed, setTyped] = useState("")
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
-  const handleSave = async () => {
-    setLoading(true)
+  const run = async () => {
+    setBusy(true)
+    setError(null)
     try {
-      // API call would go here
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      toast.success("Privacy settings saved")
-    } catch (error) {
-      toast.error("Failed to save settings")
-    } finally {
-      setLoading(false)
+      await accountAPI.deleteAccount(password || undefined)
+      toast("Your account has been deleted")
+      setTimeout(logout, 1200)
+    } catch (e) {
+      const message = (e as { response?: { data?: { error?: string } } }).response?.data?.error
+      setError(message || "We couldn't delete your account. Please try again.")
+      setBusy(false)
     }
   }
 
-  const handleToggle = (key: string) => {
-    setPrivacy(prev => ({
-      ...prev,
-      [key]: !prev[key as keyof typeof prev],
-    }))
-  }
+  return (
+    <SettingsCard title="Delete account" tone="danger" description="This can't be undone.">
+      <div className="space-y-4 px-5 py-5 sm:px-6">
+        <p className="text-sm text-muted-foreground">
+          We&apos;ll delete your watchlist, favorites, ratings, reviews, lists, watch history and AI conversations, cancel your
+          subscription and sign you out everywhere. Payment records are kept for accounting, without your personal details.
+        </p>
+        <AnimatePresence initial={false} mode="wait">
+          {!open ? (
+            <motion.button
+              key="ask"
+              type="button"
+              onClick={() => setOpen(true)}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="inline-flex h-10 items-center gap-2 rounded-lg border border-destructive/50 px-4 text-sm font-medium text-destructive transition-colors hover:bg-destructive/10"
+            >
+              <Trash2 className="h-4 w-4" /> Delete my account
+            </motion.button>
+          ) : (
+            <motion.div key="confirm" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="space-y-4 overflow-hidden">
+              <div className="grid gap-4 sm:grid-cols-2">
+                <label className="space-y-2 text-sm">
+                  <span className="font-medium">Your password</span>
+                  <input
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    autoComplete="current-password"
+                    placeholder="Leave blank if you use Google"
+                    className="h-11 w-full rounded-lg border border-input bg-background/60 px-3 focus:border-destructive/60 focus:outline-none"
+                  />
+                </label>
+                <label className="space-y-2 text-sm">
+                  <span className="font-medium">
+                    Type <span className="font-mono text-destructive">DELETE</span> to confirm
+                  </span>
+                  <input
+                    value={typed}
+                    onChange={(e) => setTyped(e.target.value)}
+                    autoComplete="off"
+                    className="h-11 w-full rounded-lg border border-input bg-background/60 px-3 font-mono tracking-wider focus:border-destructive/60 focus:outline-none"
+                  />
+                </label>
+              </div>
+              {error && (
+                <p role="alert" className="text-sm text-destructive">
+                  {error}
+                </p>
+              )}
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={run}
+                  disabled={typed !== "DELETE" || busy}
+                  className="inline-flex h-10 items-center gap-2 rounded-lg bg-destructive px-4 text-sm font-semibold text-white transition-[filter] hover:brightness-110 disabled:opacity-40"
+                >
+                  {busy && <Loader2 className="h-4 w-4 animate-spin" />}
+                  Permanently delete
+                </button>
+                <button type="button" onClick={() => setOpen(false)} className="h-10 rounded-lg border px-4 text-sm hover:bg-accent">
+                  Keep my account
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </SettingsCard>
+  )
+}
 
-  const handleDownloadData = () => {
-    toast.info("Preparing your data download...")
-    // Implement data download
-  }
+export default function PrivacySettingsPage() {
+  const { settings, error, update } = useSettings()
+  const [exporting, setExporting] = useState(false)
 
-  const handleDeleteAccount = () => {
-    toast.error("Account deletion initiated. You will receive a confirmation email.")
-    // Implement account deletion
+  const download = async () => {
+    setExporting(true)
+    try {
+      const blob = await accountAPI.exportData()
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement("a")
+      a.href = url
+      a.download = `flixvideo-data-${new Date().toISOString().slice(0, 10)}.json`
+      document.body.appendChild(a)
+      a.click()
+      a.remove()
+      URL.revokeObjectURL(url)
+      toast.success("Your data is downloading")
+    } catch {
+      toast.error("We couldn't prepare your data. Please try again.")
+    } finally {
+      setExporting(false)
+    }
   }
 
   return (
-    <div className="min-h-screen bg-linear-to-b from-card via-background to-card p-6">
-      <div className="max-w-7xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-3xl text-foreground mb-2">Privacy Settings</h1>
-          <p className="text-muted-foreground">Control your privacy and data</p>
-        </div>
+    <>
+      <SettingsHeader title="Privacy" italic="& data">
+        Control what we record, take a copy of everything, or delete your account.
+      </SettingsHeader>
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {/* Sidebar Navigation */}
-          <div className="lg:col-span-1">
-            <Card className="bg-card/50 border-border p-4">
-              
-            </Card>
-          </div>
+      {error ? (
+        <LoadError what="privacy settings" />
+      ) : (
+        <SettingsCard>
+          <ToggleRow
+            id="record-history"
+            label="Record my watch history"
+            description="Used for Continue watching and better picks. When off, nothing new is saved. Clear past history in Library."
+            checked={settings?.privacy.record_watch_history ?? true}
+            disabled={!settings}
+            onChange={async (v) => {
+              if (await update({ privacy: { record_watch_history: v } })) toast.success(v ? "Watch history is on" : "We'll stop recording your history")
+              else toast.error("Couldn't save that. Please try again.")
+            }}
+          />
+        </SettingsCard>
+      )}
 
-          {/* Main Content */}
-          <div className="lg:col-span-3 space-y-6">
-            {/* Profile Privacy */}
-            <Card className="bg-card/50 border-border p-6">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="p-2 bg-blue-500/10 rounded-lg">
-                  <UserCheck className="w-5 h-5 text-blue-500" />
-                </div>
-                <div>
-                  <h2 className="text-xl text-foreground">Profile Privacy</h2>
-                  <p className="text-sm text-muted-foreground">Control who can see your profile</p>
-                </div>
-              </div>
+      <SettingsCard>
+        <SettingRow label="Download your data" description="A JSON file with your account, lists, ratings, reviews, history, AI chats and payments.">
+          <button
+            type="button"
+            onClick={download}
+            disabled={exporting}
+            className="inline-flex h-10 items-center gap-2 rounded-lg border px-4 text-sm font-medium transition-colors hover:border-primary/60 hover:text-primary disabled:opacity-60"
+          >
+            {exporting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+            {exporting ? "Preparing" : "Download"}
+          </button>
+        </SettingRow>
+      </SettingsCard>
 
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="profile-visibility">Profile Visibility</Label>
-                  <Select
-                    value={privacy.profileVisibility}
-                    onValueChange={(value) =>
-                      setPrivacy({ ...privacy, profileVisibility: value })
-                    }
-                  >
-                    <SelectTrigger id="profile-visibility" className="bg-secondary border-border">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="public">
-                        <div className="flex items-center gap-2">
-                          <Globe className="w-4 h-4" />
-                          Public - Everyone can see
-                        </div>
-                      </SelectItem>
-                      <SelectItem value="friends">
-                        <div className="flex items-center gap-2">
-                          <Users className="w-4 h-4" />
-                          Friends Only
-                        </div>
-                      </SelectItem>
-                      <SelectItem value="private">
-                        <div className="flex items-center gap-2">
-                          <Lock className="w-4 h-4" />
-                          Private - Only me
-                        </div>
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <p className="text-xs text-muted-foreground">
-                    Controls who can view your profile and activity
-                  </p>
-                </div>
-
-                <div className="flex items-center justify-between p-4 bg-secondary/50 rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <Activity className="w-5 h-5 text-muted-foreground" />
-                    <div>
-                      <Label htmlFor="show-watch-history" className="text-foreground font-medium">
-                        Show Watch History
-                      </Label>
-                      <p className="text-sm text-muted-foreground">
-                        Let others see what you've watched
-                      </p>
-                    </div>
-                  </div>
-                  <Switch
-                    id="show-watch-history"
-                    checked={privacy.showWatchHistory}
-                    onCheckedChange={() => handleToggle("showWatchHistory")}
-                  />
-                </div>
-
-                <div className="flex items-center justify-between p-4 bg-secondary/50 rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <Eye className="w-5 h-5 text-muted-foreground" />
-                    <div>
-                      <Label htmlFor="show-favorites" className="text-foreground font-medium">
-                        Show Favorites
-                      </Label>
-                      <p className="text-sm text-muted-foreground">
-                        Display your favorite content on profile
-                      </p>
-                    </div>
-                  </div>
-                  <Switch
-                    id="show-favorites"
-                    checked={privacy.showFavorites}
-                    onCheckedChange={() => handleToggle("showFavorites")}
-                  />
-                </div>
-
-                <div className="flex items-center justify-between p-4 bg-secondary/50 rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <Eye className="w-5 h-5 text-muted-foreground" />
-                    <div>
-                      <Label htmlFor="show-ratings" className="text-foreground font-medium">
-                        Show Ratings & Reviews
-                      </Label>
-                      <p className="text-sm text-muted-foreground">
-                        Make your ratings and reviews public
-                      </p>
-                    </div>
-                  </div>
-                  <Switch
-                    id="show-ratings"
-                    checked={privacy.showRatings}
-                    onCheckedChange={() => handleToggle("showRatings")}
-                  />
-                </div>
-              </div>
-            </Card>
-
-            {/* Social Privacy */}
-            <Card className="bg-card/50 border-border p-6">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="p-2 bg-primary/10 rounded-lg">
-                  <Users className="w-5 h-5 text-primary" />
-                </div>
-                <div>
-                  <h2 className="text-xl text-foreground">Social Privacy</h2>
-                  <p className="text-sm text-muted-foreground">Manage social interactions</p>
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 bg-secondary/50 rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <Users className="w-5 h-5 text-muted-foreground" />
-                    <div>
-                      <Label htmlFor="allow-friend-requests" className="text-foreground font-medium">
-                        Allow Friend Requests
-                      </Label>
-                      <p className="text-sm text-muted-foreground">
-                        Let others send you friend requests
-                      </p>
-                    </div>
-                  </div>
-                  <Switch
-                    id="allow-friend-requests"
-                    checked={privacy.allowFriendRequests}
-                    onCheckedChange={() => handleToggle("allowFriendRequests")}
-                  />
-                </div>
-
-                <div className="flex items-center justify-between p-4 bg-secondary/50 rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <Activity className="w-5 h-5 text-muted-foreground" />
-                    <div>
-                      <Label htmlFor="show-online-status" className="text-foreground font-medium">
-                        Show Online Status
-                      </Label>
-                      <p className="text-sm text-muted-foreground">
-                        Let friends see when you're online
-                      </p>
-                    </div>
-                  </div>
-                  <Switch
-                    id="show-online-status"
-                    checked={privacy.showOnlineStatus}
-                    onCheckedChange={() => handleToggle("showOnlineStatus")}
-                  />
-                </div>
-
-                <div className="flex items-center justify-between p-4 bg-secondary/50 rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <Activity className="w-5 h-5 text-muted-foreground" />
-                    <div>
-                      <Label htmlFor="share-activity" className="text-foreground font-medium">
-                        Share Activity
-                      </Label>
-                      <p className="text-sm text-muted-foreground">
-                        Share what you're watching with friends
-                      </p>
-                    </div>
-                  </div>
-                  <Switch
-                    id="share-activity"
-                    checked={privacy.shareActivity}
-                    onCheckedChange={() => handleToggle("shareActivity")}
-                  />
-                </div>
-
-                <div className="flex items-center justify-between p-4 bg-secondary/50 rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <Users className="w-5 h-5 text-muted-foreground" />
-                    <div>
-                      <Label htmlFor="allow-tagging" className="text-foreground font-medium">
-                        Allow Tagging
-                      </Label>
-                      <p className="text-sm text-muted-foreground">
-                        Let friends tag you in posts and comments
-                      </p>
-                    </div>
-                  </div>
-                  <Switch
-                    id="allow-tagging"
-                    checked={privacy.allowTagging}
-                    onCheckedChange={() => handleToggle("allowTagging")}
-                  />
-                </div>
-              </div>
-            </Card>
-
-            {/* Data & Privacy */}
-            <Card className="bg-card/50 border-border p-6">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="p-2 bg-green-500/10 rounded-lg">
-                  <Database className="w-5 h-5 text-green-500" />
-                </div>
-                <div>
-                  <h2 className="text-xl text-foreground">Data & Privacy</h2>
-                  <p className="text-sm text-muted-foreground">Control how your data is used</p>
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 bg-secondary/50 rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <Database className="w-5 h-5 text-muted-foreground" />
-                    <div>
-                      <Label htmlFor="data-collection" className="text-foreground font-medium">
-                        Data Collection
-                      </Label>
-                      <p className="text-sm text-muted-foreground">
-                        Allow FlixVideo to collect usage data
-                      </p>
-                    </div>
-                  </div>
-                  <Switch
-                    id="data-collection"
-                    checked={privacy.dataCollection}
-                    onCheckedChange={() => handleToggle("dataCollection")}
-                  />
-                </div>
-
-                <div className="flex items-center justify-between p-4 bg-secondary/50 rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <Activity className="w-5 h-5 text-muted-foreground" />
-                    <div>
-                      <Label htmlFor="analytics-tracking" className="text-foreground font-medium">
-                        Analytics Tracking
-                      </Label>
-                      <p className="text-sm text-muted-foreground">
-                        Help improve FlixVideo with anonymous analytics
-                      </p>
-                    </div>
-                  </div>
-                  <Switch
-                    id="analytics-tracking"
-                    checked={privacy.analyticsTracking}
-                    onCheckedChange={() => handleToggle("analyticsTracking")}
-                  />
-                </div>
-
-                <div className="flex items-center justify-between p-4 bg-secondary/50 rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <Globe className="w-5 h-5 text-muted-foreground" />
-                    <div>
-                      <Label htmlFor="personalized-ads" className="text-foreground font-medium">
-                        Personalized Ads
-                      </Label>
-                      <p className="text-sm text-muted-foreground">
-                        See ads tailored to your interests
-                      </p>
-                    </div>
-                  </div>
-                  <Switch
-                    id="personalized-ads"
-                    checked={privacy.personalizedAds}
-                    onCheckedChange={() => handleToggle("personalizedAds")}
-                  />
-                </div>
-
-                <div className="flex items-center justify-between p-4 bg-secondary/50 rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <Shield className="w-5 h-5 text-muted-foreground" />
-                    <div>
-                      <Label htmlFor="third-party-sharing" className="text-foreground font-medium">
-                        Third-Party Data Sharing
-                      </Label>
-                      <p className="text-sm text-muted-foreground">
-                        Share data with trusted partners
-                      </p>
-                    </div>
-                  </div>
-                  <Switch
-                    id="third-party-sharing"
-                    checked={privacy.thirdPartySharing}
-                    onCheckedChange={() => handleToggle("thirdPartySharing")}
-                  />
-                </div>
-
-                <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4">
-                  <p className="text-sm text-blue-400">
-                    <Shield className="w-4 h-4 inline mr-2" />
-                    Your privacy is important. We never sell your personal data to third parties.
-                  </p>
-                </div>
-              </div>
-            </Card>
-
-            {/* Data Management */}
-            <Card className="bg-card/50 border-border p-6">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="p-2 bg-yellow-500/10 rounded-lg">
-                  <FileText className="w-5 h-5 text-yellow-500" />
-                </div>
-                <div>
-                  <h2 className="text-xl text-foreground">Data Management</h2>
-                  <p className="text-sm text-muted-foreground">Download or delete your data</p>
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 bg-secondary/50 rounded-lg border border-border">
-                  <div>
-                    <p className="font-medium text-foreground">Download Your Data</p>
-                    <p className="text-sm text-muted-foreground">
-                      Get a copy of all your FlixVideo data
-                    </p>
-                  </div>
-                  <Button
-                    variant="outline"
-                    className="border-input"
-                    onClick={handleDownloadData}
-                  >
-                    <FileText className="w-4 h-4 mr-2" />
-                    Download
-                  </Button>
-                </div>
-
-                <div className="flex items-center justify-between p-4 bg-secondary/50 rounded-lg border border-border">
-                  <div>
-                    <p className="font-medium text-foreground">Clear Watch History</p>
-                    <p className="text-sm text-muted-foreground">
-                      Remove all viewing history from your account
-                    </p>
-                  </div>
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className="border-yellow-900/50 text-yellow-400 hover:bg-yellow-900/20"
-                      >
-                        Clear History
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent className="bg-card border-border">
-                      <AlertDialogHeader>
-                        <AlertDialogTitle className="text-foreground">Clear Watch History?</AlertDialogTitle>
-                        <AlertDialogDescription className="text-muted-foreground">
-                          This will permanently delete your entire watch history. This action cannot be undone.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel className="bg-secondary border-border text-foreground hover:bg-accent">
-                          Cancel
-                        </AlertDialogCancel>
-                        <AlertDialogAction
-                          className="bg-yellow-600 hover:bg-yellow-700"
-                          onClick={() => toast.success("Watch history cleared")}
-                        >
-                          Clear History
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
-                </div>
-
-                <div className="flex items-center justify-between p-4 bg-red-900/20 rounded-lg border border-red-900/50">
-                  <div>
-                    <p className="font-medium text-foreground">Delete Account</p>
-                    <p className="text-sm text-muted-foreground">
-                      Permanently delete your account and all data
-                    </p>
-                  </div>
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button
-                        variant="destructive"
-                      >
-                        Delete Account
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent className="bg-card border-border">
-                      <AlertDialogHeader>
-                        <AlertDialogTitle className="text-foreground">Delete Account?</AlertDialogTitle>
-                        <AlertDialogDescription className="text-muted-foreground">
-                          This will permanently delete your account and all associated data. 
-                          This action cannot be undone. Are you absolutely sure?
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel className="bg-secondary border-border text-foreground hover:bg-accent">
-                          Cancel
-                        </AlertDialogCancel>
-                        <AlertDialogAction
-                          className="bg-red-600 hover:bg-red-700"
-                          onClick={handleDeleteAccount}
-                        >
-                          Yes, Delete My Account
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
-                </div>
-              </div>
-            </Card>
-
-            {/* Privacy Policy */}
-            <Card className="bg-card/50 border-border p-6">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="p-2 bg-primary/10 rounded-lg">
-                  <FileText className="w-5 h-5 text-primary" />
-                </div>
-                <div>
-                  <h2 className="text-xl text-foreground">Legal</h2>
-                  <p className="text-sm text-muted-foreground">Review our policies</p>
-                </div>
-              </div>
-
-              <div className="space-y-3">
-                <Button
-                  variant="outline"
-                  className="w-full justify-start border-border text-foreground/80 hover:text-foreground"
-                  onClick={() => window.open("/privacy-policy", "_blank")}
-                >
-                  <FileText className="w-4 h-4 mr-2" />
-                  Privacy Policy
-                </Button>
-                <Button
-                  variant="outline"
-                  className="w-full justify-start border-border text-foreground/80 hover:text-foreground"
-                  onClick={() => window.open("/terms-of-service", "_blank")}
-                >
-                  <FileText className="w-4 h-4 mr-2" />
-                  Terms of Service
-                </Button>
-                <Button
-                  variant="outline"
-                  className="w-full justify-start border-border text-foreground/80 hover:text-foreground"
-                  onClick={() => window.open("/cookie-policy", "_blank")}
-                >
-                  <FileText className="w-4 h-4 mr-2" />
-                  Cookie Policy
-                </Button>
-              </div>
-            </Card>
-
-            {/* Save Button */}
-            <div className="flex justify-end">
-              <Button
-                onClick={handleSave}
-                disabled={loading}
-                className="bg-linear-to-r from-primary/90 to-highlight hover:from-primary/15 hover:to-highlight/90"
-              >
-                {loading ? "Saving..." : "Save Privacy Settings"}
-              </Button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+      <DeleteAccount />
+    </>
   )
 }

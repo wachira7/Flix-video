@@ -1,239 +1,51 @@
-// app/(dashboard)/settings/notifications/page.tsx - CREATE
-
+// app/(dashboard)/settings/notifications/page.tsx
 "use client"
 
-import { useState } from "react"
-import { Card } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Switch } from "@/components/ui/switch"
-import { Label } from "@/components/ui/label"
-import { Separator } from "@/components/ui/separator"
 import { toast } from "sonner"
-import { ArrowLeft, Bell, Mail, Smartphone, Film, Star, MessageCircle, Users } from "lucide-react"
-import Link from "next/link"
+import { useSettings } from "@/lib/hooks/use-settings"
+import type { UserSettings } from "@/lib/api/account"
+import { LoadError, SettingsCard, SettingsHeader, ToggleRow } from "@/components/settings/settings-ui"
 
-export default function NotificationsSettingsPage() {
-  const [emailNotifications, setEmailNotifications] = useState({
-    new_releases: true,
-    recommendations: true,
-    watchlist_updates: false,
-    reviews: true,
-    social: false,
-    marketing: true,
-    billing: true
-  })
+type Key = keyof UserSettings["notifications"]
 
-  const [pushNotifications, setPushNotifications] = useState({
-    new_releases: false,
-    recommendations: false,
-    watchlist_updates: true,
-    reviews: false,
-    social: true,
-    live_events: false,
-    reminders: true,
-    promotions: false,
-    system_alerts: true,
-    friend_activity: true,
-  })
+const EMAILS: { key: Key; label: string; description: string }[] = [
+  { key: "billing_reminders", label: "Billing reminders", description: "A heads-up a few days before your plan renews or runs out." },
+  { key: "watch_party_invites", label: "Watch party invites", description: "When a friend invites you to watch together." },
+  { key: "review_activity", label: "Activity on my reviews", description: "When someone replies to or likes your review." },
+]
 
-  const handleSave = () => {
-    toast.success("Notification preferences saved!")
+export default function NotificationSettingsPage() {
+  const { settings, error, update } = useSettings()
+
+  const toggle = async (key: Key, value: boolean) => {
+    const ok = await update({ notifications: { [key]: value } })
+    if (ok) toast.success(value ? "Emails turned on" : "Emails turned off")
+    else toast.error("Couldn't save that. Please try again.")
   }
 
   return (
-    <div className="p-8 max-w-4xl mx-auto">
-      {/* Header */}
-      <div className="flex items-center gap-4 mb-8">
-        <Link href="/settings">
-          <Button variant="ghost" size="icon">
-            <ArrowLeft className="w-5 h-5" />
-          </Button>
-        </Link>
-        <div>
-          <h1 className="text-3xl text-foreground">Notification Settings</h1>
-          <p className="text-muted-foreground mt-1">Choose what notifications you want to receive</p>
-        </div>
-      </div>
-
-      <div className="space-y-6">
-        {/* Email Notifications */}
-        <Card className="p-6 bg-card border-border">
-          <div className="flex items-center gap-3 mb-6">
-            <Mail className="w-6 h-6 text-blue-500" />
-            <h2 className="text-xl text-foreground">Email Notifications</h2>
-          </div>
-
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-start gap-3 flex-1">
-                <Film className="w-5 h-5 text-primary mt-0.5" />
-                <div>
-                  <Label htmlFor="email-new-releases" className="text-foreground font-medium cursor-pointer">
-                    New Releases
-                  </Label>
-                  <p className="text-sm text-muted-foreground">Get notified about new movies and TV shows</p>
-                </div>
-              </div>
-              <Switch
-                id="email-new-releases"
-                checked={emailNotifications.new_releases}
-                onCheckedChange={(checked) => setEmailNotifications(prev => ({ ...prev, new_releases: checked }))}
-              />
-            </div>
-
-            <Separator className="bg-secondary" />
-
-            <div className="flex items-center justify-between">
-              <div className="flex items-start gap-3 flex-1">
-                <Star className="w-5 h-5 text-yellow-500 mt-0.5" />
-                <div>
-                  <Label htmlFor="email-recommendations" className="text-foreground font-medium cursor-pointer">
-                    Recommendations
-                  </Label>
-                  <p className="text-sm text-muted-foreground">Personalized content suggestions based on your taste</p>
-                </div>
-              </div>
-              <Switch
-                id="email-recommendations"
-                checked={emailNotifications.recommendations}
-                onCheckedChange={(checked) => setEmailNotifications(prev => ({ ...prev, recommendations: checked }))}
-              />
-            </div>
-
-            <Separator className="bg-secondary" />
-
-            <div className="flex items-center justify-between">
-              <div className="flex items-start gap-3 flex-1">
-                <Bell className="w-5 h-5 text-green-500 mt-0.5" />
-                <div>
-                  <Label htmlFor="email-watchlist" className="text-foreground font-medium cursor-pointer">
-                    Watchlist Updates
-                  </Label>
-                  <p className="text-sm text-muted-foreground">When content in your watchlist becomes available</p>
-                </div>
-              </div>
-              <Switch
-                id="email-watchlist"
-                checked={emailNotifications.watchlist_updates}
-                onCheckedChange={(checked) => setEmailNotifications(prev => ({ ...prev, watchlist_updates: checked }))}
-              />
-            </div>
-
-            <Separator className="bg-secondary" />
-
-            <div className="flex items-center justify-between">
-              <div className="flex items-start gap-3 flex-1">
-                <MessageCircle className="w-5 h-5 text-primary mt-0.5" />
-                <div>
-                  <Label htmlFor="email-reviews" className="text-foreground font-medium cursor-pointer">
-                    Reviews & Comments
-                  </Label>
-                  <p className="text-sm text-muted-foreground">When someone likes or replies to your reviews</p>
-                </div>
-              </div>
-              <Switch
-                id="email-reviews"
-                checked={emailNotifications.reviews}
-                onCheckedChange={(checked) => setEmailNotifications(prev => ({ ...prev, reviews: checked }))}
-              />
-            </div>
-
-            <Separator className="bg-secondary" />
-
-            <div className="flex items-center justify-between">
-              <div className="flex items-start gap-3 flex-1">
-                <Users className="w-5 h-5 text-blue-500 mt-0.5" />
-                <div>
-                  <Label htmlFor="email-social" className="text-foreground font-medium cursor-pointer">
-                    Social Activity
-                  </Label>
-                  <p className="text-sm text-muted-foreground">Friend requests, follows, and watch party invites</p>
-                </div>
-              </div>
-              <Switch
-                id="email-social"
-                checked={emailNotifications.social}
-                onCheckedChange={(checked) => setEmailNotifications(prev => ({ ...prev, social: checked }))}
-              />
-            </div>
-          </div>
-        </Card>
-
-        {/* Push Notifications */}
-        <Card className="p-6 bg-card border-border">
-          <div className="flex items-center gap-3 mb-6">
-            <Smartphone className="w-6 h-6 text-primary" />
-            <h2 className="text-xl text-foreground">Push Notifications</h2>
-          </div>
-
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-start gap-3 flex-1">
-                <Film className="w-5 h-5 text-primary mt-0.5" />
-                <div>
-                  <Label htmlFor="push-new-releases" className="text-foreground font-medium cursor-pointer">
-                    New Releases
-                  </Label>
-                  <p className="text-sm text-muted-foreground">Instant alerts for new content</p>
-                </div>
-              </div>
-              <Switch
-                id="push-new-releases"
-                checked={pushNotifications.new_releases}
-                onCheckedChange={(checked) => setPushNotifications(prev => ({ ...prev, new_releases: checked }))}
-              />
-            </div>
-
-            <Separator className="bg-secondary" />
-
-            <div className="flex items-center justify-between">
-              <div className="flex items-start gap-3 flex-1">
-                <Bell className="w-5 h-5 text-green-500 mt-0.5" />
-                <div>
-                  <Label htmlFor="push-watchlist" className="text-foreground font-medium cursor-pointer">
-                    Watchlist Updates
-                  </Label>
-                  <p className="text-sm text-muted-foreground">Real-time notifications for watchlist items</p>
-                </div>
-              </div>
-              <Switch
-                id="push-watchlist"
-                checked={pushNotifications.watchlist_updates}
-                onCheckedChange={(checked) => setPushNotifications(prev => ({ ...prev, watchlist_updates: checked }))}
-              />
-            </div>
-
-            <Separator className="bg-secondary" />
-
-            <div className="flex items-center justify-between">
-              <div className="flex items-start gap-3 flex-1">
-                <Users className="w-5 h-5 text-blue-500 mt-0.5" />
-                <div>
-                  <Label htmlFor="push-social" className="text-foreground font-medium cursor-pointer">
-                    Social Activity
-                  </Label>
-                  <p className="text-sm text-muted-foreground">Friend activity and watch party invites</p>
-                </div>
-              </div>
-              <Switch
-                id="push-social"
-                checked={pushNotifications.social}
-                onCheckedChange={(checked) => setPushNotifications(prev => ({ ...prev, social: checked }))}
-              />
-            </div>
-          </div>
-        </Card>
-
-        {/* Save Button */}
-        <div className="flex justify-end">
-          <Button
-            onClick={handleSave}
-            className="bg-linear-to-r from-primary/90 to-highlight"
-          >
-            Save Preferences
-          </Button>
-        </div>
-      </div>
-    </div>
+    <>
+      <SettingsHeader title="Notification" italic="emails">
+        Choose which emails FlixVideo sends you. You&apos;ll still see everything in the bell at the top of the app.
+      </SettingsHeader>
+      {error ? (
+        <LoadError what="notification settings" />
+      ) : (
+        <SettingsCard title="Email me about">
+          {EMAILS.map((e) => (
+            <ToggleRow
+              key={e.key}
+              id={`n-${e.key}`}
+              label={e.label}
+              description={e.description}
+              checked={settings?.notifications[e.key] ?? true}
+              disabled={!settings}
+              onChange={(v) => toggle(e.key, v)}
+            />
+          ))}
+          <ToggleRow id="n-receipts" label="Payment receipts" description="Receipts and failed-payment alerts. These are always sent." checked locked />
+        </SettingsCard>
+      )}
+    </>
   )
 }

@@ -11,6 +11,7 @@ import { streamingAPI, type StreamingOption } from "@/lib/api/streaming"
 import { tmdbClient } from "@/lib/api/tmdb"
 import { tmdbImage } from "@/components/landing/landing-types"
 import type { MediaType } from "@/lib/media"
+import { useSettingsOrDefaults } from "@/lib/hooks/use-settings"
 import { cn } from "@/lib/utils"
 
 type Kind = "stream" | "free" | "rent" | "buy"
@@ -31,7 +32,15 @@ function formatPrice(o: StreamingOption) {
   return `${o.currency || "KES"} ${o.price.toLocaleString()}`
 }
 
+const REGION_NAME: Record<string, string> = {
+  KE: "Kenya", UG: "Uganda", TZ: "Tanzania", RW: "Rwanda", NG: "Nigeria", GH: "Ghana",
+  ZA: "South Africa", US: "the US", GB: "the UK", CA: "Canada", IN: "India", AE: "the UAE",
+}
+
 export function WhereToWatch({ mediaType, id, title }: { mediaType: MediaType; id: number; title: string }) {
+  // Settings > Preferences > Where to watch region
+  const region = useSettingsOrDefaults().preferences.region
+  const regionName = REGION_NAME[region] ?? region
   const [offers, setOffers] = useState<Record<Kind, Offer[]> | null>(null)
   const [source, setSource] = useState<"flixvideo" | "justwatch" | null>(null)
   const [tmdbLink, setTmdbLink] = useState<string | null>(null)
@@ -41,7 +50,7 @@ export function WhereToWatch({ mediaType, id, title }: { mediaType: MediaType; i
     let alive = true
     const empty = (): Record<Kind, Offer[]> => ({ stream: [], free: [], rent: [], buy: [] })
 
-    const fromOurApi = (mediaType === "movie" ? streamingAPI.getMovieAvailability(id) : streamingAPI.getTVAvailability(id))
+    const fromOurApi = (mediaType === "movie" ? streamingAPI.getMovieAvailability(id, region) : streamingAPI.getTVAvailability(id, region))
       .then((r) => {
         const out = empty()
         for (const k of ["stream", "free", "rent", "buy"] as Kind[]) {
@@ -59,7 +68,7 @@ export function WhereToWatch({ mediaType, id, title }: { mediaType: MediaType; i
       .catch(() => empty())
 
     const fromTmdb = tmdbClient
-      .getWatchProviders(mediaType, id)
+      .getWatchProviders(mediaType, id, region)
       .then((r) => {
         const out = empty()
         if (!r) return { out, link: null }
@@ -88,7 +97,7 @@ export function WhereToWatch({ mediaType, id, title }: { mediaType: MediaType; i
     return () => {
       alive = false
     }
-  }, [mediaType, id])
+  }, [mediaType, id, region])
 
   const kinds = offers ? (Object.keys(KIND_LABEL) as Kind[]).filter((k) => offers[k].length) : []
 
@@ -96,7 +105,7 @@ export function WhereToWatch({ mediaType, id, title }: { mediaType: MediaType; i
     <section id="where-to-watch" aria-labelledby="wtw-heading" className="scroll-mt-24 rounded-2xl border bg-card/60 p-5 sm:p-7">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="eyebrow">In Kenya</p>
+          <p className="eyebrow">In {regionName}</p>
           <h2 id="wtw-heading" className="mt-2 text-3xl">
             Where to <em className="italic text-primary">watch</em>
           </h2>
@@ -138,7 +147,7 @@ export function WhereToWatch({ mediaType, id, title }: { mediaType: MediaType; i
               <Tv className="h-5 w-5" />
             </span>
             <div className="text-sm">
-              <p className="font-medium">Not available to stream in Kenya right now</p>
+              <p className="font-medium">Not available to stream in {regionName} right now</p>
               <p className="mt-1 text-muted-foreground">
                 Add {title} to your watchlist and we&apos;ll keep it handy for when it lands on a service.
               </p>
