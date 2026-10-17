@@ -299,16 +299,51 @@ const activateSubscription = async (req, res) => {
       });
     }
 
-    // Verify payment is successful
+    const userId = req.user.id;
+
+    // The payment must be this user's, and successful
     const paymentResult = await global.pgPool.query(
-      'SELECT status FROM payments WHERE id = $1',
+      'SELECT status, user_id, plan_type, amount FROM payments WHERE id = $1',
       [payment_id]
     );
+    const payment = paymentResult.rows[0];
 
-    if (paymentResult.rows.length === 0 || paymentResult.rows[0].status !== 'succeeded') {
+    if (!payment || String(payment.user_id) !== String(userId) || payment.status !== 'succeeded') {
       return res.status(HTTP_STATUS.BAD_REQUEST).json({
         success: false,
         error: 'Payment not successful'
+      });
+    }
+
+    // The subscription must be this user's too
+    const subscriptionResult = await global.pgPool.query(
+      'SELECT user_id, plan_type FROM subscriptions WHERE id = $1',
+      [subscription_id]
+    );
+    const subscription = subscriptionResult.rows[0];
+
+    if (!subscription || String(subscription.user_id) !== String(userId)) {
+      return res.status(HTTP_STATUS.NOT_FOUND).json({
+        success: false,
+        error: 'Subscription not found'
+      });
+    }
+
+    // The payment has to be for this plan and cover its price
+    let planPrice;
+    try {
+      planPrice = getPlan(subscription.plan_type).price;
+    } catch {
+      planPrice = null;
+    }
+    if (
+      planPrice === null ||
+      payment.plan_type !== subscription.plan_type ||
+      parseFloat(payment.amount) < planPrice
+    ) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        success: false,
+        error: 'Payment does not match this plan'
       });
     }
 
