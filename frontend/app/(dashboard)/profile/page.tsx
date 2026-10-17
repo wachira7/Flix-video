@@ -1,300 +1,214 @@
-// frontend app/(dashboard)/profile/page.tsx
-
+// app/(dashboard)/profile/page.tsx
+// Your profile: who you are on FlixVideo, your numbers, and editing.
 "use client"
 
-import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"  
-import { userAPI } from "@/lib/api/user"
-import { AvatarUpload } from "@/components/profile/avatar-upload"
-import { Card } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Button } from "@/components/ui/button"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Skeleton } from "@/components/ui/skeleton"
+import { useEffect, useState } from "react"
+import Link from "next/link"
+import { motion } from "framer-motion"
+import { format } from "date-fns"
+import { Bookmark, Clock, Crown, Heart, ListVideo, Loader2, Settings } from "lucide-react"
 import { toast } from "sonner"
-import { User, ArrowLeft } from "lucide-react"  
+import { userAPI } from "@/lib/api/user"
+import { watchlistAPI } from "@/lib/api/watchlist"
+import { favoritesAPI } from "@/lib/api/favorites"
+import { listsAPI } from "@/lib/api/lists"
+import { useCurrentUser } from "@/lib/hooks/use-auth"
+import { planById } from "@/lib/plans"
+import { AvatarUpload } from "@/components/profile/avatar-upload"
 
-interface ProfileData {
-  username?: string
-  full_name?: string
-  bio?: string
+interface Profile {
+  username?: string | null
+  full_name?: string | null
+  bio?: string | null
   date_of_birth?: string | null
-  gender?: string
-  country?: string
-  city?: string
-  timezone?: string
-  language?: string
+  gender?: string | null
+  country?: string | null
+  city?: string | null
+  timezone?: string | null
+  language?: string | null
   avatar_url?: string | null
 }
 
+const field =
+  "h-11 w-full rounded-lg border border-input bg-background/60 px-3 text-sm transition-[border-color,box-shadow] focus:border-primary/60 focus:ring-[3px] focus:ring-primary/15 focus:outline-none"
+
 export default function ProfilePage() {
-  const router = useRouter()  
-  const [loading, setLoading] = useState(true)
+  const { plan } = useCurrentUser()
+  const [profile, setProfile] = useState<Profile | null>(null)
+  const [memberSince, setMemberSince] = useState<string | null>(null)
+  const [email, setEmail] = useState<string>("")
+  const [counts, setCounts] = useState<{ watchlist?: number; favorites?: number; lists?: number }>({})
   const [saving, setSaving] = useState(false)
-  const [profile, setProfile] = useState<ProfileData>({})
 
   useEffect(() => {
-    fetchProfile()
+    userAPI
+      .getProfile()
+      .then((r) => {
+        setProfile(r.profile ?? {})
+        setMemberSince(r.user?.created_at ?? null)
+        setEmail(r.user?.email ?? "")
+      })
+      .catch(() => {
+        setProfile({})
+        toast.error("We couldn't load your profile.")
+      })
+    watchlistAPI.getWatchlist().then((r) => setCounts((c) => ({ ...c, watchlist: r.total ?? r.watchlist?.length }))).catch(() => {})
+    favoritesAPI.getFavorites().then((r) => setCounts((c) => ({ ...c, favorites: r.total ?? r.favorites?.length }))).catch(() => {})
+    listsAPI.getMyLists(1, 1).then((r) => setCounts((c) => ({ ...c, lists: r.total ?? r.lists?.length }))).catch(() => {})
   }, [])
 
-  const fetchProfile = async () => {
-    try {
-      const response = await userAPI.getProfile()
-      // Format date properly for the input field (YYYY-MM-DD)
-      const profileData = response.profile || {}
-      if (profileData.date_of_birth) {
-        // Ensure it's in YYYY-MM-DD format
-        const date = new Date(profileData.date_of_birth)
-        profileData.date_of_birth = date.toISOString().split('T')[0]
-      }
-      setProfile(profileData)
-    } catch (error) {
-      toast.error("Failed to load profile")
-    } finally {
-      setLoading(false)
-    }
-  }
+  const set = (key: keyof Profile) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
+    setProfile((p) => ({ ...p, [key]: e.target.value }))
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const save = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+    if (!profile) return
+    if (profile.username && !/^[a-zA-Z0-9_.]{3,30}$/.test(profile.username)) {
+      toast.error("Usernames are 3–30 letters, numbers, dots or underscores.")
+      return
+    }
     setSaving(true)
     try {
-      //Build the profile object - only include fields that have values
-      const profileToSave: any = {}
-
-      // Handle text fields
-      if (profile.username?.trim()) profileToSave.username = profile.username.trim()
-      if (profile.full_name?.trim()) profileToSave.full_name = profile.full_name.trim()
-      if (profile.bio?.trim()) profileToSave.bio = profile.bio.trim()
-      if (profile.gender) profileToSave.gender = profile.gender
-      if (profile.country?.trim()) profileToSave.country = profile.country.trim()
-      if (profile.city?.trim()) profileToSave.city = profile.city.trim()
-      if (profile.timezone) profileToSave.timezone = profile.timezone
-      
-      // Always include language
-      profileToSave.language = profile.language || 'en'
-
-      //  Handle date_of_birth properly
-      if (profile.date_of_birth && profile.date_of_birth.trim()) {
-        // HTML date input already gives us YYYY-MM-DD format
-        profileToSave.date_of_birth = profile.date_of_birth.trim()
+      const payload = {
+        username: profile.username?.trim() || undefined,
+        full_name: profile.full_name?.trim() || undefined,
+        bio: profile.bio?.trim() || undefined,
+        date_of_birth: profile.date_of_birth || undefined,
+        gender: profile.gender || undefined,
+        country: profile.country?.trim() || undefined,
+        city: profile.city?.trim() || undefined,
+        timezone: profile.timezone || undefined,
+        language: profile.language || "en",
       }
-
-      // console.log('📅 Sending date_of_birth:', profileToSave.date_of_birth)
-      // console.log('Full payload:', profileToSave)
-      
-      await userAPI.updateProfile(profileToSave)
-      
-      toast.success("Profile updated successfully!", {
-        duration: 2000,
-        position: "top-center"
-      })
-      
-      // Update localStorage
-      const currentUser = JSON.parse(localStorage.getItem('user') || '{}')
-      localStorage.setItem('user', JSON.stringify({
-        ...currentUser,
-        ...profileToSave
-      }))
-      
-      setTimeout(() => {
-        router.push('/dashboard')
-      }, 1500)
-      
-    } catch (error: any) {
-      console.error('Profile update error:', error)
-      toast.error(error.response?.data?.error || "Failed to update profile")
+      await userAPI.updateProfile(payload)
+      // Keep the name shown in the shell in step
+      try {
+        const current = JSON.parse(localStorage.getItem("user") || "{}")
+        localStorage.setItem("user", JSON.stringify({ ...current, full_name: payload.full_name ?? current.full_name, username: payload.username ?? current.username }))
+      } catch {}
+      toast.success("Profile saved")
+    } catch (err) {
+      const message = (err as { response?: { data?: { error?: string } } }).response?.data?.error
+      toast.error(message || "We couldn't save your profile. Please try again.")
     } finally {
       setSaving(false)
     }
   }
 
-  const handleInputChange = (field: keyof ProfileData, value: string) => {
-    setProfile(prev => ({ ...prev, [field]: value }))
-  }
-
-  if (loading) {
-    return (
-      <div className="p-8 max-w-4xl mx-auto space-y-6">
-        <Skeleton className="h-12 w-48 bg-secondary" />
-        <Skeleton className="h-96 bg-secondary" />
-      </div>
-    )
-  }
+  const name = profile?.full_name || profile?.username || email.split("@")[0] || "You"
+  const planInfo = planById(plan ?? "free")
+  const stats = [
+    { label: "Watchlist", value: counts.watchlist, icon: Bookmark, href: "/library" },
+    { label: "Favorites", value: counts.favorites, icon: Heart, href: "/library?tab=favorites" },
+    { label: "Lists", value: counts.lists, icon: ListVideo, href: "/library?tab=lists" },
+    { label: "History", value: undefined, icon: Clock, href: "/library?tab=history" },
+  ]
 
   return (
-    <div className="p-8 max-w-4xl mx-auto">
-      <div className="flex items-center gap-3 mb-8">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => router.back()}
-          className="hover:bg-secondary"
-        >
-          <ArrowLeft className="w-5 h-5" />
-        </Button>
-        <User className="w-8 h-8 text-primary" />
-        <h1 className="text-3xl text-foreground">My Profile</h1>
-      </div>
-
-      <form onSubmit={handleSubmit}>
-        <Card className="p-6 bg-card border-border mb-6">
-          <h2 className="text-xl text-foreground mb-6">Avatar</h2>
-          <AvatarUpload
-            currentAvatar={profile.avatar_url}
-            username={profile.username}
-            onAvatarUpdate={(url) => setProfile(prev => ({ ...prev, avatar_url: url }))}
-          />
-        </Card>
-
-        <Card className="p-6 bg-card border-border space-y-6">
-          <h2 className="text-xl text-foreground">Personal Information</h2>
-
-          {/* Username */}
-          <div>
-            <Label htmlFor="username" className="text-foreground/80">Username</Label>
-            <Input
-              id="username"
-              value={profile.username || ''}
-              onChange={(e) => handleInputChange('username', e.target.value)}
-              placeholder="Choose a unique username"
-              className="bg-secondary border-border text-foreground mt-2"
+    <div className="mx-auto max-w-4xl space-y-10 pt-4">
+      {/* Header */}
+      <section className="relative overflow-hidden rounded-3xl border bg-card/60 p-6 sm:p-8">
+        <div aria-hidden="true" className="light-leak absolute -top-1/2 -right-1/4 h-[150%] w-[70%]" />
+        <div className="relative flex flex-col gap-6 sm:flex-row sm:items-center">
+          {profile ? (
+            <AvatarUpload
+              currentAvatar={profile.avatar_url}
+              username={name}
+              onAvatarUpdate={(url) => setProfile((p) => ({ ...p, avatar_url: url }))}
             />
-          </div>
-
-          {/* Full Name */}
-          <div>
-            <Label htmlFor="full_name" className="text-foreground/80">Full Name</Label>
-            <Input
-              id="full_name"
-              value={profile.full_name || ''}
-              onChange={(e) => handleInputChange('full_name', e.target.value)}
-              placeholder="Your full name"
-              className="bg-secondary border-border text-foreground mt-2"
-            />
-          </div>
-
-          {/* Bio */}
-          <div>
-            <Label htmlFor="bio" className="text-foreground/80">Bio</Label>
-            <Textarea
-              id="bio"
-              value={profile.bio || ''}
-              onChange={(e) => handleInputChange('bio', e.target.value)}
-              placeholder="Tell us about yourself..."
-              className="bg-secondary border-border text-foreground mt-2 min-h-[100px]"
-              maxLength={500}
-            />
-            <p className="text-xs text-muted-foreground mt-1">
-              {(profile.bio || '').length}/500 characters
+          ) : (
+            <div className="h-28 w-28 animate-pulse rounded-full bg-muted" />
+          )}
+          <div className="min-w-0 flex-1 space-y-2">
+            <p className="eyebrow">Your profile</p>
+            <h1 className="truncate text-4xl leading-tight sm:text-5xl">{profile ? name : " "}</h1>
+            <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
+              {profile?.username && <span>@{profile.username}</span>}
+              {memberSince && <span>Member since {format(new Date(memberSince), "MMMM yyyy")}</span>}
+              {planInfo && (
+                <Link href="/subscription" className="inline-flex items-center gap-1 rounded-full bg-primary/15 px-2.5 py-0.5 text-xs font-semibold text-primary">
+                  <Crown className="h-3 w-3" /> {planInfo.name}
+                </Link>
+              )}
             </p>
           </div>
+          <Link href="/settings/account" className="inline-flex h-10 items-center gap-2 self-start rounded-lg border px-4 text-sm transition-colors hover:bg-accent sm:self-center">
+            <Settings className="h-4 w-4" /> Settings
+          </Link>
+        </div>
 
-          {/* Date of Birth */}
-          <div>
-            <Label htmlFor="date_of_birth" className="text-foreground/80">Date of Birth</Label>
-            <Input
-              id="date_of_birth"
-              type="date"
-              value={profile.date_of_birth || ''}
-              onChange={(e) => handleInputChange('date_of_birth', e.target.value)}
-              className="bg-secondary border-border text-foreground mt-2"
-              max={new Date().toISOString().split('T')[0]} // Can't be in the future
-            />
-            {profile.date_of_birth && (
-              <p className="text-xs text-muted-foreground mt-1">
-                Selected: {new Date(profile.date_of_birth).toLocaleDateString()}
-              </p>
-            )}
-          </div>
+        <div className="relative mt-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
+          {stats.map((s, i) => (
+            <motion.div key={s.label} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0, transition: { delay: 0.1 + i * 0.05 } }}>
+              <Link href={s.href} className="group block rounded-xl border bg-background/50 p-4 transition-colors hover:border-primary/50">
+                <s.icon className="h-4 w-4 text-primary" aria-hidden="true" />
+                <p className="mt-3 font-display text-3xl tabular-nums leading-none">{s.value ?? (s.label === "History" ? "→" : "–")}</p>
+                <p className="mt-1 text-xs text-muted-foreground group-hover:text-foreground">{s.label}</p>
+              </Link>
+            </motion.div>
+          ))}
+        </div>
+      </section>
 
-          {/* Gender */}
-          <div>
-            <Label htmlFor="gender" className="text-foreground/80">Gender</Label>
-            <Select
-              value={profile.gender || ''}
-              onValueChange={(value) => handleInputChange('gender', value)}
-            >
-              <SelectTrigger className="bg-secondary border-border text-foreground mt-2">
-                <SelectValue placeholder="Select gender" />
-              </SelectTrigger>
-              <SelectContent className="bg-secondary border-border text-foreground">
-                <SelectItem value="male">Male</SelectItem>
-                <SelectItem value="female">Female</SelectItem>
-                <SelectItem value="other">Other</SelectItem>
-                <SelectItem value="prefer_not_to_say">Prefer not to say</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Country */}
-          <div>
-            <Label htmlFor="country" className="text-foreground/80">Country</Label>
-            <Input
-              id="country"
-              value={profile.country || ''}
-              onChange={(e) => handleInputChange('country', e.target.value)}
-              placeholder="Your country"
-              className="bg-secondary border-border text-foreground mt-2"
-            />
-          </div>
-
-          {/* City */}
-          <div>
-            <Label htmlFor="city" className="text-foreground/80">City</Label>
-            <Input
-              id="city"
-              value={profile.city || ''}
-              onChange={(e) => handleInputChange('city', e.target.value)}
-              placeholder="Your city"
-              className="bg-secondary border-border text-foreground mt-2"
-            />
-          </div>
-
-          {/* Language */}
-          <div>
-            <Label htmlFor="language" className="text-foreground/80">Preferred Language</Label>
-            <Select
-              value={profile.language || 'en'}
-              onValueChange={(value) => handleInputChange('language', value)}
-            >
-              <SelectTrigger className="bg-secondary border-border text-foreground mt-2">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent className="bg-secondary border-border text-foreground">
-                <SelectItem value="en">English</SelectItem>
-                <SelectItem value="es">Spanish</SelectItem>
-                <SelectItem value="fr">French</SelectItem>
-                <SelectItem value="de">German</SelectItem>
-                <SelectItem value="sw">Swahili</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Submit Button */}
-          <div className="flex justify-end gap-3 pt-4">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => router.back()}
-              disabled={saving}
-              className="border-border"
-            >
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              disabled={saving}
-              className="bg-linear-to-r from-primary/90 to-highlight"
-            >
-              {saving ? "Saving..." : "Save Changes"}
-            </Button>
-          </div>
-        </Card>
-      </form>
+      {/* Edit */}
+      <section id="edit" className="scroll-mt-24 space-y-5">
+        <h2 className="text-3xl">
+          Edit <em className="italic text-primary">profile</em>
+        </h2>
+        {!profile ? (
+          <div className="h-64 animate-pulse rounded-2xl bg-muted" />
+        ) : (
+          <form onSubmit={save} className="space-y-5 rounded-2xl border bg-card/60 p-5 sm:p-7">
+            <div className="grid gap-5 sm:grid-cols-2">
+              <label className="space-y-2 text-sm">
+                <span className="font-medium">Full name</span>
+                <input value={profile.full_name ?? ""} onChange={set("full_name")} autoComplete="name" className={field} />
+              </label>
+              <label className="space-y-2 text-sm">
+                <span className="font-medium">Username</span>
+                <div className="relative">
+                  <span className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-muted-foreground">@</span>
+                  <input value={profile.username ?? ""} onChange={set("username")} autoComplete="username" className={`${field} pl-7`} />
+                </div>
+              </label>
+            </div>
+            <label className="block space-y-2 text-sm">
+              <span className="flex justify-between font-medium">
+                Bio <span className="text-xs font-normal text-muted-foreground tabular-nums">{(profile.bio ?? "").length}/300</span>
+              </span>
+              <textarea
+                value={profile.bio ?? ""}
+                onChange={set("bio")}
+                maxLength={300}
+                rows={3}
+                placeholder="What do you love to watch?"
+                className="w-full resize-none rounded-lg border border-input bg-background/60 px-3 py-2.5 text-sm focus:border-primary/60 focus:ring-[3px] focus:ring-primary/15 focus:outline-none"
+              />
+            </label>
+            <div className="grid gap-5 sm:grid-cols-3">
+              <label className="space-y-2 text-sm">
+                <span className="font-medium">Country</span>
+                <input value={profile.country ?? ""} onChange={set("country")} autoComplete="country-name" placeholder="Kenya" className={field} />
+              </label>
+              <label className="space-y-2 text-sm">
+                <span className="font-medium">City</span>
+                <input value={profile.city ?? ""} onChange={set("city")} autoComplete="address-level2" placeholder="Nairobi" className={field} />
+              </label>
+              <label className="space-y-2 text-sm">
+                <span className="font-medium">Date of birth</span>
+                <input type="date" value={profile.date_of_birth ?? ""} onChange={set("date_of_birth")} max={new Date().toISOString().slice(0, 10)} className={field} />
+              </label>
+            </div>
+            <div className="flex items-center justify-between gap-4 border-t pt-5">
+              <p className="text-xs text-muted-foreground">Your email and password are in Settings → Account.</p>
+              <button type="submit" disabled={saving} className="inline-flex h-11 items-center gap-2 rounded-lg bg-primary px-5 text-sm font-semibold text-primary-foreground transition-[filter] hover:brightness-110 disabled:opacity-60">
+                {saving && <Loader2 className="h-4 w-4 animate-spin" />}
+                Save profile
+              </button>
+            </div>
+          </form>
+        )}
+      </section>
     </div>
   )
 }
