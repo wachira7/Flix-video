@@ -11,6 +11,16 @@ const { grantPlanSafely } = require('../../services/subscription.service');
 const { convertFromKES } = require('../../utils/currency');
 
 const CRYPTO_UNAVAILABLE = "Crypto payments aren't available right now. Please pay with M-Pesa or card.";
+const { isLive, canTakePayment, testPaymentsAllowed } = require('../../config/payment-modes');
+
+// A method in test mode (sandbox keys) can't take real money, so it's
+// "coming soon" rather than a free way to unlock a plan.
+const comingSoon = (res, label) =>
+  res.status(HTTP_STATUS.SERVICE_UNAVAILABLE).json({
+    success: false,
+    coming_soon: true,
+    error: `${label} payments are coming soon. Please choose another way to pay.`
+  });
 
 // NOWPayments doesn't price in KES, so crypto is priced in USD. Rates come
 // from the exchange-rate job; until it has run, use a fixed fallback.
@@ -60,6 +70,8 @@ const createStripeCheckout = async (req, res) => {
   try {
     const userId = req.user.id;
     const { description } = req.body;
+
+    if (!canTakePayment('stripe')) return comingSoon(res, 'Card');
 
     // Amount and currency come from the plan, not the request body
     const priced = priceForPlan(req.body.plan_type);
@@ -300,6 +312,8 @@ const initiateMpesaPayment = async (req, res) => {
   try {
     const userId = req.user.id;
     const { phone_number, description } = req.body;
+
+    if (!canTakePayment('mpesa')) return comingSoon(res, 'M-Pesa');
 
     if (!phone_number) {
       return res.status(HTTP_STATUS.BAD_REQUEST).json({
@@ -582,6 +596,7 @@ const createCryptoPayment = async (req, res) => {
     if (!cryptoService.isConfigured()) {
       return res.status(HTTP_STATUS.SERVICE_UNAVAILABLE).json({ success: false, error: CRYPTO_UNAVAILABLE });
     }
+    if (!canTakePayment('crypto')) return comingSoon(res, 'Crypto');
 
     // Amount and currency come from the plan, not the request body
     const priced = priceForPlan(req.body.plan_type);
@@ -833,6 +848,31 @@ const getCryptoCurrencies = async (req, res) => {
 // @desc    Get user's saved payment methods
 // @route   GET /api/payments/methods
 // @access  Private
+// @desc    Which payment methods can take real money right now
+// @route   GET /api/payments/availability
+// @access  Public (no secrets: true/false only)
+const getPaymentAvailability = async (req, res) => {
+  try {
+    const cryptoKeyWorks = cryptoService.isConfigured() ? await cryptoService.verifyApiKey() : false;
+    const method = (key, extraOk = true) => ({
+      available: canTakePayment(key) && extraOk,
+      live: isLive[key]()
+    });
+    res.json({
+      success: true,
+      methods: {
+        mpesa: method('mpesa'),
+        card: method('stripe'),
+        crypto: { ...method('crypto', cryptoKeyWorks), key_accepted: cryptoKeyWorks }
+      },
+      test_payments_allowed: testPaymentsAllowed()
+    });
+  } catch (error) {
+    logger.error('Get payment availability error:', error);
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ success: false, error: ERROR_MESSAGES.SERVER_ERROR });
+  }
+};
+
 const getPaymentMethods = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -975,6 +1015,7 @@ module.exports = {
   
   // Payment Methods
   getPaymentMethods,
+  getPaymentAvailability,
   setDefaultPaymentMethod,
   deletePaymentMethod,
 

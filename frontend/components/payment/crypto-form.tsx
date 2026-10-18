@@ -6,7 +6,7 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import { AnimatePresence, motion } from "framer-motion"
-import { Bitcoin, Check, Copy, ExternalLink, Loader2, RotateCcw, Smartphone, XCircle } from "lucide-react"
+import { Bitcoin, Check, Copy, ExternalLink, Loader2, RotateCcw, XCircle } from "lucide-react"
 import { toast } from "sonner"
 import { paymentsAPI } from "@/lib/api/payments"
 import { cn } from "@/lib/utils"
@@ -172,13 +172,6 @@ export function CryptoForm({ planId, amount }: CryptoFormProps) {
               {message}
             </p>
             <div className="mt-6 flex flex-wrap justify-center gap-2">
-              <button
-                type="button"
-                onClick={() => router.replace(`/subscription/checkout?plan=${planId}&method=mpesa`)}
-                className="inline-flex h-10 items-center gap-2 rounded-lg bg-primary px-4 text-sm font-semibold text-primary-foreground"
-              >
-                <Smartphone className="h-4 w-4" aria-hidden="true" /> Pay with M-Pesa
-              </button>
               <button type="button" onClick={loadCoins} className="inline-flex h-10 items-center gap-2 rounded-lg border px-4 text-sm text-muted-foreground hover:text-foreground">
                 <RotateCcw className="h-4 w-4" aria-hidden="true" /> Try again
               </button>

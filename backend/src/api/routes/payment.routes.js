@@ -21,6 +21,7 @@ const {
   
   // Payment Methods
   getPaymentMethods,
+  getPaymentAvailability,
   setDefaultPaymentMethod,
   deletePaymentMethod,
 
@@ -284,6 +285,19 @@ router.get('/crypto/status/:paymentId', protect, getCryptoStatus);
  *       - bearerAuth: []
  */
 router.get('/methods', protect, getPaymentMethods);
+
+/**
+ * @swagger
+ * /api/payments/availability:
+ *   get:
+ *     tags: [Payments]
+ *     summary: Which payment methods can take real money
+ *     description: Methods in test mode (sandbox keys) are reported as unavailable so the app can show them as coming soon.
+ *     responses:
+ *       200:
+ *         description: Availability per method
+ */
+router.get('/availability', getPaymentAvailability);
 
 /**
  * @swagger

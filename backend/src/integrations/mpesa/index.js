@@ -2,6 +2,11 @@
 const axios = require('axios');
 const logger = require('../../utils/logger');
 
+// Live Daraja once MPESA_ENVIRONMENT=production (after Safaricom Go-Live),
+// otherwise the sandbox, where no money moves.
+const MPESA_BASE_URL = () => process.env.MPESA_ENVIRONMENT === 'production'
+  ? 'https://api.safaricom.co.ke'
+  : 'https://sandbox.safaricom.co.ke';
 
 /**
  * Get M-Pesa Access Token
@@ -13,7 +18,7 @@ const getAccessToken = async () => {
     ).toString('base64');
 
     const response = await axios.get(
-      'https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials',
+      `${MPESA_BASE_URL()}/oauth/v1/generate?grant_type=client_credentials`,
       {
         headers: {
           Authorization: `Basic ${auth}`
@@ -84,7 +89,7 @@ const initiateSTKPush = async (phoneNumber, amount, accountReference, transactio
     };
 
     const response = await axios.post(
-      'https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest',
+      `${MPESA_BASE_URL()}/mpesa/stkpush/v1/processrequest`,
       payload,
       {
         headers: {
@@ -126,7 +131,7 @@ const querySTKPushStatus = async (checkoutRequestId) => {
     };
 
     const response = await axios.post(
-      'https://sandbox.safaricom.co.ke/mpesa/stkpushquery/v1/query',
+      `${MPESA_BASE_URL()}/mpesa/stkpushquery/v1/query`,
       payload,
       {
         headers: {

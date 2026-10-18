@@ -3,6 +3,7 @@
 // success path (M-Pesa callback, Stripe webhook, crypto webhook).
 const logger = require('../utils/logger');
 const { getPlan } = require('../config/plans');
+const { canTakePayment } = require('../config/payment-modes');
 const { subscriptionChanges, subscriptionsByTier } = require('../config/metrics');
 
 const PERIOD_DAYS = 30;
@@ -49,6 +50,13 @@ async function grantPlanForPayment(paymentId, { startFrom } = {}) {
     if (payment.status !== 'succeeded') {
       await client.query('ROLLBACK');
       return { granted: false, reason: 'payment_not_succeeded' };
+    }
+
+    // Test-mode payments (sandbox keys) never move money, so they never unlock a plan
+    if (!canTakePayment(payment.payment_method)) {
+      await client.query('ROLLBACK');
+      logger.warn('Test-mode payment; no plan granted', { paymentId, method: payment.payment_method });
+      return { granted: false, reason: 'test_payment' };
     }
 
     const existing = await client.query('SELECT id FROM subscriptions WHERE payment_id = $1', [paymentId]);
