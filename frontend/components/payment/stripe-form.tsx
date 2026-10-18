@@ -48,7 +48,7 @@ export function StripeForm({ planId, amount }: StripeFormProps) {
         <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
           <CreditCard className="w-8 h-8 text-foreground" />
         </div>
-        <h2 className="text-2xl font-bold text-foreground mb-2">Pay with Card</h2>
+        <h2 className="text-2xl text-foreground mb-2">Pay with Card</h2>
         <p className="text-muted-foreground">
           You'll be redirected to Stripe's secure payment page
         </p>

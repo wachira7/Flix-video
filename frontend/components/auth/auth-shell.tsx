@@ -89,7 +89,7 @@ export function AuthShell({ posters, children }: { posters: LandingTitle[]; chil
   const showSwitch = pathname === "/login" || pathname === "/signup"
 
   return (
-    <div className="dark grid min-h-svh bg-background text-foreground lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)]">
+    <div className="dark grid grid-cols-[minmax(0,1fr)] min-h-svh bg-background text-foreground lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)]">
       <AuthArt posters={posters} />
 
       <main className="relative flex min-h-svh flex-col overflow-x-hidden">

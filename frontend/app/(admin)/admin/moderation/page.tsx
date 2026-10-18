@@ -60,7 +60,7 @@ export default function ModerationPage() {
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-foreground mb-2 flex items-center gap-2">
+        <h1 className="text-3xl text-foreground mb-2 flex items-center gap-2">
           <Shield className="w-8 h-8 text-primary" />
           Content Moderation
         </h1>

@@ -1,141 +1,93 @@
 // app/(dashboard)/tv/[id]/page.tsx
-
+import type { Metadata } from "next"
 import { notFound } from "next/navigation"
-import Image from "next/image"
-import { tmdbClient, getImageUrl } from "@/lib/api/tmdb"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Plus, Calendar, Star, Tv as TvIcon } from "lucide-react"
-import { CastCard } from "@/components/dashboard/cast-card"
-import { ContentRow } from "@/components/dashboard/content-row"
-import { VideoPlayer } from "@/components/dashboard/video-player"
-import { AddToListButton } from "@/components/dashboard/add-to-list-button"
-import { RatingSection } from "@/components/ratings/rating-section"
-import { ReviewsSection } from "@/components/reviews/reviews-section"
-import { PlayOptionsButton } from "@/components/media/play-options-button"
-import { toast } from "sonner"
+import { tmdbClient } from "@/lib/api/tmdb"
+import type { MediaItem } from "@/lib/media"
+import { TitleDetail } from "@/components/title/title-detail"
+import { facts, languageName, runtimeLabel, settled, trailerFrom } from "@/components/title/format"
 
-export default async function TVDetailPage({
-  params,
-}: {
-  params: Promise<{ id: string }>
-}) {
-  const tvId = parseInt((await params).id)
+type Props = { params: Promise<{ id: string }> }
 
-  if (isNaN(tvId)) {
-    notFound()
+type ShowExtras = {
+  status?: string
+  in_production?: boolean
+  last_air_date?: string
+  original_language?: string
+  vote_count?: number
+  networks?: { id: number; name: string }[]
+}
+
+async function load(id: number) {
+  try {
+    return await tmdbClient.getTVDetails(id)
+  } catch {
+    return null
   }
+}
 
-  const [show, credits, videos, similar] = await Promise.all([
-    tmdbClient.getTVDetails(tvId),
-    tmdbClient.getTVCredits(tvId),
-    tmdbClient.getTVVideos(tvId),
-    tmdbClient.getSimilarTV(tvId),
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const id = Number((await params).id)
+  const show = Number.isFinite(id) ? await load(id) : null
+  if (!show) return { title: "Series not found · FlixVideo" }
+  return {
+    title: `${show.name} (${show.first_air_date?.slice(0, 4) || "TBA"}) · FlixVideo`,
+    description: show.overview?.slice(0, 160),
+  }
+}
+
+export default async function TVDetailPage({ params }: Props) {
+  const id = Number((await params).id)
+  if (!Number.isFinite(id)) notFound()
+
+  const loaded = await load(id)
+  if (!loaded) notFound()
+  const show = loaded as typeof loaded & ShowExtras
+
+  const [credits, videos, similar, certification] = await Promise.allSettled([
+    tmdbClient.getTVCredits(id),
+    tmdbClient.getTVVideos(id),
+    tmdbClient.getSimilarTV(id),
+    tmdbClient.getCertification("tv", id),
   ])
 
-  if (!show) {
-    notFound()
-  }
-
-  const backdropUrl = getImageUrl(show.backdrop_path, "original")
-  const trailer = videos.find((v) => v.type === "Trailer" && v.site === "YouTube")
-  const cast = credits.cast.slice(0, 10)
+  const start = show.first_air_date?.slice(0, 4)
+  const end = show.in_production ? "" : show.last_air_date?.slice(0, 4)
+  const years = start ? (end && end !== start ? `${start}–${end}` : show.in_production ? `${start}–` : start) : "Coming soon"
+  const seasons = show.number_of_seasons
+  const episodes = show.number_of_episodes
 
   return (
-    <div className="min-h-screen">
-      {/* Hero Section */}
-      <div className="relative h-[70vh] w-full">
-        <Image
-          src={backdropUrl || "/placeholder.svg"}
-          alt={show.name}
-          fill
-          className="object-cover"
-          priority
-        />
-        <div className="absolute inset-0 bg-linear-to-r from-background via-black/70 to-transparent" />
-        <div className="absolute inset-0 bg-linear-to-t from-background via-transparent to-transparent" />
-
-        <div className="absolute bottom-0 left-0 p-12 max-w-3xl">
-          <h1 className="text-5xl font-bold text-foreground mb-4">{show.name}</h1>
-
-          {show.tagline && (
-            <p className="text-xl text-foreground/80 italic mb-4">{show.tagline}</p>
-          )}
-
-          <div className="flex items-center gap-4 mb-6 flex-wrap">
-            <div className="flex items-center gap-2">
-              <Star className="w-5 h-5 text-yellow-500" fill="currentColor" />
-              <span className="text-foreground font-semibold">{show.vote_average.toFixed(1)}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Calendar className="w-5 h-5 text-muted-foreground" />
-              <span className="text-foreground/80">{new Date(show.first_air_date).getFullYear()}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <TvIcon className="w-5 h-5 text-muted-foreground" />
-              <span className="text-foreground/80">{show.number_of_seasons} Seasons</span>
-            </div>
-            {show.genres.slice(0, 3).map((genre) => (
-              <Badge key={genre.id} variant="secondary">
-                {genre.name}
-              </Badge>
-            ))}
-          </div>
-
-          <p className="text-foreground/80 text-lg mb-6 line-clamp-3">{show.overview}</p>
-
-          <div className="flex items-center gap-4">
-            {/* Play Options Button - Watch Party & Streaming */}
-            <PlayOptionsButton
-              contentType="tv"
-              contentId={tvId}
-              title={show.name}
-              seasonNumber={show.number_of_seasons}
-              episodeNumber={1}
-            />
-            
-            {/* Trailer Button */}
-            {trailer && <VideoPlayer videoKey={trailer.key} title={show.name} />}
-            
-            {/* Add to List Button */}
-            <AddToListButton contentType="tv" contentId={tvId} variant="full" />
-            
-            {/* Quick Add to Favorites */}
-            <Button 
-              size="lg" 
-              variant="outline" 
-              className="border-muted-foreground/50 bg-secondary/80 hover:border-primary hover:bg-accent transition-all"
-            >
-              <Plus className="w-6 h-6" />
-            </Button>
-          </div>
-        </div>
-      </div>
-
-      {/* Details Section */}
-      <div className="px-12 py-8 space-y-12">
-        {/* Rating Section */}
-        <RatingSection contentType="tv" contentId={tvId} title={show.name} />
-        
-        {/* Cast */}
-        {cast.length > 0 && (
-          <div>
-            <h2 className="text-3xl font-bold text-foreground mb-6">Cast</h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-6 gap-4">
-              {cast.map((member) => (
-                <CastCard key={member.id} cast={member} />
-              ))}
-            </div>
-          </div>
-        )}
-        
-        {/* Reviews Section */}
-        <ReviewsSection contentType="tv" contentId={tvId} title={show.name} />
-
-        {similar.length > 0 && (
-          <ContentRow title="More Like This" items={similar.slice(0, 10)} />
-        )}
-      </div>
-    </div>
+    <TitleDetail
+      data={{
+        mediaType: "tv",
+        id,
+        title: show.name,
+        tagline: show.tagline || undefined,
+        overview: show.overview,
+        backdrop: show.backdrop_path || null,
+        poster: show.poster_path || null,
+        years,
+        rating: show.vote_average,
+        voteCount: show.vote_count ?? 0,
+        certification: settled(certification, null),
+        length: seasons
+          ? `${seasons} season${seasons === 1 ? "" : "s"}${episodes ? ` · ${episodes} episodes` : ""}`
+          : undefined,
+        genres: show.genres ?? [],
+        credit: { label: "Created by", names: (show.created_by ?? []).slice(0, 2).map((c) => c.name) },
+        facts: facts([
+          ["Status", show.status],
+          ["Network", show.networks?.slice(0, 2).map((n) => n.name).join(", ")],
+          ["Episode length", runtimeLabel(show.episode_run_time?.[0])],
+          ["Language", languageName(show.original_language)],
+          ["Studio", show.production_companies?.slice(0, 2).map((c) => c.name).join(", ")],
+        ]),
+        trailerKey: trailerFrom(videos),
+        cast: settled(credits, { cast: [] }).cast.slice(0, 16),
+        similar: settled(similar, [])
+          .filter((s) => s.poster_path)
+          .map((s) => ({ ...s, media_type: "tv" }) as MediaItem),
+      }}
+    />
   )
 }

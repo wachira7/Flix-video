@@ -6,10 +6,11 @@ const columns = [
   {
     title: "FlixVideo",
     links: [
-      { label: "How it works", href: "#how-it-works" },
-      { label: "Top 10 this week", href: "#this-week" },
-      { label: "Pricing", href: "#pricing" },
-      { label: "FAQ", href: "#faq" },
+      { label: "How it works", href: "/#how-it-works" },
+      { label: "Top 10 this week", href: "/#this-week" },
+      { label: "Pricing", href: "/#pricing" },
+      { label: "FAQ", href: "/#faq" },
+      { label: "About FlixVideo", href: "/about" },
     ],
   },
   {
@@ -18,6 +19,8 @@ const columns = [
       { label: "Create an account", href: "/signup" },
       { label: "Sign in", href: "/login" },
       { label: "Reset password", href: "/forgot-password" },
+      { label: "Privacy Policy", href: "/privacy" },
+      { label: "Terms of Use", href: "/terms" },
     ],
   },
 ]
@@ -26,7 +29,7 @@ export function Footer() {
   return (
     <footer className="border-t bg-card/40">
       <div className="reveal mx-auto max-w-6xl px-5 py-14 md:px-8">
-        <div className="grid gap-10 md:grid-cols-[minmax(0,2fr)_repeat(3,minmax(0,1fr))]">
+        <div className="grid grid-cols-[minmax(0,1fr)] gap-10 md:grid-cols-[minmax(0,2fr)_repeat(3,minmax(0,1fr))]">
           <div className="space-y-4">
             <Wordmark />
             <p className="max-w-xs text-sm leading-relaxed text-muted-foreground">

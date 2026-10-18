@@ -2,7 +2,7 @@
 // Add to / remove from watchlist, optimistic, with a little check-mark pop.
 "use client"
 
-import { useState, type MouseEvent } from "react"
+import { useEffect, useState, type MouseEvent } from "react"
 import { AnimatePresence, motion } from "framer-motion"
 import { Check, Plus } from "lucide-react"
 import { toast } from "sonner"
@@ -18,6 +18,8 @@ interface WatchlistButtonProps {
   variant?: "icon" | "pill"
   className?: string
   onChange?: (saved: boolean) => void
+  /** Ask the API for the real state on mount (detail pages) */
+  checkOnMount?: boolean
 }
 
 export function WatchlistButton({
@@ -28,9 +30,22 @@ export function WatchlistButton({
   variant = "icon",
   className,
   onChange,
+  checkOnMount,
 }: WatchlistButtonProps) {
   const [saved, setSaved] = useState(initiallySaved)
   const [busy, setBusy] = useState(false)
+
+  useEffect(() => {
+    if (!checkOnMount) return
+    let alive = true
+    watchlistAPI
+      .checkWatchlist(mediaType, id)
+      .then((r) => alive && setSaved(!!r.in_watchlist))
+      .catch(() => {})
+    return () => {
+      alive = false
+    }
+  }, [checkOnMount, mediaType, id])
 
   const toggle = async (e: MouseEvent) => {
     e.preventDefault()

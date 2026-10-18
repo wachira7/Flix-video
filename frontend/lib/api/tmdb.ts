@@ -173,6 +173,38 @@ class TMDBClient {
     return data.results
   }
 
+  /** Age rating (e.g. "PG-13", "TV-MA"), preferring Kenya, then the US */
+  async getCertification(mediaType: "movie" | "tv", id: number): Promise<string | null> {
+    const prefer = ["KE", "US", "GB"]
+    if (mediaType === "movie") {
+      const data = await this.fetcher<{
+        results: { iso_3166_1: string; release_dates: { certification: string }[] }[]
+      }>(`/movie/${id}/release_dates`)
+      for (const country of prefer) {
+        const cert = data.results
+          .find((r) => r.iso_3166_1 === country)
+          ?.release_dates.find((d) => d.certification)?.certification
+        if (cert) return cert
+      }
+      return null
+    }
+    const data = await this.fetcher<{ results: { iso_3166_1: string; rating: string }[] }>(`/tv/${id}/content_ratings`)
+    for (const country of prefer) {
+      const rating = data.results.find((r) => r.iso_3166_1 === country)?.rating
+      if (rating) return rating
+    }
+    return null
+  }
+
+  /** Where to watch in one country (JustWatch data via TMDB) */
+  async getWatchProviders(mediaType: "movie" | "tv", id: number, country = "KE") {
+    type Provider = { provider_id: number; provider_name: string; logo_path: string; display_priority: number }
+    const data = await this.fetcher<{
+      results: Record<string, { link: string; flatrate?: Provider[]; rent?: Provider[]; buy?: Provider[]; free?: Provider[]; ads?: Provider[] }>
+    }>(`/${mediaType}/${id}/watch/providers`)
+    return data.results[country] ?? null
+  }
+
   async getGenres(mediaType: "movie" | "tv") {
     const data = await this.fetcher<{ genres: { id: number; name: string }[] }>(`/genre/${mediaType}/list`)
     return data.genres

@@ -156,6 +156,9 @@
   body {
     @apply bg-background text-foreground;
     font-feature-settings: "kern", "liga";
+    /* Scroll reveals park elements off to the side; never let that widen
+       the page. clip (unlike hidden) keeps position: sticky working. */
+    overflow-x: clip;
   }
 
   html {
@@ -169,6 +172,10 @@
     font-weight: 500;
     letter-spacing: -0.01em;
     text-wrap: balance;
+    /* Bodoni Moda's hyphen vanishes above optical size ~22 (and its
+       hairlines get very thin), so headings use a fixed optical size */
+    font-optical-sizing: none;
+    font-variation-settings: "opsz" 18;
   }
 
   ::selection {
@@ -188,6 +195,8 @@
 @layer utilities {
   .font-display {
     font-family: var(--font-display);
+    font-optical-sizing: none;
+    font-variation-settings: "opsz" 18;
   }
 
   /* Small uppercase section label */
@@ -564,6 +573,15 @@
 .reveal-ready .reveal-stagger[data-reveal="zoom"] > * {
   transform: translate3d(0, 40px, 0) scale(0.9);
 }
+/* On phones, side entrances rise instead: sliding in from off-screen
+   would widen the page */
+@media (max-width: 767px) {
+  .reveal-ready .reveal[data-reveal="left"],
+  .reveal-ready .reveal[data-reveal="right"],
+  .reveal-ready .reveal-stagger[data-reveal="right"] > * {
+    transform: translate3d(0, 40px, 0);
+  }
+}
 /* Leaving through the top of the screen */
 .reveal-ready .reveal[data-exit="up"],
 .reveal-ready .reveal-stagger[data-exit="up"] > * {
@@ -778,4 +796,29 @@ a:hover > .button-sweep {
   .marquee {
     animation: none;
   }
+}
+
+/* Long-form legal text (Privacy, Terms) */
+.legal-prose ul {
+  list-style: none;
+  display: grid;
+  gap: 0.6rem;
+}
+.legal-prose li {
+  position: relative;
+  padding-left: 1.25rem;
+}
+.legal-prose li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.6em;
+  width: 0.35rem;
+  height: 0.35rem;
+  border-radius: 9999px;
+  background: hsl(var(--primary));
+}
+.legal-prose strong {
+  color: hsl(var(--foreground));
+  font-weight: 600;
 }

@@ -37,7 +37,7 @@ const faqs = [
 export function FAQSection() {
   return (
     <section id="faq" className="scroll-mt-20 py-24 md:py-32">
-      <div className="mx-auto grid max-w-6xl gap-12 px-5 md:px-8 lg:grid-cols-[minmax(0,4fr)_minmax(0,7fr)] lg:gap-20">
+      <div className="mx-auto grid grid-cols-[minmax(0,1fr)] max-w-6xl gap-12 px-5 md:px-8 lg:grid-cols-[minmax(0,4fr)_minmax(0,7fr)] lg:gap-20">
         <div className="reveal space-y-5" data-reveal="left">
           <p className="eyebrow">Questions</p>
           <h2 className="text-4xl leading-[1.05] md:text-5xl">Good to know</h2>

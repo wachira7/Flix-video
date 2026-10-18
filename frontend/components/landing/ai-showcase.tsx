@@ -7,7 +7,7 @@ const PROMPT = "A smart sci-fi film under two hours with a hopeful ending"
 export function AIShowcase({ picks }: { picks: AIPick[] }) {
   return (
     <section id="how-it-works" className="scroll-mt-20 py-24 md:py-32">
-      <div className="mx-auto grid max-w-6xl gap-14 px-5 md:px-8 lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:gap-20">
+      <div className="mx-auto grid grid-cols-[minmax(0,1fr)] max-w-6xl gap-14 px-5 md:px-8 lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:gap-20">
         <div className="reveal space-y-6 lg:pt-6" data-reveal="left">
           <p className="eyebrow">Ask FlixVideo</p>
           <h2 className="text-4xl leading-[1.05] md:text-5xl">

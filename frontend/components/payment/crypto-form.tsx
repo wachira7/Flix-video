@@ -123,7 +123,7 @@ export function CryptoForm({ planId, amount }: CryptoFormProps) {
         <div className="w-16 h-16 bg-orange-600 rounded-full flex items-center justify-center mx-auto mb-4">
           <Bitcoin className="w-8 h-8 text-foreground" />
         </div>
-        <h2 className="text-2xl font-bold text-foreground mb-2">Pay with Crypto</h2>
+        <h2 className="text-2xl text-foreground mb-2">Pay with Crypto</h2>
         <p className="text-muted-foreground">
           Send cryptocurrency to complete your purchase
         </p>

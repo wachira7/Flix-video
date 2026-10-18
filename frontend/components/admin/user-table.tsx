@@ -8,6 +8,16 @@ import { Badge } from "@/components/ui/badge"
 import { Ban, CheckCircle, Trash2, Eye } from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
 import { BanUserDialog } from "./ban-user-dialog"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 
 interface UserTableProps {
   users: User[]
@@ -20,6 +30,7 @@ interface UserTableProps {
 export function UserTable({ users, onBan, onUnban, onDelete, onViewDetails }: UserTableProps) {
   const [banDialogOpen, setBanDialogOpen] = useState(false)
   const [selectedUser, setSelectedUser] = useState<User | null>(null)
+  const [toDelete, setToDelete] = useState<User | null>(null)
 
   const handleBanClick = (user: User) => {
     setSelectedUser(user)
@@ -31,10 +42,8 @@ export function UserTable({ users, onBan, onUnban, onDelete, onViewDetails }: Us
     await onBan(selectedUser.id, reason)
   }
 
-  const handleDeleteClick = async (user: User) => {
-    if (!confirm(`Delete user ${user.email}? This action cannot be undone.`)) return
-    await onDelete(user.id)
-  }
+  // window.confirm is blocked in some browsers and in-app web views
+  const handleDeleteClick = (user: User) => setToDelete(user)
 
   return (
     <>
@@ -176,6 +185,29 @@ export function UserTable({ users, onBan, onUnban, onDelete, onViewDetails }: Us
           onConfirm={handleBanConfirm}
         />
       )}
+      <AlertDialog open={!!toDelete} onOpenChange={(open) => !open && setToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="font-display text-2xl font-normal">Delete {toDelete?.email}?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Their watchlist, ratings, reviews, lists, history and AI chats are deleted and the account is anonymised. Payment
+              records are kept for accounting. This can&apos;t be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Keep user</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-white hover:bg-destructive/90"
+              onClick={async () => {
+                if (toDelete) await onDelete(toDelete.id)
+                setToDelete(null)
+              }}
+            >
+              Delete user
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   )
 }
