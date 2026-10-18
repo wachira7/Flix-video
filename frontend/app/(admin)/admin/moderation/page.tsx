@@ -60,11 +60,11 @@ export default function ModerationPage() {
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-white mb-2 flex items-center gap-2">
-          <Shield className="w-8 h-8 text-purple-500" />
+        <h1 className="text-3xl font-bold text-foreground mb-2 flex items-center gap-2">
+          <Shield className="w-8 h-8 text-primary" />
           Content Moderation
         </h1>
-        <p className="text-gray-400">Review and manage reported content</p>
+        <p className="text-muted-foreground">Review and manage reported content</p>
       </div>
 
       {/* Filters */}
@@ -72,21 +72,21 @@ export default function ModerationPage() {
         <Button
           variant={statusFilter === 'pending' ? 'default' : 'outline'}
           onClick={() => setStatusFilter('pending')}
-          className={statusFilter === 'pending' ? 'bg-purple-600' : 'border-gray-700'}
+          className={statusFilter === 'pending' ? 'bg-primary' : 'border-border'}
         >
           Pending
         </Button>
         <Button
           variant={statusFilter === 'reviewed' ? 'default' : 'outline'}
           onClick={() => setStatusFilter('reviewed')}
-          className={statusFilter === 'reviewed' ? 'bg-purple-600' : 'border-gray-700'}
+          className={statusFilter === 'reviewed' ? 'bg-primary' : 'border-border'}
         >
           Reviewed
         </Button>
         <Button
           variant={statusFilter === 'all' ? 'default' : 'outline'}
           onClick={() => setStatusFilter('all')}
-          className={statusFilter === 'all' ? 'bg-purple-600' : 'border-gray-700'}
+          className={statusFilter === 'all' ? 'bg-primary' : 'border-border'}
         >
           All Reports
         </Button>
@@ -95,23 +95,23 @@ export default function ModerationPage() {
       {/* Reports */}
       {loading ? (
         <div className="flex items-center justify-center py-12">
-          <div className="w-8 h-8 border-4 border-purple-600 border-t-transparent rounded-full animate-spin" />
+          <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
         </div>
       ) : reports.length === 0 ? (
-        <Card className="bg-gray-900 border-gray-800 p-12 text-center">
+        <Card className="bg-card border-border p-12 text-center">
           <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
-          <h3 className="text-xl font-semibold text-white mb-2">All Clear!</h3>
-          <p className="text-gray-400">No {statusFilter !== 'all' ? statusFilter : ''} reports at the moment</p>
+          <h3 className="text-xl font-semibold text-foreground mb-2">All Clear!</h3>
+          <p className="text-muted-foreground">No {statusFilter !== 'all' ? statusFilter : ''} reports at the moment</p>
         </Card>
       ) : (
         <div className="space-y-4">
           {reports.map((report) => (
-            <Card key={report.id} className="bg-gray-900 border-gray-800 p-6">
+            <Card key={report.id} className="bg-card border-border p-6">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-3">
                     <AlertTriangle className="w-5 h-5 text-yellow-500" />
-                    <h3 className="text-lg font-semibold text-white">
+                    <h3 className="text-lg font-semibold text-foreground">
                       {report.report_type} Report
                     </h3>
                     <Badge
@@ -121,7 +121,7 @@ export default function ModerationPage() {
                           ? 'border-yellow-500 text-yellow-400'
                           : report.status === 'resolved'
                           ? 'border-green-500 text-green-400'
-                          : 'border-gray-500 text-gray-400'
+                          : 'border-input text-muted-foreground'
                       }
                     >
                       {report.status}
@@ -129,15 +129,15 @@ export default function ModerationPage() {
                   </div>
                   
                   <div className="space-y-2 text-sm">
-                    <p className="text-gray-300">
-                      <span className="text-gray-500">Reason:</span> {report.reason}
+                    <p className="text-foreground/80">
+                      <span className="text-muted-foreground">Reason:</span> {report.reason}
                     </p>
                     {report.description && (
-                      <p className="text-gray-300">
-                        <span className="text-gray-500">Details:</span> {report.description}
+                      <p className="text-foreground/80">
+                        <span className="text-muted-foreground">Details:</span> {report.description}
                       </p>
                     )}
-                    <p className="text-gray-400">
+                    <p className="text-muted-foreground">
                       Reported {formatDistanceToNow(new Date(report.created_at), { addSuffix: true })}
                     </p>
                   </div>
@@ -158,7 +158,7 @@ export default function ModerationPage() {
                       variant="outline"
                       size="sm"
                       onClick={() => handleDismiss(report.id)}
-                      className="border-gray-600 text-gray-400 hover:bg-gray-600/10"
+                      className="border-input text-muted-foreground hover:bg-muted-foreground/10"
                     >
                       <XCircle className="w-4 h-4 mr-2" />
                       Dismiss

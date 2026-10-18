@@ -18,7 +18,7 @@ export function CastCard({ cast }: CastCardProps) {
   const imageUrl = getImageUrl(cast.profile_path, "w500")
 
   return (
-    <Card className="overflow-hidden bg-gray-900 border-gray-800">
+    <Card className="overflow-hidden bg-card border-border">
       <div className="relative aspect-2/3">
         <Image
           src={imageUrl || "/placeholder.svg"}
@@ -28,8 +28,8 @@ export function CastCard({ cast }: CastCardProps) {
         />
       </div>
       <div className="p-3">
-        <p className="font-semibold text-white text-sm truncate">{cast.name}</p>
-        <p className="text-xs text-gray-400 truncate">{cast.character}</p>
+        <p className="font-semibold text-foreground text-sm truncate">{cast.name}</p>
+        <p className="text-xs text-muted-foreground truncate">{cast.character}</p>
       </div>
     </Card>
   )

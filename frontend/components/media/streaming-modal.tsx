@@ -76,8 +76,8 @@ export function StreamingModal({
       case 'stream': return 'bg-green-600'
       case 'free': return 'bg-blue-600'
       case 'rent': return 'bg-orange-600'
-      case 'buy': return 'bg-purple-600'
-      default: return 'bg-gray-600'
+      case 'buy': return 'bg-primary'
+      default: return 'bg-muted-foreground/30'
     }
   }
 
@@ -99,27 +99,27 @@ export function StreamingModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl bg-gray-900 border-gray-800">
+      <DialogContent className="max-w-3xl bg-card border-border">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold text-white">
+          <DialogTitle className="text-2xl font-bold text-foreground">
             Where to Watch
           </DialogTitle>
-          <DialogDescription className="text-gray-400">
+          <DialogDescription className="text-muted-foreground">
             {title}
           </DialogDescription>
         </DialogHeader>
 
         {loading ? (
           <div className="flex items-center justify-center py-12">
-            <Loader2 className="w-8 h-8 text-purple-600 animate-spin" />
+            <Loader2 className="w-8 h-8 text-primary animate-spin" />
           </div>
         ) : streamingOptions.length === 0 ? (
           <div className="py-12 text-center">
-            <ExternalLink className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-white mb-2">
+            <ExternalLink className="w-16 h-16 text-muted-foreground/70 mx-auto mb-4" />
+            <h3 className="text-lg font-semibold text-foreground mb-2">
               No streaming options available
             </h3>
-            <p className="text-gray-400 mb-6">
+            <p className="text-muted-foreground mb-6">
               This content may not be available in your region yet.
             </p>
             <Button
@@ -132,7 +132,7 @@ export function StreamingModal({
           </div>
         ) : (
           <Tabs defaultValue="stream" className="w-full">
-            <TabsList className="grid w-full grid-cols-4 bg-gray-800">
+            <TabsList className="grid w-full grid-cols-4 bg-secondary">
               <TabsTrigger value="stream" disabled={groupedOptions.stream.length === 0}>
                 Stream ({groupedOptions.stream.length})
               </TabsTrigger>
@@ -152,33 +152,33 @@ export function StreamingModal({
                 {groupedOptions[type].map((option, index) => (
                   <Card
                     key={index}
-                    className="p-4 bg-gray-800 border-gray-700 hover:border-purple-600 transition-all"
+                    className="p-4 bg-secondary border-border hover:border-primary transition-all"
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-4">
                         {/* Platform Logo Placeholder */}
-                        <div className="w-12 h-12 bg-gray-700 rounded-lg flex items-center justify-center">
-                          <span className="text-xs font-bold text-white">
+                        <div className="w-12 h-12 bg-accent rounded-lg flex items-center justify-center">
+                          <span className="text-xs font-bold text-foreground">
                             {option.platform.charAt(0)}
                           </span>
                         </div>
 
                         <div>
-                          <h4 className="font-semibold text-white mb-1">
+                          <h4 className="font-semibold text-foreground mb-1">
                             {option.platform}
                           </h4>
                           <div className="flex items-center gap-2">
-                            <Badge className={`${getTypeColor(option.type)} text-white`}>
+                            <Badge className={`${getTypeColor(option.type)} text-foreground`}>
                               {getTypeIcon(option.type)}
                               <span className="ml-1">{option.type}</span>
                             </Badge>
                             {option.quality && (
-                              <Badge variant="outline" className="border-gray-600">
+                              <Badge variant="outline" className="border-input">
                                 {option.quality}
                               </Badge>
                             )}
                             {option.price && (
-                              <span className="text-sm text-gray-400">
+                              <span className="text-sm text-muted-foreground">
                                 ${option.price.toFixed(2)}
                               </span>
                             )}
@@ -188,7 +188,7 @@ export function StreamingModal({
 
                       <Button
                         onClick={() => window.open(option.url, '_blank')}
-                        className="bg-purple-600 hover:bg-purple-700"
+                        className="bg-primary hover:bg-primary/90"
                       >
                         <ExternalLink className="w-4 h-4 mr-2" />
                         Watch
@@ -201,8 +201,8 @@ export function StreamingModal({
           </Tabs>
         )}
 
-        <div className="mt-4 p-3 bg-gray-800 rounded-lg">
-          <p className="text-xs text-gray-400 text-center">
+        <div className="mt-4 p-3 bg-secondary rounded-lg">
+          <p className="text-xs text-muted-foreground text-center">
             📍 Showing availability for Kenya (KE) • 
             Prices and availability may vary
           </p>

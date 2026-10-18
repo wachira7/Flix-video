@@ -37,10 +37,10 @@ export function CommentsSection({ reviewId }: CommentsSectionProps) {
   }
 
   return (
-    <div className="mt-4 border-t border-gray-800 pt-4">
+    <div className="mt-4 border-t border-border pt-4">
       <div className="flex items-center gap-2 mb-4">
-        <MessageCircle className="w-4 h-4 text-gray-400" />
-        <h4 className="text-sm font-semibold text-white">
+        <MessageCircle className="w-4 h-4 text-muted-foreground" />
+        <h4 className="text-sm font-semibold text-foreground">
           Comments ({comments.length})
         </h4>
       </div>
@@ -60,11 +60,11 @@ export function CommentsSection({ reviewId }: CommentsSectionProps) {
       {loading ? (
         <div className="space-y-3">
           {[...Array(2)].map((_, i) => (
-            <Skeleton key={i} className="h-20 bg-gray-800" />
+            <Skeleton key={i} className="h-20 bg-secondary" />
           ))}
         </div>
       ) : comments.length === 0 ? (
-        <p className="text-sm text-gray-500 text-center py-4">
+        <p className="text-sm text-muted-foreground text-center py-4">
           No comments yet. Be the first to comment!
         </p>
       ) : (

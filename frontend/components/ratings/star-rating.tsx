@@ -50,7 +50,7 @@ export function StarRating({
       <div className="flex items-center gap-2">
         <Star className={`${sizeClasses[size].star} text-yellow-500 fill-yellow-500`} />
         {showValue && (
-          <span className={`${sizeClasses[size].text} font-bold text-white`}>
+          <span className={`${sizeClasses[size].text} font-bold text-foreground`}>
             {rating.toFixed(1)}
           </span>
         )}
@@ -64,13 +64,13 @@ export function StarRating({
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Star className="w-5 h-5 text-yellow-500 fill-yellow-500" />
-          <span className="text-gray-400">Your Rating</span>
+          <span className="text-muted-foreground">Your Rating</span>
         </div>
         <div className="text-right">
           <div className={`text-3xl font-bold ${getRatingColor(rating)}`}>
             {rating.toFixed(1)}
           </div>
-          <div className="text-xs text-gray-500">{getRatingLabel(rating)}</div>
+          <div className="text-xs text-muted-foreground">{getRatingLabel(rating)}</div>
         </div>
       </div>
       
@@ -83,7 +83,7 @@ export function StarRating({
         className="w-full"
       />
       
-      <div className="flex justify-between text-xs text-gray-500">
+      <div className="flex justify-between text-xs text-muted-foreground">
         <span>0.0</span>
         <span>5.0</span>
         <span>10.0</span>

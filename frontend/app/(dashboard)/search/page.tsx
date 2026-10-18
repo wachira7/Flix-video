@@ -97,20 +97,20 @@ export default function SearchPage() {
       <div className="max-w-7xl mx-auto">
         {/* Search Header */}
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-white mb-6">Search</h1>
+          <h1 className="text-4xl font-bold text-foreground mb-6">Search</h1>
           
           <form onSubmit={handleSubmit} className="flex gap-4 mb-6">
             <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
               <Input
                 type="search"
                 placeholder="Search movies, TV shows, people..."
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                className="pl-10 bg-gray-800 border-gray-700 text-white placeholder:text-gray-500"
+                className="pl-10 bg-secondary border-border text-foreground placeholder:text-muted-foreground"
               />
             </div>
-            <Button type="submit" className="bg-linear-to-r from-purple-700 to-fuchsia-600">
+            <Button type="submit" className="bg-linear-to-r from-primary/90 to-highlight">
               Search
             </Button>
           </form>
@@ -119,11 +119,11 @@ export default function SearchPage() {
           {(activeTab === "movies" || activeTab === "tv") && (
             <div className="flex gap-4">
               <Select value={yearFilter} onValueChange={setYearFilter}>
-                <SelectTrigger className="w-48 bg-gray-800 border-gray-700 text-white">
+                <SelectTrigger className="w-48 bg-secondary border-border text-foreground">
                   <Filter className="w-4 h-4 mr-2" />
                   <SelectValue placeholder="Filter by year" />
                 </SelectTrigger>
-                <SelectContent className="bg-gray-800 border-gray-700">
+                <SelectContent className="bg-secondary border-border">
                   <SelectItem value="">All Years</SelectItem>
                   {Array.from({ length: 30 }, (_, i) => new Date().getFullYear() - i).map(year => (
                     <SelectItem key={year} value={year.toString()}>{year}</SelectItem>
@@ -137,7 +137,7 @@ export default function SearchPage() {
                     setYearFilter("")
                     handleSearch(query, activeTab, 1)
                   }}
-                  className="border-gray-700"
+                  className="border-border"
                 >
                   Clear Filters
                 </Button>
@@ -148,7 +148,7 @@ export default function SearchPage() {
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-          <TabsList className="grid w-full max-w-2xl grid-cols-4 bg-gray-800">
+          <TabsList className="grid w-full max-w-2xl grid-cols-4 bg-secondary">
             <TabsTrigger value="all">All</TabsTrigger>
             <TabsTrigger value="movies">Movies</TabsTrigger>
             <TabsTrigger value="tv">TV Shows</TabsTrigger>
@@ -159,7 +159,7 @@ export default function SearchPage() {
             {loading ? (
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
                 {[...Array(12)].map((_, i) => (
-                  <Skeleton key={i} className="aspect-2/3 bg-gray-800" />
+                  <Skeleton key={i} className="aspect-2/3 bg-secondary" />
                 ))}
               </div>
             ) : results.length > 0 ? (
@@ -177,18 +177,18 @@ export default function SearchPage() {
                       variant="outline"
                       onClick={() => handlePageChange(page - 1)}
                       disabled={page === 1}
-                      className="border-gray-700"
+                      className="border-border"
                     >
                       Previous
                     </Button>
-                    <span className="text-white">
+                    <span className="text-foreground">
                       Page {page} of {totalPages}
                     </span>
                     <Button
                       variant="outline"
                       onClick={() => handlePageChange(page + 1)}
                       disabled={page === totalPages}
-                      className="border-gray-700"
+                      className="border-border"
                     >
                       Next
                     </Button>
@@ -197,12 +197,12 @@ export default function SearchPage() {
               </>
             ) : query ? (
               <div className="text-center py-12">
-                <p className="text-gray-400 text-lg">No results found for "{query}"</p>
-                <p className="text-gray-500 text-sm mt-2">Try different keywords</p>
+                <p className="text-muted-foreground text-lg">No results found for "{query}"</p>
+                <p className="text-muted-foreground text-sm mt-2">Try different keywords</p>
               </div>
             ) : (
               <div className="text-center py-12">
-                <p className="text-gray-400 text-lg">Start typing to search</p>
+                <p className="text-muted-foreground text-lg">Start typing to search</p>
               </div>
             )}
           </TabsContent>

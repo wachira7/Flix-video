@@ -57,10 +57,10 @@ export default function SubscriptionPage() {
   if (loading) {
     return (
       <div className="p-8 max-w-7xl mx-auto">
-        <Skeleton className="h-12 w-64 mb-8 bg-gray-800" />
+        <Skeleton className="h-12 w-64 mb-8 bg-secondary" />
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {[1, 2, 3].map((i) => (
-            <Skeleton key={i} className="h-96 bg-gray-800" />
+            <Skeleton key={i} className="h-96 bg-secondary" />
           ))}
         </div>
       </div>
@@ -71,10 +71,10 @@ export default function SubscriptionPage() {
     <div className="p-8 max-w-7xl mx-auto">
       {/* Header */}
       <div className="text-center mb-12">
-        <h1 className="text-4xl font-bold text-white mb-4">
+        <h1 className="text-4xl font-bold text-foreground mb-4">
           Choose Your Plan
         </h1>
-        <p className="text-gray-400 text-lg">
+        <p className="text-muted-foreground text-lg">
           Unlock premium features and unlimited entertainment
         </p>
       </div>
@@ -82,7 +82,7 @@ export default function SubscriptionPage() {
       {/* Current Plan Badge */}
       {currentPlan !== 'free' && (
         <div className="mb-8 text-center">
-          <Badge className="bg-purple-600 text-white px-4 py-2">
+          <Badge className="bg-primary text-primary-foreground px-4 py-2">
             Current Plan: {currentPlan.charAt(0).toUpperCase() + currentPlan.slice(1)}
           </Badge>
         </div>
@@ -98,18 +98,18 @@ export default function SubscriptionPage() {
           return (
             <Card
               key={plan.id}
-              className={`relative p-8 bg-gray-900 border-2 transition-all hover:scale-105 ${
+              className={`relative p-8 bg-card border-2 transition-all hover:scale-105 ${
                 isPremium
-                  ? 'border-purple-600 shadow-lg shadow-purple-600/50'
+                  ? 'border-primary shadow-lg shadow-primary/25'
                   : isCurrentPlan
                   ? 'border-green-600'
-                  : 'border-gray-800'
+                  : 'border-border'
               }`}
             >
               {/* Popular Badge */}
               {plan.popular && (
                 <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                  <Badge className="bg-linear-to-r from-purple-600 to-pink-600 text-white px-4 py-1">
+                  <Badge className="bg-linear-to-r from-primary to-highlight text-primary-foreground px-4 py-1">
                     <Crown className="w-4 h-4 mr-1 inline" />
                     Most Popular
                   </Badge>
@@ -118,19 +118,19 @@ export default function SubscriptionPage() {
 
               {/* Plan Header */}
               <div className="text-center mb-6">
-                <h3 className="text-2xl font-bold text-white mb-2">
+                <h3 className="text-2xl font-bold text-foreground mb-2">
                   {plan.name}
                 </h3>
                 <div className="flex items-baseline justify-center gap-1">
-                  <span className="text-4xl font-bold text-white">
+                  <span className="text-4xl font-bold text-foreground">
                     KES {plan.price.toLocaleString()}
                   </span>
                   {!isFree && (
-                    <span className="text-gray-400">/month</span>
+                    <span className="text-muted-foreground">/month</span>
                   )}
                 </div>
                 {isFree && (
-                  <p className="text-gray-400 mt-2">Forever free</p>
+                  <p className="text-muted-foreground mt-2">Forever free</p>
                 )}
               </div>
 
@@ -176,8 +176,8 @@ export default function SubscriptionPage() {
                 disabled={isCurrentPlan}
                 className={`w-full ${
                   isPremium
-                    ? 'bg-linear-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700'
-                    : 'bg-gray-800 hover:bg-gray-700'
+                    ? 'bg-linear-to-r from-primary to-highlight hover:from-primary/90 hover:to-highlight/90'
+                    : 'bg-secondary hover:bg-accent'
                 }`}
               >
                 {isCurrentPlan ? (
@@ -198,7 +198,7 @@ export default function SubscriptionPage() {
 
       {/* Features Comparison */}
       <div className="mt-16 text-center">
-        <h2 className="text-2xl font-bold text-white mb-4">
+        <h2 className="text-2xl font-bold text-foreground mb-4">
           All Plans Include
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
@@ -219,9 +219,9 @@ function Feature({ text, enabled }: { text: string; enabled: boolean }) {
       {enabled ? (
         <Check className="w-5 h-5 text-green-500 shrink-0" />
       ) : (
-        <span className="w-5 h-5 text-gray-600 shrink-0">-</span>
+        <span className="w-5 h-5 text-muted-foreground/70 shrink-0">-</span>
       )}
-      <span className={enabled ? 'text-white' : 'text-gray-500 line-through'}>
+      <span className={enabled ? 'text-foreground' : 'text-muted-foreground line-through'}>
         {text}
       </span>
     </li>
@@ -230,11 +230,11 @@ function Feature({ text, enabled }: { text: string; enabled: boolean }) {
 
 function FeatureCard({ icon, title }: { icon: React.ReactNode; title: string }) {
   return (
-    <div className="p-4 bg-gray-900 border border-gray-800 rounded-lg">
-      <div className="text-purple-500 mb-2 flex justify-center">
+    <div className="p-4 bg-card border border-border rounded-lg">
+      <div className="text-primary mb-2 flex justify-center">
         {icon}
       </div>
-      <p className="text-white text-sm">{title}</p>
+      <p className="text-foreground text-sm">{title}</p>
     </div>
   )
 }

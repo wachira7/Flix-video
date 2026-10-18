@@ -4,296 +4,136 @@
 import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { loginSchema, type LoginInput } from "@/lib/validations/auth"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Card } from "@/components/ui/card"
-import { Eye, EyeOff, Mail, Lock, Loader2, ArrowLeft } from "lucide-react"
-import { FcGoogle } from "react-icons/fc"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { toast } from "sonner"
+import { useRouter, useSearchParams } from "next/navigation"
 import { motion } from "framer-motion"
+import { Lock, Mail } from "lucide-react"
+import { toast } from "sonner"
 import axios from "axios"
+import { loginSchema, type LoginInput } from "@/lib/validations/auth"
+import {
+  AuthField,
+  FormAlert,
+  FormHeader,
+  GoogleButton,
+  OrDivider,
+  SubmitButton,
+  formItem,
+  formStagger,
+  useReveal,
+} from "./auth-fields"
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"
 
+/** Only allow same-site relative paths as a post-login destination */
+function safeNext(next: string | null) {
+  return next && next.startsWith("/") && !next.startsWith("//") ? next : null
+}
+
+function errorMessage(error: unknown) {
+  const err = error as { response?: { data?: { error?: string; message?: string } } }
+  if (!err.response) return "We couldn't reach FlixVideo. Check your connection and try again."
+  const raw = (err.response.data?.error || err.response.data?.message || "").toLowerCase()
+  if (raw.includes("verify") || raw.includes("verified")) return "Please verify your email first. Check your inbox for the link."
+  if (raw.includes("not found")) return "There's no account with that email. Create one instead?"
+  if (raw.includes("invalid") || raw.includes("incorrect") || raw.includes("wrong"))
+    return "That email and password don't match. Try again or reset your password."
+  return err.response.data?.error || err.response.data?.message || "Sign in failed. Please try again."
+}
+
 export function LoginForm() {
-  const [showPassword, setShowPassword] = useState(false)
-  const [loading, setLoading] = useState(false)
   const router = useRouter()
+  const params = useSearchParams()
+  const next = safeNext(params.get("next"))
+  const [state, setState] = useState<"idle" | "loading" | "success">("idle")
+  const [formError, setFormError] = useState<string | undefined>(params.get("error") ?? undefined)
+  const [shake, setShake] = useState(0)
+  const password = useReveal()
 
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<LoginInput>({
-    resolver: zodResolver(loginSchema),
-  })
+  } = useForm<LoginInput>({ resolver: zodResolver(loginSchema) })
 
   const onSubmit = async (data: LoginInput) => {
-    setLoading(true)
+    setState("loading")
+    setFormError(undefined)
     try {
       const response = await axios.post(`${API_URL}/api/auth/login`, data)
-      
-      // Store in localStorage (for client-side access)
-      localStorage.setItem("token", response.data.token)
-      localStorage.setItem("user", JSON.stringify(response.data.user))
-      
-      // Store in cookies (for middleware)
-      document.cookie = `token=${response.data.token}; path=/; max-age=2592000; SameSite=Strict`
-      
-      // Success message with username
-      const username = response.data.user?.username || response.data.user?.email?.split('@')[0] || 'User'
-      toast.success(`Welcome back, ${username}!`)
-      
-      const user = response.data.user
-      const isAdmin = user?.role === 'admin' || user?.is_admin === true
-      const isModerator = user?.role === 'moderator'
+      const { token, user } = response.data
 
-      setTimeout(() => {
-        if (isAdmin || isModerator) {
-          router.push("/admin")
-        } else {
-          router.push("/dashboard")
-        }
-      }, 500)
-      
-    } catch (error: any) {        
-      // Extract error message from various possible fields
-      let message = "Login failed"
-      
-      if (error.response?.data) {
-        // Backend might send: { error: "..." } or { message: "..." }
-        message = error.response.data.error || 
-                  error.response.data.message || 
-                  message
-      } else if (error.message) {
-        // Network error
-        message = "Network error - please check your connection"
-      }
-      
-      // Show specific error messages
-      if (message.toLowerCase().includes('invalid') || 
-          message.toLowerCase().includes('incorrect') ||
-          message.toLowerCase().includes('wrong')) {
-        toast.error("Invalid email or password")
-      } else if (message.toLowerCase().includes('not found')) {
-        toast.error("Account not found - please sign up")
-      } else if (message.toLowerCase().includes('network')) {
-        toast.error("Connection failed - please try again")
-      } else {
-        toast.error(message)
-      }
-    
-    } finally {
-      setLoading(false)
+      // localStorage for client-side access, cookie for the middleware
+      localStorage.setItem("token", token)
+      localStorage.setItem("user", JSON.stringify(user))
+      document.cookie = `token=${token}; path=/; max-age=2592000; SameSite=Strict`
+
+      setState("success")
+      const name = user?.username || user?.name || user?.email?.split("@")[0]
+      toast.success(name ? `Welcome back, ${name}` : "Welcome back")
+
+      const isStaff = user?.role === "admin" || user?.is_admin === true || user?.role === "moderator"
+      setTimeout(() => router.push(isStaff ? "/admin" : next || "/dashboard"), 600)
+    } catch (error) {
+      setState("idle")
+      setFormError(errorMessage(error))
+      setShake((n) => n + 1)
     }
   }
 
-  const handleGoogleLogin = () => {
-    window.location.href = `${API_URL}/api/auth/google`
-  }
-
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-linear-to-br from-purple-900 via-fuchsia-900 to-purple-900 relative">
-      {/* Back to Home Button */}
-      <Link href="/">
-        <motion.button
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5 }}
-          className="fixed top-6 left-6 flex items-center gap-2 text-white/80 hover:text-white transition-colors z-50 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          <span className="font-medium">Back to Home</span>
-        </motion.button>
-      </Link>
+    <motion.div variants={formStagger} initial="hidden" animate="show" className="space-y-6">
+      <FormHeader title="Sign in" italic="to FlixVideo">
+        Good to see you again.
+      </FormHeader>
 
-      <motion.div
-        initial={{ opacity: 0, scale: 0.9, rotateY: -15 }}
-        animate={{ opacity: 1, scale: 1, rotateY: 0 }}
-        transition={{ duration: 0.8, ease: "easeOut" }}
-        className="w-full max-w-5xl"
-      >
-        <Card className="overflow-hidden shadow-2xl">
-          <div className="grid md:grid-cols-2">
-            {/* Left Side - Login Form */}
-            <motion.div
-              initial={{ x: -100, opacity: 0, filter: "blur(10px)" }}
-              animate={{ x: 0, opacity: 1, filter: "blur(0px)" }}
-              transition={{ duration: 0.7, ease: "easeOut" }}
-              className="p-12 bg-white order-2 md:order-1"
+      <GoogleButton label="Continue with Google" onClick={() => (window.location.href = `${API_URL}/api/auth/google`)} />
+      <OrDivider />
+
+      <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-5">
+        <AuthField
+          id="email"
+          type="email"
+          label="Email"
+          icon={Mail}
+          autoComplete="email"
+          placeholder="you@example.com"
+          error={errors.email?.message}
+          {...register("email")}
+        />
+        <AuthField
+          id="password"
+          type={password.type}
+          label="Password"
+          icon={Lock}
+          autoComplete="current-password"
+          placeholder="Your password"
+          error={errors.password?.message}
+          trailing={password.toggle}
+          labelAside={
+            <Link
+              href="/forgot-password"
+              className="text-sm text-muted-foreground underline-offset-4 transition-colors hover:text-primary hover:underline"
             >
-              <div className="space-y-6">
-                <motion.div
-                  initial={{ y: 20, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 0.3, duration: 0.6 }}
-                  className="text-center"
-                >
-                  <h1 className="text-3xl font-bold text-gray-900">Sign In</h1>
-                  <p className="text-gray-600 mt-2">or use your email account</p>
-                </motion.div>
+              Forgot password?
+            </Link>
+          }
+          {...register("password")}
+        />
 
-                {/* Google OAuth Button */}
-                <motion.div
-                  initial={{ scale: 0, rotate: -180 }}
-                  animate={{ scale: 1, rotate: 0 }}
-                  transition={{ delay: 0.4, type: "spring", stiffness: 200 }}
-                  className="flex justify-center"
-                >
-                  <button
-                    onClick={handleGoogleLogin}
-                    className="w-14 h-14 rounded-full border-2 border-gray-300 flex items-center justify-center hover:border-purple-700 hover:shadow-lg transition-all duration-300 hover:scale-110"
-                  >
-                    <FcGoogle size={28} />
-                  </button>
-                </motion.div>
+        <FormAlert message={formError} shakeKey={shake} />
 
-                <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-                  {/* Email */}
-                  <motion.div
-                    initial={{ x: -50, opacity: 0 }}
-                    animate={{ x: 0, opacity: 1 }}
-                    transition={{ delay: 0.5, duration: 0.6 }}
-                    className="space-y-2"
-                  >
-                    <Label htmlFor="email">Email</Label>
-                    <div className="relative">
-                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                      <Input
-                        id="email"
-                        type="email"
-                        {...register("email")}
-                        className="pl-10 text-gray-900"
-                        placeholder="Enter your email"
-                      />
-                    </div>
-                    {errors.email && (
-                      <p className="text-sm text-red-500">{errors.email.message}</p>
-                    )}
-                  </motion.div>
+        <SubmitButton state={state} loadingText="Signing in">
+          Sign in
+        </SubmitButton>
+      </form>
 
-                  {/* Password */}
-                  <motion.div
-                    initial={{ x: -50, opacity: 0 }}
-                    animate={{ x: 0, opacity: 1 }}
-                    transition={{ delay: 0.6, duration: 0.6 }}
-                    className="space-y-2"
-                  >
-                    <Label htmlFor="password">Password</Label>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                      <Input
-                        id="password"
-                        type={showPassword ? "text" : "password"}
-                        {...register("password")}
-                        className="pl-10 pr-10 text-gray-900"
-                        placeholder="Enter your password"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2"
-                      >
-                        {showPassword ? (
-                          <EyeOff className="w-5 h-5 text-gray-400" />
-                        ) : (
-                          <Eye className="w-5 h-5 text-gray-400" />
-                        )}
-                      </button>
-                    </div>
-                    {errors.password && (
-                      <p className="text-sm text-red-500">{errors.password.message}</p>
-                    )}
-                  </motion.div>
-
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.7, duration: 0.6 }}
-                    className="text-right"
-                  >
-                    <Link
-                      href="/forgot-password"
-                      className="text-sm text-purple-700 hover:text-purple-800 hover:underline"
-                    >
-                      Forgot your password?
-                    </Link>
-                  </motion.div>
-
-                  <motion.div
-                    initial={{ y: 20, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    transition={{ delay: 0.8, duration: 0.6 }}
-                  >
-                    <Button
-                      type="submit"
-                      disabled={loading}
-                      className="w-full bg-linear-to-r from-purple-700 to-fuchsia-600 hover:from-purple-800 hover:to-fuchsia-700"
-                    >
-                      {loading ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Signing in...
-                        </>
-                      ) : (
-                        "SIGN IN"
-                      )}
-                    </Button>
-                  </motion.div>
-                </form>
-              </div>
-            </motion.div>
-
-            {/* Right Side - Welcome */}
-            <motion.div
-              initial={{ x: 100, opacity: 0, filter: "blur(10px)" }}
-              animate={{ x: 0, opacity: 1, filter: "blur(0px)" }}
-              transition={{ duration: 0.7, ease: "easeOut" }}
-              className="bg-linear-to-br from-purple-700 to-fuchsia-600 p-12 flex flex-col justify-center items-center text-white order-1 md:order-2 relative"
-              style={{
-                clipPath: "polygon(15% 0, 100% 0, 100% 100%, 0% 100%)",
-              }}
-            >
-              <div className="space-y-6 text-center relative z-10">
-                <motion.h2
-                  initial={{ y: 20, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 0.3, duration: 0.6 }}
-                  className="text-4xl font-bold"
-                >
-                  Hello, Friend!
-                </motion.h2>
-                <motion.p
-                  initial={{ y: 20, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 0.4, duration: 0.6 }}
-                  className="text-purple-100 text-lg"
-                >
-                  Enter your personal details and start your journey with us
-                </motion.p>
-                <motion.div
-                  initial={{ y: 20, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 0.5, duration: 0.6 }}
-                >
-                  <Link href="/signup">
-                    <Button
-                      variant="outline"
-                      className="border-2 border-white text-white hover:bg-white hover:text-purple-700 px-8 bg-transparent"
-                    >
-                      SIGN UP
-                    </Button>
-                  </Link>
-                </motion.div>
-              </div>
-            </motion.div>
-          </div>
-        </Card>
-      </motion.div>
-    </div>
+      <motion.p variants={formItem} className="text-center text-sm text-muted-foreground">
+        New to FlixVideo?{" "}
+        <Link href="/signup" className="font-medium text-foreground underline-offset-4 hover:text-primary hover:underline">
+          Create a free account
+        </Link>
+      </motion.p>
+    </motion.div>
   )
 }

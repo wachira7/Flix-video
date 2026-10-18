@@ -71,11 +71,11 @@ export function UsageWidget() {
 
   if (loading) {
     return (
-      <Card className="p-6 bg-gray-900 border-gray-800">
-        <Skeleton className="h-6 w-32 mb-4 bg-gray-800" />
+      <Card className="p-6 bg-card border-border">
+        <Skeleton className="h-6 w-32 mb-4 bg-secondary" />
         <div className="space-y-4">
-          <Skeleton className="h-16 bg-gray-800" />
-          <Skeleton className="h-16 bg-gray-800" />
+          <Skeleton className="h-16 bg-secondary" />
+          <Skeleton className="h-16 bg-secondary" />
         </div>
       </Card>
     )
@@ -126,15 +126,15 @@ export function UsageWidget() {
         exit={{ opacity: 0, x: 20 }}
         transition={{ duration: 0.3 }}
       >
-        <Card className="bg-gray-900 border-gray-800 overflow-hidden">
+        <Card className="bg-card border-border overflow-hidden">
           {/* ✅ Collapsible Header */}
-          <div className="p-4 flex items-center justify-between border-b border-gray-800">
+          <div className="p-4 flex items-center justify-between border-b border-border">
             <div className="flex items-center gap-2">
-              <h3 className="text-lg font-semibold text-white">Usage</h3>
+              <h3 className="text-lg font-semibold text-foreground">Usage</h3>
               <Badge className={`
-                ${usage.plan === 'premium' ? 'bg-purple-600' : 
+                ${usage.plan === 'premium' ? 'bg-primary' : 
                   usage.plan === 'basic' ? 'bg-blue-600' : 
-                  'bg-gray-600'} text-white capitalize text-xs
+                  'bg-muted-foreground/30'} text-primary-foreground capitalize text-xs
               `}>
                 {usage.plan === 'premium' && <Crown className="w-3 h-3 mr-1" />}
                 {usage.plan}
@@ -152,7 +152,7 @@ export function UsageWidget() {
                   animate={{ rotate: collapsed ? 180 : 0 }}
                   transition={{ duration: 0.2 }}
                 >
-                  <ChevronLeft className="w-4 h-4 text-gray-400" />
+                  <ChevronLeft className="w-4 h-4 text-muted-foreground" />
                 </motion.div>
               </Button>
               <Button
@@ -161,7 +161,7 @@ export function UsageWidget() {
                 size="icon"
                 className="h-8 w-8"
               >
-                <X className="w-4 h-4 text-gray-400" />
+                <X className="w-4 h-4 text-muted-foreground" />
               </Button>
             </div>
           </div>
@@ -190,7 +190,7 @@ export function UsageWidget() {
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
                               <Icon className={`w-4 h-4 ${getUsageColor(data.used, data.limit)}`} />
-                              <span className="text-sm text-gray-400 capitalize">
+                              <span className="text-sm text-muted-foreground capitalize">
                                 {feature.replace(/_/g, ' ').replace('daily', '(Today)')}
                               </span>
                             </div>
@@ -198,12 +198,12 @@ export function UsageWidget() {
                               <span className={`text-sm font-medium ${
                                 isCritical ? 'text-red-400' : 
                                 isWarning ? 'text-yellow-400' : 
-                                'text-white'
+                                'text-foreground'
                               }`}>
                                 {data.used}
                               </span>
                               {!isUnlimited && (
-                                <span className="text-sm text-gray-500">/ {data.limit}</span>
+                                <span className="text-sm text-muted-foreground">/ {data.limit}</span>
                               )}
                               {isUnlimited && (
                                 <span className="text-green-500 ml-1">∞</span>
@@ -231,7 +231,7 @@ export function UsageWidget() {
 
                   {/* Upgrade CTA for Free/Basic Users */}
                   {(isFreePlan || isBasicPlan) && (
-                    <div className="pt-4 border-t border-gray-800">
+                    <div className="pt-4 border-t border-border">
                       {hasWarnings && (
                         <div className="mb-3 p-2 bg-yellow-900/20 border border-yellow-600 rounded-lg">
                           <p className="text-xs text-yellow-400 flex items-center gap-1">
@@ -243,7 +243,7 @@ export function UsageWidget() {
                       
                       <Button
                         onClick={() => router.push('/subscription')}
-                        className="w-full bg-linear-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+                        className="w-full bg-linear-to-r from-primary to-highlight hover:from-primary/90 hover:to-highlight/90"
                         size="sm"
                       >
                         <Crown className="w-3 h-3 mr-2" />
@@ -254,7 +254,7 @@ export function UsageWidget() {
                   )}
 
                   {/* Info Footer */}
-                  <p className="text-xs text-gray-500 mt-4 text-center">
+                  <p className="text-xs text-muted-foreground mt-4 text-center">
                     {isFreePlan && 'Daily limits reset at midnight'}
                     {isBasicPlan && 'Enjoying Basic? Try Premium!'}
                     {usage.plan === 'premium' && '✨ Unlimited everything!'}

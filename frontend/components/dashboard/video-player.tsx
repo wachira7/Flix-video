@@ -26,7 +26,7 @@ export function VideoPlayer({ videoKey, title }: VideoPlayerProps) {
       </Button>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-4xl p-0 bg-black border-0">
+        <DialogContent className="max-w-4xl p-0 bg-background border-0">
           <VisuallyHidden.Root>
             <DialogTitle>{title} - Trailer</DialogTitle>
           </VisuallyHidden.Root>
@@ -43,7 +43,7 @@ export function VideoPlayer({ videoKey, title }: VideoPlayerProps) {
             onClick={() => setOpen(false)}
             variant="ghost"
             size="icon"
-            className="absolute top-4 right-4 text-white hover:bg-white/20 z-10"
+            className="absolute top-4 right-4 text-foreground hover:bg-white/20 z-10"
           >
             <X className="w-6 h-6" />
           </Button>

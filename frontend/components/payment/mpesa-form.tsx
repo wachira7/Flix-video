@@ -99,13 +99,13 @@ export function MpesaForm({ planId, amount }: MpesaFormProps) {
   }
 
   return (
-    <Card className="p-6 bg-gray-900 border-gray-800">
+    <Card className="p-6 bg-card border-border">
       <div className="text-center mb-6">
         <div className="w-16 h-16 bg-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
-          <Smartphone className="w-8 h-8 text-white" />
+          <Smartphone className="w-8 h-8 text-foreground" />
         </div>
-        <h2 className="text-2xl font-bold text-white mb-2">Pay with M-Pesa</h2>
-        <p className="text-gray-400">
+        <h2 className="text-2xl font-bold text-foreground mb-2">Pay with M-Pesa</h2>
+        <p className="text-muted-foreground">
           Enter your phone number to receive a payment prompt
         </p>
       </div>
@@ -113,14 +113,14 @@ export function MpesaForm({ planId, amount }: MpesaFormProps) {
       {paymentStatus === 'success' ? (
         <div className="text-center py-8">
           <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
-          <h3 className="text-xl font-bold text-white mb-2">Payment Successful!</h3>
-          <p className="text-gray-400">Redirecting to dashboard...</p>
+          <h3 className="text-xl font-bold text-foreground mb-2">Payment Successful!</h3>
+          <p className="text-muted-foreground">Redirecting to dashboard...</p>
         </div>
       ) : paymentStatus === 'failed' ? (
         <div className="text-center py-8">
           <XCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
-          <h3 className="text-xl font-bold text-white mb-2">Payment Failed</h3>
-          <p className="text-gray-400 mb-4">Please try again</p>
+          <h3 className="text-xl font-bold text-foreground mb-2">Payment Failed</h3>
+          <p className="text-muted-foreground mb-4">Please try again</p>
           <Button onClick={() => { setPaymentStatus(null); setCheckoutRequestId(null); }}>
             Try Again
           </Button>
@@ -128,29 +128,29 @@ export function MpesaForm({ planId, amount }: MpesaFormProps) {
       ) : (
         <form onSubmit={handlePayment} className="space-y-6">
           <div className="space-y-4 mb-6">
-            <div className="flex justify-between p-4 bg-gray-800 rounded-lg">
-              <span className="text-gray-400">Amount</span>
-              <span className="text-white font-semibold">KES {amount.toLocaleString()}</span>
+            <div className="flex justify-between p-4 bg-secondary rounded-lg">
+              <span className="text-muted-foreground">Amount</span>
+              <span className="text-foreground font-semibold">KES {amount.toLocaleString()}</span>
             </div>
-            <div className="flex justify-between p-4 bg-gray-800 rounded-lg">
-              <span className="text-gray-400">Plan</span>
-              <span className="text-white font-semibold capitalize">{planId}</span>
+            <div className="flex justify-between p-4 bg-secondary rounded-lg">
+              <span className="text-muted-foreground">Plan</span>
+              <span className="text-foreground font-semibold capitalize">{planId}</span>
             </div>
           </div>
 
           <div>
-            <Label htmlFor="phone" className="text-white">Phone Number</Label>
+            <Label htmlFor="phone" className="text-foreground">Phone Number</Label>
             <Input
               id="phone"
               type="tel"
               placeholder="254712345678 or 0712345678"
               value={phoneNumber}
               onChange={(e) => setPhoneNumber(e.target.value)}
-              className="mt-2 bg-gray-800 border-gray-700 text-white"
+              className="mt-2 bg-secondary border-border text-foreground"
               required
               disabled={loading || polling}
             />
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-muted-foreground mt-1">
               Enter your M-Pesa registered phone number
             </p>
           </div>
@@ -181,7 +181,7 @@ export function MpesaForm({ planId, amount }: MpesaFormProps) {
         </form>
       )}
 
-      <p className="text-xs text-gray-500 text-center mt-4">
+      <p className="text-xs text-muted-foreground text-center mt-4">
         Powered by Safaricom M-Pesa • Secure mobile money
       </p>
     </Card>

@@ -73,8 +73,8 @@ export function ReviewsSection({ contentType, contentId, title }: ReviewsSection
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <MessageSquare className="w-6 h-6 text-purple-500" />
-          <h2 className="text-3xl font-bold text-white">
+          <MessageSquare className="w-6 h-6 text-primary" />
+          <h2 className="text-3xl font-bold text-foreground">
             Reviews ({reviews.length})
           </h2>
         </div>
@@ -82,10 +82,10 @@ export function ReviewsSection({ contentType, contentId, title }: ReviewsSection
         <div className="flex items-center gap-4">
           {/* Sort Dropdown */}
           <Select value={sortBy} onValueChange={(value: any) => setSortBy(value)}>
-            <SelectTrigger className="w-48 bg-gray-800 border-gray-700 text-white">
+            <SelectTrigger className="w-48 bg-secondary border-border text-foreground">
               <SelectValue />
             </SelectTrigger>
-            <SelectContent className="bg-gray-800 border-gray-700 text-white">
+            <SelectContent className="bg-secondary border-border text-foreground">
               <SelectItem value="newest">Newest First</SelectItem>
               <SelectItem value="oldest">Oldest First</SelectItem>
               <SelectItem value="most_liked">Most Liked</SelectItem>
@@ -107,15 +107,15 @@ export function ReviewsSection({ contentType, contentId, title }: ReviewsSection
       {loading ? (
         <div className="space-y-4">
           {[...Array(3)].map((_, i) => (
-            <Skeleton key={i} className="h-48 bg-gray-800 rounded-lg" />
+            <Skeleton key={i} className="h-48 bg-secondary rounded-lg" />
           ))}
         </div>
       ) : reviews.length === 0 ? (
         /* Empty State */
-        <div className="text-center py-12 bg-gray-900 rounded-lg border border-gray-800">
-          <MessageSquare className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-          <h3 className="text-xl font-semibold text-white mb-2">No reviews yet</h3>
-          <p className="text-gray-400 mb-6">Be the first to review {title}!</p>
+        <div className="text-center py-12 bg-card rounded-lg border border-border">
+          <MessageSquare className="w-16 h-16 text-muted-foreground/70 mx-auto mb-4" />
+          <h3 className="text-xl font-semibold text-foreground mb-2">No reviews yet</h3>
+          <p className="text-muted-foreground mb-6">Be the first to review {title}!</p>
           {mounted && user && (
             <ReviewForm
               contentType={contentType}
@@ -129,7 +129,7 @@ export function ReviewsSection({ contentType, contentId, title }: ReviewsSection
         <div className="space-y-4">
           {/* User's Own Review (if exists) */}
           {userReview && (
-            <div className="border-2 border-purple-700 rounded-lg">
+            <div className="border-2 border-primary rounded-lg">
               <ReviewCard
                 review={userReview}
                 currentUserId={user?.id}

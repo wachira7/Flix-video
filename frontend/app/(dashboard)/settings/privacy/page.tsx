@@ -60,17 +60,17 @@ export default function PrivacySettingsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-linear-to-b from-gray-900 via-black to-gray-900 p-6">
+    <div className="min-h-screen bg-linear-to-b from-card via-background to-card p-6">
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-white mb-2">Privacy Settings</h1>
-          <p className="text-gray-400">Control your privacy and data</p>
+          <h1 className="text-3xl font-bold text-foreground mb-2">Privacy Settings</h1>
+          <p className="text-muted-foreground">Control your privacy and data</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           {/* Sidebar Navigation */}
           <div className="lg:col-span-1">
-            <Card className="bg-gray-900/50 border-gray-800 p-4">
+            <Card className="bg-card/50 border-border p-4">
               
             </Card>
           </div>
@@ -78,14 +78,14 @@ export default function PrivacySettingsPage() {
           {/* Main Content */}
           <div className="lg:col-span-3 space-y-6">
             {/* Profile Privacy */}
-            <Card className="bg-gray-900/50 border-gray-800 p-6">
+            <Card className="bg-card/50 border-border p-6">
               <div className="flex items-center gap-3 mb-6">
                 <div className="p-2 bg-blue-500/10 rounded-lg">
                   <UserCheck className="w-5 h-5 text-blue-500" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-semibold text-white">Profile Privacy</h2>
-                  <p className="text-sm text-gray-400">Control who can see your profile</p>
+                  <h2 className="text-xl font-semibold text-foreground">Profile Privacy</h2>
+                  <p className="text-sm text-muted-foreground">Control who can see your profile</p>
                 </div>
               </div>
 
@@ -98,7 +98,7 @@ export default function PrivacySettingsPage() {
                       setPrivacy({ ...privacy, profileVisibility: value })
                     }
                   >
-                    <SelectTrigger id="profile-visibility" className="bg-gray-800 border-gray-700">
+                    <SelectTrigger id="profile-visibility" className="bg-secondary border-border">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -122,19 +122,19 @@ export default function PrivacySettingsPage() {
                       </SelectItem>
                     </SelectContent>
                   </Select>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-muted-foreground">
                     Controls who can view your profile and activity
                   </p>
                 </div>
 
-                <div className="flex items-center justify-between p-4 bg-gray-800/50 rounded-lg">
+                <div className="flex items-center justify-between p-4 bg-secondary/50 rounded-lg">
                   <div className="flex items-center gap-3">
-                    <Activity className="w-5 h-5 text-gray-400" />
+                    <Activity className="w-5 h-5 text-muted-foreground" />
                     <div>
-                      <Label htmlFor="show-watch-history" className="text-white font-medium">
+                      <Label htmlFor="show-watch-history" className="text-foreground font-medium">
                         Show Watch History
                       </Label>
-                      <p className="text-sm text-gray-400">
+                      <p className="text-sm text-muted-foreground">
                         Let others see what you've watched
                       </p>
                     </div>
@@ -146,14 +146,14 @@ export default function PrivacySettingsPage() {
                   />
                 </div>
 
-                <div className="flex items-center justify-between p-4 bg-gray-800/50 rounded-lg">
+                <div className="flex items-center justify-between p-4 bg-secondary/50 rounded-lg">
                   <div className="flex items-center gap-3">
-                    <Eye className="w-5 h-5 text-gray-400" />
+                    <Eye className="w-5 h-5 text-muted-foreground" />
                     <div>
-                      <Label htmlFor="show-favorites" className="text-white font-medium">
+                      <Label htmlFor="show-favorites" className="text-foreground font-medium">
                         Show Favorites
                       </Label>
-                      <p className="text-sm text-gray-400">
+                      <p className="text-sm text-muted-foreground">
                         Display your favorite content on profile
                       </p>
                     </div>
@@ -165,14 +165,14 @@ export default function PrivacySettingsPage() {
                   />
                 </div>
 
-                <div className="flex items-center justify-between p-4 bg-gray-800/50 rounded-lg">
+                <div className="flex items-center justify-between p-4 bg-secondary/50 rounded-lg">
                   <div className="flex items-center gap-3">
-                    <Eye className="w-5 h-5 text-gray-400" />
+                    <Eye className="w-5 h-5 text-muted-foreground" />
                     <div>
-                      <Label htmlFor="show-ratings" className="text-white font-medium">
+                      <Label htmlFor="show-ratings" className="text-foreground font-medium">
                         Show Ratings & Reviews
                       </Label>
-                      <p className="text-sm text-gray-400">
+                      <p className="text-sm text-muted-foreground">
                         Make your ratings and reviews public
                       </p>
                     </div>
@@ -187,26 +187,26 @@ export default function PrivacySettingsPage() {
             </Card>
 
             {/* Social Privacy */}
-            <Card className="bg-gray-900/50 border-gray-800 p-6">
+            <Card className="bg-card/50 border-border p-6">
               <div className="flex items-center gap-3 mb-6">
-                <div className="p-2 bg-purple-500/10 rounded-lg">
-                  <Users className="w-5 h-5 text-purple-500" />
+                <div className="p-2 bg-primary/10 rounded-lg">
+                  <Users className="w-5 h-5 text-primary" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-semibold text-white">Social Privacy</h2>
-                  <p className="text-sm text-gray-400">Manage social interactions</p>
+                  <h2 className="text-xl font-semibold text-foreground">Social Privacy</h2>
+                  <p className="text-sm text-muted-foreground">Manage social interactions</p>
                 </div>
               </div>
 
               <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 bg-gray-800/50 rounded-lg">
+                <div className="flex items-center justify-between p-4 bg-secondary/50 rounded-lg">
                   <div className="flex items-center gap-3">
-                    <Users className="w-5 h-5 text-gray-400" />
+                    <Users className="w-5 h-5 text-muted-foreground" />
                     <div>
-                      <Label htmlFor="allow-friend-requests" className="text-white font-medium">
+                      <Label htmlFor="allow-friend-requests" className="text-foreground font-medium">
                         Allow Friend Requests
                       </Label>
-                      <p className="text-sm text-gray-400">
+                      <p className="text-sm text-muted-foreground">
                         Let others send you friend requests
                       </p>
                     </div>
@@ -218,14 +218,14 @@ export default function PrivacySettingsPage() {
                   />
                 </div>
 
-                <div className="flex items-center justify-between p-4 bg-gray-800/50 rounded-lg">
+                <div className="flex items-center justify-between p-4 bg-secondary/50 rounded-lg">
                   <div className="flex items-center gap-3">
-                    <Activity className="w-5 h-5 text-gray-400" />
+                    <Activity className="w-5 h-5 text-muted-foreground" />
                     <div>
-                      <Label htmlFor="show-online-status" className="text-white font-medium">
+                      <Label htmlFor="show-online-status" className="text-foreground font-medium">
                         Show Online Status
                       </Label>
-                      <p className="text-sm text-gray-400">
+                      <p className="text-sm text-muted-foreground">
                         Let friends see when you're online
                       </p>
                     </div>
@@ -237,14 +237,14 @@ export default function PrivacySettingsPage() {
                   />
                 </div>
 
-                <div className="flex items-center justify-between p-4 bg-gray-800/50 rounded-lg">
+                <div className="flex items-center justify-between p-4 bg-secondary/50 rounded-lg">
                   <div className="flex items-center gap-3">
-                    <Activity className="w-5 h-5 text-gray-400" />
+                    <Activity className="w-5 h-5 text-muted-foreground" />
                     <div>
-                      <Label htmlFor="share-activity" className="text-white font-medium">
+                      <Label htmlFor="share-activity" className="text-foreground font-medium">
                         Share Activity
                       </Label>
-                      <p className="text-sm text-gray-400">
+                      <p className="text-sm text-muted-foreground">
                         Share what you're watching with friends
                       </p>
                     </div>
@@ -256,14 +256,14 @@ export default function PrivacySettingsPage() {
                   />
                 </div>
 
-                <div className="flex items-center justify-between p-4 bg-gray-800/50 rounded-lg">
+                <div className="flex items-center justify-between p-4 bg-secondary/50 rounded-lg">
                   <div className="flex items-center gap-3">
-                    <Users className="w-5 h-5 text-gray-400" />
+                    <Users className="w-5 h-5 text-muted-foreground" />
                     <div>
-                      <Label htmlFor="allow-tagging" className="text-white font-medium">
+                      <Label htmlFor="allow-tagging" className="text-foreground font-medium">
                         Allow Tagging
                       </Label>
-                      <p className="text-sm text-gray-400">
+                      <p className="text-sm text-muted-foreground">
                         Let friends tag you in posts and comments
                       </p>
                     </div>
@@ -278,26 +278,26 @@ export default function PrivacySettingsPage() {
             </Card>
 
             {/* Data & Privacy */}
-            <Card className="bg-gray-900/50 border-gray-800 p-6">
+            <Card className="bg-card/50 border-border p-6">
               <div className="flex items-center gap-3 mb-6">
                 <div className="p-2 bg-green-500/10 rounded-lg">
                   <Database className="w-5 h-5 text-green-500" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-semibold text-white">Data & Privacy</h2>
-                  <p className="text-sm text-gray-400">Control how your data is used</p>
+                  <h2 className="text-xl font-semibold text-foreground">Data & Privacy</h2>
+                  <p className="text-sm text-muted-foreground">Control how your data is used</p>
                 </div>
               </div>
 
               <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 bg-gray-800/50 rounded-lg">
+                <div className="flex items-center justify-between p-4 bg-secondary/50 rounded-lg">
                   <div className="flex items-center gap-3">
-                    <Database className="w-5 h-5 text-gray-400" />
+                    <Database className="w-5 h-5 text-muted-foreground" />
                     <div>
-                      <Label htmlFor="data-collection" className="text-white font-medium">
+                      <Label htmlFor="data-collection" className="text-foreground font-medium">
                         Data Collection
                       </Label>
-                      <p className="text-sm text-gray-400">
+                      <p className="text-sm text-muted-foreground">
                         Allow FlixVideo to collect usage data
                       </p>
                     </div>
@@ -309,14 +309,14 @@ export default function PrivacySettingsPage() {
                   />
                 </div>
 
-                <div className="flex items-center justify-between p-4 bg-gray-800/50 rounded-lg">
+                <div className="flex items-center justify-between p-4 bg-secondary/50 rounded-lg">
                   <div className="flex items-center gap-3">
-                    <Activity className="w-5 h-5 text-gray-400" />
+                    <Activity className="w-5 h-5 text-muted-foreground" />
                     <div>
-                      <Label htmlFor="analytics-tracking" className="text-white font-medium">
+                      <Label htmlFor="analytics-tracking" className="text-foreground font-medium">
                         Analytics Tracking
                       </Label>
-                      <p className="text-sm text-gray-400">
+                      <p className="text-sm text-muted-foreground">
                         Help improve FlixVideo with anonymous analytics
                       </p>
                     </div>
@@ -328,14 +328,14 @@ export default function PrivacySettingsPage() {
                   />
                 </div>
 
-                <div className="flex items-center justify-between p-4 bg-gray-800/50 rounded-lg">
+                <div className="flex items-center justify-between p-4 bg-secondary/50 rounded-lg">
                   <div className="flex items-center gap-3">
-                    <Globe className="w-5 h-5 text-gray-400" />
+                    <Globe className="w-5 h-5 text-muted-foreground" />
                     <div>
-                      <Label htmlFor="personalized-ads" className="text-white font-medium">
+                      <Label htmlFor="personalized-ads" className="text-foreground font-medium">
                         Personalized Ads
                       </Label>
-                      <p className="text-sm text-gray-400">
+                      <p className="text-sm text-muted-foreground">
                         See ads tailored to your interests
                       </p>
                     </div>
@@ -347,14 +347,14 @@ export default function PrivacySettingsPage() {
                   />
                 </div>
 
-                <div className="flex items-center justify-between p-4 bg-gray-800/50 rounded-lg">
+                <div className="flex items-center justify-between p-4 bg-secondary/50 rounded-lg">
                   <div className="flex items-center gap-3">
-                    <Shield className="w-5 h-5 text-gray-400" />
+                    <Shield className="w-5 h-5 text-muted-foreground" />
                     <div>
-                      <Label htmlFor="third-party-sharing" className="text-white font-medium">
+                      <Label htmlFor="third-party-sharing" className="text-foreground font-medium">
                         Third-Party Data Sharing
                       </Label>
-                      <p className="text-sm text-gray-400">
+                      <p className="text-sm text-muted-foreground">
                         Share data with trusted partners
                       </p>
                     </div>
@@ -376,28 +376,28 @@ export default function PrivacySettingsPage() {
             </Card>
 
             {/* Data Management */}
-            <Card className="bg-gray-900/50 border-gray-800 p-6">
+            <Card className="bg-card/50 border-border p-6">
               <div className="flex items-center gap-3 mb-6">
                 <div className="p-2 bg-yellow-500/10 rounded-lg">
                   <FileText className="w-5 h-5 text-yellow-500" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-semibold text-white">Data Management</h2>
-                  <p className="text-sm text-gray-400">Download or delete your data</p>
+                  <h2 className="text-xl font-semibold text-foreground">Data Management</h2>
+                  <p className="text-sm text-muted-foreground">Download or delete your data</p>
                 </div>
               </div>
 
               <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 bg-gray-800/50 rounded-lg border border-gray-700">
+                <div className="flex items-center justify-between p-4 bg-secondary/50 rounded-lg border border-border">
                   <div>
-                    <p className="font-medium text-white">Download Your Data</p>
-                    <p className="text-sm text-gray-400">
+                    <p className="font-medium text-foreground">Download Your Data</p>
+                    <p className="text-sm text-muted-foreground">
                       Get a copy of all your FlixVideo data
                     </p>
                   </div>
                   <Button
                     variant="outline"
-                    className="border-gray-600"
+                    className="border-input"
                     onClick={handleDownloadData}
                   >
                     <FileText className="w-4 h-4 mr-2" />
@@ -405,10 +405,10 @@ export default function PrivacySettingsPage() {
                   </Button>
                 </div>
 
-                <div className="flex items-center justify-between p-4 bg-gray-800/50 rounded-lg border border-gray-700">
+                <div className="flex items-center justify-between p-4 bg-secondary/50 rounded-lg border border-border">
                   <div>
-                    <p className="font-medium text-white">Clear Watch History</p>
-                    <p className="text-sm text-gray-400">
+                    <p className="font-medium text-foreground">Clear Watch History</p>
+                    <p className="text-sm text-muted-foreground">
                       Remove all viewing history from your account
                     </p>
                   </div>
@@ -421,15 +421,15 @@ export default function PrivacySettingsPage() {
                         Clear History
                       </Button>
                     </AlertDialogTrigger>
-                    <AlertDialogContent className="bg-gray-900 border-gray-800">
+                    <AlertDialogContent className="bg-card border-border">
                       <AlertDialogHeader>
-                        <AlertDialogTitle className="text-white">Clear Watch History?</AlertDialogTitle>
-                        <AlertDialogDescription className="text-gray-400">
+                        <AlertDialogTitle className="text-foreground">Clear Watch History?</AlertDialogTitle>
+                        <AlertDialogDescription className="text-muted-foreground">
                           This will permanently delete your entire watch history. This action cannot be undone.
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
-                        <AlertDialogCancel className="bg-gray-800 border-gray-700 text-white hover:bg-gray-700">
+                        <AlertDialogCancel className="bg-secondary border-border text-foreground hover:bg-accent">
                           Cancel
                         </AlertDialogCancel>
                         <AlertDialogAction
@@ -445,8 +445,8 @@ export default function PrivacySettingsPage() {
 
                 <div className="flex items-center justify-between p-4 bg-red-900/20 rounded-lg border border-red-900/50">
                   <div>
-                    <p className="font-medium text-white">Delete Account</p>
-                    <p className="text-sm text-gray-400">
+                    <p className="font-medium text-foreground">Delete Account</p>
+                    <p className="text-sm text-muted-foreground">
                       Permanently delete your account and all data
                     </p>
                   </div>
@@ -458,16 +458,16 @@ export default function PrivacySettingsPage() {
                         Delete Account
                       </Button>
                     </AlertDialogTrigger>
-                    <AlertDialogContent className="bg-gray-900 border-gray-800">
+                    <AlertDialogContent className="bg-card border-border">
                       <AlertDialogHeader>
-                        <AlertDialogTitle className="text-white">Delete Account?</AlertDialogTitle>
-                        <AlertDialogDescription className="text-gray-400">
+                        <AlertDialogTitle className="text-foreground">Delete Account?</AlertDialogTitle>
+                        <AlertDialogDescription className="text-muted-foreground">
                           This will permanently delete your account and all associated data. 
                           This action cannot be undone. Are you absolutely sure?
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
-                        <AlertDialogCancel className="bg-gray-800 border-gray-700 text-white hover:bg-gray-700">
+                        <AlertDialogCancel className="bg-secondary border-border text-foreground hover:bg-accent">
                           Cancel
                         </AlertDialogCancel>
                         <AlertDialogAction
@@ -484,21 +484,21 @@ export default function PrivacySettingsPage() {
             </Card>
 
             {/* Privacy Policy */}
-            <Card className="bg-gray-900/50 border-gray-800 p-6">
+            <Card className="bg-card/50 border-border p-6">
               <div className="flex items-center gap-3 mb-4">
-                <div className="p-2 bg-purple-500/10 rounded-lg">
-                  <FileText className="w-5 h-5 text-purple-500" />
+                <div className="p-2 bg-primary/10 rounded-lg">
+                  <FileText className="w-5 h-5 text-primary" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-semibold text-white">Legal</h2>
-                  <p className="text-sm text-gray-400">Review our policies</p>
+                  <h2 className="text-xl font-semibold text-foreground">Legal</h2>
+                  <p className="text-sm text-muted-foreground">Review our policies</p>
                 </div>
               </div>
 
               <div className="space-y-3">
                 <Button
                   variant="outline"
-                  className="w-full justify-start border-gray-700 text-gray-300 hover:text-white"
+                  className="w-full justify-start border-border text-foreground/80 hover:text-foreground"
                   onClick={() => window.open("/privacy-policy", "_blank")}
                 >
                   <FileText className="w-4 h-4 mr-2" />
@@ -506,7 +506,7 @@ export default function PrivacySettingsPage() {
                 </Button>
                 <Button
                   variant="outline"
-                  className="w-full justify-start border-gray-700 text-gray-300 hover:text-white"
+                  className="w-full justify-start border-border text-foreground/80 hover:text-foreground"
                   onClick={() => window.open("/terms-of-service", "_blank")}
                 >
                   <FileText className="w-4 h-4 mr-2" />
@@ -514,7 +514,7 @@ export default function PrivacySettingsPage() {
                 </Button>
                 <Button
                   variant="outline"
-                  className="w-full justify-start border-gray-700 text-gray-300 hover:text-white"
+                  className="w-full justify-start border-border text-foreground/80 hover:text-foreground"
                   onClick={() => window.open("/cookie-policy", "_blank")}
                 >
                   <FileText className="w-4 h-4 mr-2" />
@@ -528,7 +528,7 @@ export default function PrivacySettingsPage() {
               <Button
                 onClick={handleSave}
                 disabled={loading}
-                className="bg-linear-to-r from-purple-700 to-fuchsia-600 hover:from-purple-800 hover:to-fuchsia-700"
+                className="bg-linear-to-r from-primary/90 to-highlight hover:from-primary/15 hover:to-highlight/90"
               >
                 {loading ? "Saving..." : "Save Privacy Settings"}
               </Button>
