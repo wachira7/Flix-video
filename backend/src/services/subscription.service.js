@@ -26,9 +26,13 @@ async function planRowId(client, plan) {
  * Grant the plan a payment paid for. Safe to call more than once for the
  * same payment: the second call finds the existing subscription and stops.
  *
+ * Pass { startFrom } to start the 30 days at a past date instead of now,
+ * e.g. the original payment date when granting plans after the fact. A
+ * period that would already have ended is not granted.
+ *
  * Returns { granted, reason?, subscription_id?, plan_type? }.
  */
-async function grantPlanForPayment(paymentId) {
+async function grantPlanForPayment(paymentId, { startFrom } = {}) {
   const client = await global.pgPool.connect();
   try {
     await client.query('BEGIN');
@@ -77,7 +81,11 @@ async function grantPlanForPayment(paymentId) {
        LIMIT 1`,
       [payment.user_id, planId]
     );
-    const periodFrom = current ? current.current_period_end : new Date();
+    const periodFrom = current ? new Date(current.current_period_end) : startFrom ? new Date(startFrom) : new Date();
+    if (periodFrom.getTime() + PERIOD_DAYS * 24 * 60 * 60 * 1000 <= Date.now()) {
+      await client.query('ROLLBACK');
+      return { granted: false, reason: 'period_already_ended' };
+    }
 
     const { rows: [previous] } = await client.query(
       `SELECT sp.slug FROM subscriptions s JOIN subscription_plans sp ON s.plan_id = sp.id
