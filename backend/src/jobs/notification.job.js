@@ -1,5 +1,5 @@
 // src/jobs/notification.job.js
-const { Worker } = require('bullmq');
+const { Worker } = require('./worker');
 const logger = require('../utils/logger');
 const { Resend } = require('resend');
 const Notification = require('../models/notification.model');

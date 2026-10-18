@@ -1,5 +1,5 @@
 // src/jobs/crypto-payment-checker.job.js
-const { Worker } = require('bullmq');
+const { Worker } = require('./worker');
 const cryptoService = require('../integrations/crypto/nowpayments');
 const logger = require('../utils/logger');
 
