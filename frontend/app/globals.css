@@ -797,3 +797,28 @@ a:hover > .button-sweep {
     animation: none;
   }
 }
+
+/* Long-form legal text (Privacy, Terms) */
+.legal-prose ul {
+  list-style: none;
+  display: grid;
+  gap: 0.6rem;
+}
+.legal-prose li {
+  position: relative;
+  padding-left: 1.25rem;
+}
+.legal-prose li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.6em;
+  width: 0.35rem;
+  height: 0.35rem;
+  border-radius: 9999px;
+  background: hsl(var(--primary));
+}
+.legal-prose strong {
+  color: hsl(var(--foreground));
+  font-weight: 600;
+}

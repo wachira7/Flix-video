@@ -19,6 +19,8 @@ const columns = [
       { label: "Create an account", href: "/signup" },
       { label: "Sign in", href: "/login" },
       { label: "Reset password", href: "/forgot-password" },
+      { label: "Privacy Policy", href: "/privacy" },
+      { label: "Terms of Use", href: "/terms" },
     ],
   },
 ]

@@ -149,6 +149,18 @@ export function SignupForm() {
             <SubmitButton state={state} loadingText="Creating your account">
               Create account
             </SubmitButton>
+
+            <p className="text-center text-xs leading-relaxed text-muted-foreground">
+              By creating an account you agree to our{" "}
+              <Link href="/terms" className="underline underline-offset-4 hover:text-foreground">
+                Terms of Use
+              </Link>{" "}
+              and{" "}
+              <Link href="/privacy" className="underline underline-offset-4 hover:text-foreground">
+                Privacy Policy
+              </Link>
+              .
+            </p>
           </form>
 
           <motion.p variants={formItem} className="text-center text-sm text-muted-foreground">
