@@ -2,96 +2,112 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/*
+ * FlixVideo "Projector" design system
+ * Warm near-black base, film-light amber used only for actions and progress.
+ * Poster artwork supplies most of the colour on screen.
+ * Values are HSL triplets, consumed as hsl(var(--token)).
+ */
 :root {
-  /* Set dark theme as default in :root */
-  --background: 220 13% 8%;
-  --foreground: 210 40% 98%;
-  --card: 220 13% 11%;
-  --card-foreground: 210 40% 98%;
-  --popover: 220 13% 11%;
-  --popover-foreground: 210 40% 98%;
-  --primary: 271 91% 65%;
-  --primary-foreground: 210 40% 98%;
-  --secondary: 220 13% 15%;
-  --secondary-foreground: 210 40% 98%;
-  --muted: 220 13% 15%;
-  --muted-foreground: 215 20.2% 65.1%;
-  --accent: 330 81% 60%;
-  --accent-foreground: 210 40% 98%;
-  --destructive: 0 84.2% 60.2%;
-  --destructive-foreground: 210 40% 98%;
-  --border: 220 13% 20%;
-  --input: 220 13% 20%;
-  --ring: 271 91% 65%;
-  --chart-1: 0.646 0.222 41.116;
-  --chart-2: 0.6 0.118 184.704;
-  --chart-3: 0.398 0.07 227.392;
-  --chart-4: 0.828 0.189 84.429;
-  --chart-5: 0.769 0.188 70.08;
-  --radius: 0.75rem;
-}
-
-.light {
-  /* Light theme values for toggle */
-  --background: 0 0% 100%;
-  --foreground: 222.2 84% 4.9%;
-  --card: 0 0% 100%;
-  --card-foreground: 222.2 84% 4.9%;
-  --popover: 0 0% 100%;
-  --popover-foreground: 222.2 84% 4.9%;
-  --primary: 271 91% 65%;
-  --primary-foreground: 210 40% 98%;
-  --secondary: 210 40% 96.1%;
-  --secondary-foreground: 222.2 47.4% 11.2%;
-  --muted: 210 40% 96.1%;
-  --muted-foreground: 215.4 16.3% 46.9%;
-  --accent: 330 81% 60%;
-  --accent-foreground: 222.2 47.4% 11.2%;
-  --destructive: 0 84.2% 60.2%;
-  --destructive-foreground: 210 40% 98%;
-  --border: 214.3 31.8% 91.4%;
-  --input: 214.3 31.8% 91.4%;
-  --ring: 271 91% 65%;
+  /* Dark is the default theme */
+  --background: 30 15% 5%; /* #0F0D0B */
+  --foreground: 36 41% 92%; /* #F3EDE4 */
+  --card: 30 13% 9%; /* #1A1714 */
+  --card-foreground: 36 41% 92%;
+  --popover: 30 14% 10%;
+  --popover-foreground: 36 41% 92%;
+  --primary: 36 79% 57%; /* #E8A33D amber */
+  --primary-foreground: 36 63% 6%; /* dark ink on amber */
+  --highlight: 40 82% 69%; /* #F2C46D pale gold, second gradient stop */
+  --secondary: 30 15% 13%; /* #26211C */
+  --secondary-foreground: 36 41% 92%;
+  --muted: 30 15% 13%;
+  --muted-foreground: 36 13% 58%; /* #A39887 */
+  --accent: 30 16% 15%; /* hover surface */
+  --accent-foreground: 36 41% 92%;
+  --destructive: 4 72% 56%;
+  --destructive-foreground: 36 41% 96%;
+  --success: 145 45% 48%;
+  --border: 30 16% 17%; /* #322B24 */
+  --input: 30 16% 19%;
+  --ring: 36 79% 57%;
+  --chart-1: 36 79% 57%;
+  --chart-2: 186 35% 52%;
+  --chart-3: 14 62% 55%;
+  --chart-4: 80 30% 52%;
+  --chart-5: 36 20% 70%;
+  --radius: 0.375rem;
+  --sidebar: 30 14% 7%;
+  --sidebar-foreground: 36 41% 92%;
+  --sidebar-primary: 36 79% 57%;
+  --sidebar-primary-foreground: 36 63% 6%;
+  --sidebar-accent: 30 16% 13%;
+  --sidebar-accent-foreground: 36 41% 92%;
+  --sidebar-border: 30 16% 15%;
+  --sidebar-ring: 36 79% 57%;
 }
 
 .dark {
-  --background: 220 13% 8%;
-  --foreground: 210 40% 98%;
-  --card: 220 13% 11%;
-  --card-foreground: 210 40% 98%;
-  --popover: 220 13% 11%;
-  --popover-foreground: 210 40% 98%;
-  --primary: 271 91% 65%;
-  --primary-foreground: 210 40% 98%;
-  --secondary: 220 13% 15%;
-  --secondary-foreground: 210 40% 98%;
-  --muted: 220 13% 15%;
-  --muted-foreground: 215 20.2% 65.1%;
-  --accent: 330 81% 60%;
-  --accent-foreground: 210 40% 98%;
-  --destructive: 0 84.2% 60.2%;
-  --destructive-foreground: 210 40% 98%;
-  --border: 220 13% 20%;
-  --input: 220 13% 20%;
-  --ring: 271 91% 65%;
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(0.269 0 0);
-  --sidebar-ring: oklch(0.439 0 0);
+  --background: 30 15% 5%;
+  --foreground: 36 41% 92%;
+  --card: 30 13% 9%;
+  --card-foreground: 36 41% 92%;
+  --popover: 30 14% 10%;
+  --popover-foreground: 36 41% 92%;
+  --primary: 36 79% 57%;
+  --primary-foreground: 36 63% 6%;
+  --highlight: 40 82% 69%;
+  --secondary: 30 15% 13%;
+  --secondary-foreground: 36 41% 92%;
+  --muted: 30 15% 13%;
+  --muted-foreground: 36 13% 58%;
+  --accent: 30 16% 15%;
+  --accent-foreground: 36 41% 92%;
+  --destructive: 4 72% 56%;
+  --destructive-foreground: 36 41% 96%;
+  --success: 145 45% 48%;
+  --border: 30 16% 17%;
+  --input: 30 16% 19%;
+  --ring: 36 79% 57%;
+}
+
+.light {
+  /* Warm paper, for users who toggle light mode */
+  --background: 38 33% 96%;
+  --foreground: 30 15% 8%;
+  --card: 38 40% 99%;
+  --card-foreground: 30 15% 8%;
+  --popover: 38 40% 99%;
+  --popover-foreground: 30 15% 8%;
+  --primary: 34 82% 50%;
+  --primary-foreground: 36 63% 6%;
+  --highlight: 40 85% 62%;
+  --secondary: 36 22% 90%;
+  --secondary-foreground: 30 15% 10%;
+  --muted: 36 22% 90%;
+  --muted-foreground: 30 9% 38%;
+  --accent: 36 24% 88%;
+  --accent-foreground: 30 15% 10%;
+  --destructive: 4 70% 48%;
+  --destructive-foreground: 38 40% 98%;
+  --success: 145 50% 34%;
+  --border: 34 18% 84%;
+  --input: 34 18% 80%;
+  --ring: 34 82% 50%;
+  --sidebar: 38 30% 93%;
+  --sidebar-foreground: 30 15% 8%;
+  --sidebar-primary: 34 82% 50%;
+  --sidebar-primary-foreground: 36 63% 6%;
+  --sidebar-accent: 36 24% 88%;
+  --sidebar-accent-foreground: 30 15% 10%;
+  --sidebar-border: 34 18% 84%;
+  --sidebar-ring: 34 82% 50%;
 }
 
 @theme inline {
-  --font-sans: "Geist", "Geist Fallback";
-  --font-mono: "Geist Mono", "Geist Mono Fallback";
+  --font-sans: var(--font-instrument), "Helvetica Neue", Arial, sans-serif;
+  --font-display: var(--font-bodoni), "Didot", Georgia, serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, Menlo, monospace;
   --color-background: hsl(var(--background));
   --color-foreground: hsl(var(--foreground));
   --color-card: hsl(var(--card));
@@ -100,6 +116,7 @@
   --color-popover-foreground: hsl(var(--popover-foreground));
   --color-primary: hsl(var(--primary));
   --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-highlight: hsl(var(--highlight));
   --color-secondary: hsl(var(--secondary));
   --color-secondary-foreground: hsl(var(--secondary-foreground));
   --color-muted: hsl(var(--muted));
@@ -108,21 +125,27 @@
   --color-accent-foreground: hsl(var(--accent-foreground));
   --color-destructive: hsl(var(--destructive));
   --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --color-success: hsl(var(--success));
   --color-border: hsl(var(--border));
   --color-input: hsl(var(--input));
   --color-ring: hsl(var(--ring));
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
-  --color-sidebar: var(--sidebar);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-ring: var(--sidebar-ring);
+  --color-chart-1: hsl(var(--chart-1));
+  --color-chart-2: hsl(var(--chart-2));
+  --color-chart-3: hsl(var(--chart-3));
+  --color-chart-4: hsl(var(--chart-4));
+  --color-chart-5: hsl(var(--chart-5));
+  --radius-sm: calc(var(--radius) - 2px);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) + 2px);
+  --radius-xl: calc(var(--radius) + 6px);
+  --color-sidebar: hsl(var(--sidebar));
+  --color-sidebar-foreground: hsl(var(--sidebar-foreground));
+  --color-sidebar-primary: hsl(var(--sidebar-primary));
+  --color-sidebar-primary-foreground: hsl(var(--sidebar-primary-foreground));
+  --color-sidebar-accent: hsl(var(--sidebar-accent));
+  --color-sidebar-accent-foreground: hsl(var(--sidebar-accent-foreground));
+  --color-sidebar-border: hsl(var(--sidebar-border));
+  --color-sidebar-ring: hsl(var(--sidebar-ring));
 }
 
 @layer base {
@@ -130,16 +153,36 @@
     @apply border-border outline-ring/50;
   }
 
-  /* Simplified body styling with proper HSL colors */
   body {
     @apply bg-background text-foreground;
+    font-feature-settings: "kern", "liga";
+    /* Scroll reveals park elements off to the side; never let that widen
+       the page. clip (unlike hidden) keeps position: sticky working. */
+    overflow-x: clip;
   }
 
   html {
     scroll-behavior: smooth;
   }
 
-  /* Ensure dark class takes precedence */
+  /* Editorial serif for page and section titles */
+  h1,
+  h2 {
+    font-family: var(--font-display);
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+    /* Bodoni Moda's hyphen vanishes above optical size ~22 (and its
+       hairlines get very thin), so headings use a fixed optical size */
+    font-optical-sizing: none;
+    font-variation-settings: "opsz" 18;
+  }
+
+  ::selection {
+    background: hsl(var(--primary) / 0.35);
+    color: hsl(var(--foreground));
+  }
+
   html.dark {
     color-scheme: dark;
   }
@@ -149,7 +192,60 @@
   }
 }
 
+@layer utilities {
+  .font-display {
+    font-family: var(--font-display);
+    font-optical-sizing: none;
+    font-variation-settings: "opsz" 18;
+  }
+
+  /* Small uppercase section label */
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: hsl(var(--primary));
+  }
+
+  /* Hero entrance: CSS-only so it runs before hydration */
+  .hero-reveal {
+    animation: hero-rise 0.9s cubic-bezier(0.22, 1, 0.36, 1) var(--delay, 0s) both;
+  }
+  .hero-backdrop {
+    animation: hero-lights 2.2s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hero-reveal,
+    .hero-backdrop {
+      animation: none;
+    }
+  }
+
+  /* Subtle projector grain over hero artwork */
+  .film-grain {
+    pointer-events: none;
+    opacity: 0.07;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+}
+
 /* Custom Animations */
+@keyframes hero-rise {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+}
+
+@keyframes hero-lights {
+  from {
+    opacity: 0;
+    transform: scale(1.06);
+  }
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -227,10 +323,10 @@
 @keyframes pulse-glow {
   0%,
   100% {
-    box-shadow: 0 0 20px rgba(147, 51, 234, 0.3);
+    box-shadow: 0 0 20px rgba(232, 163, 61, 0.25);
   }
   50% {
-    box-shadow: 0 0 40px rgba(147, 51, 234, 0.6);
+    box-shadow: 0 0 40px rgba(232, 163, 61, 0.45);
   }
 }
 
@@ -310,7 +406,7 @@
 
 /* Gradient text utility */
 .gradient-text {
-  background: linear-gradient(135deg, #9333ea 0%, #db2777 100%);
+  background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--highlight)) 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -318,11 +414,11 @@
 
 /* Gradient backgrounds */
 .gradient-primary {
-  background: linear-gradient(135deg, #9333ea 0%, #db2777 100%);
+  background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--highlight)) 100%);
 }
 
 .gradient-secondary {
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  background: linear-gradient(135deg, hsl(var(--secondary)) 0%, hsl(var(--accent)) 100%);
 }
 
 .gradient-dark {
@@ -399,7 +495,7 @@
 }
 
 .hover-glow:hover {
-  box-shadow: 0 0 30px rgba(147, 51, 234, 0.5);
+  box-shadow: 0 0 30px rgba(232, 163, 61, 0.35);
 }
 
 .hover-scale {
@@ -412,14 +508,14 @@
 
 /* Image loading effect */
 .image-loading {
-  background: linear-gradient(90deg, #1a1a1a 25%, #2a2a2a 50%, #1a1a1a 75%);
+  background: linear-gradient(90deg, hsl(var(--card)) 25%, hsl(var(--muted)) 50%, hsl(var(--card)) 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
 }
 
 /* Text effects */
 .text-shadow-glow {
-  text-shadow: 0 0 20px rgba(147, 51, 234, 0.5);
+  text-shadow: 0 0 20px rgba(232, 163, 61, 0.35);
 }
 
 .text-shadow-strong {
@@ -448,4 +544,281 @@
 }
 .stagger-children > *:nth-child(6) {
   animation-delay: 0.6s;
+}
+/* ------------------------------------------------------------------
+ * Landing page motion (Projector)
+ * All of it is decorative and switched off under reduced motion.
+ * ------------------------------------------------------------------ */
+
+/* Scroll reveals, driven by components/landing/scroll-motion.tsx.
+   Nothing is hidden until that script adds .reveal-ready. */
+.reveal-ready .reveal,
+.reveal-ready .reveal-stagger > * {
+  opacity: 0;
+  transform: translate3d(0, 56px, 0);
+  transition:
+    opacity 0.5s ease,
+    transform 0.8s cubic-bezier(0.22, 1, 0.36, 1),
+    translate 0.3s ease;
+  will-change: opacity, transform;
+}
+.reveal-ready .reveal[data-reveal="left"] {
+  transform: translate3d(-72px, 0, 0);
+}
+.reveal-ready .reveal[data-reveal="right"],
+.reveal-ready .reveal-stagger[data-reveal="right"] > * {
+  transform: translate3d(72px, 0, 0);
+}
+.reveal-ready .reveal[data-reveal="zoom"],
+.reveal-ready .reveal-stagger[data-reveal="zoom"] > * {
+  transform: translate3d(0, 40px, 0) scale(0.9);
+}
+/* On phones, side entrances rise instead: sliding in from off-screen
+   would widen the page */
+@media (max-width: 767px) {
+  .reveal-ready .reveal[data-reveal="left"],
+  .reveal-ready .reveal[data-reveal="right"],
+  .reveal-ready .reveal-stagger[data-reveal="right"] > * {
+    transform: translate3d(0, 40px, 0);
+  }
+}
+/* Leaving through the top of the screen */
+.reveal-ready .reveal[data-exit="up"],
+.reveal-ready .reveal-stagger[data-exit="up"] > * {
+  transform: translate3d(0, -56px, 0);
+}
+.reveal-ready .reveal-stagger > * {
+  transition-delay: calc(var(--i, 0) * 90ms);
+}
+.reveal-ready .reveal.is-visible,
+.reveal-ready .reveal-stagger.is-visible > * {
+  opacity: 1;
+  transform: none;
+}
+
+/* Slow push-in on the active hero backdrop */
+@keyframes kenburns {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.08) translate(-1%, -1%);
+  }
+}
+.kenburns {
+  animation: kenburns 9s ease-out both;
+}
+
+/* Reel-style progress for the hero slides */
+@keyframes reel-fill {
+  from {
+    width: 0;
+  }
+  to {
+    width: 100%;
+  }
+}
+.reel-progress {
+  animation: reel-fill var(--slide-ms, 7000ms) linear both;
+}
+
+/* Warm projector light drifting behind the headline */
+@keyframes leak-drift {
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 0.85;
+  }
+  100% {
+    transform: translate(12%, 8%) scale(1.15);
+    opacity: 0.6;
+  }
+}
+.light-leak {
+  pointer-events: none;
+  background: radial-gradient(closest-side, hsl(var(--primary) / 0.22), transparent 70%);
+  filter: blur(20px);
+  animation: leak-drift 16s ease-in-out infinite alternate;
+}
+
+/* Cursor-following glow, fed by components/landing/spotlight.tsx */
+.spotlight {
+  position: relative;
+  isolation: isolate;
+}
+.spotlight::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  background: radial-gradient(
+    420px circle at var(--mx, 50%) var(--my, 50%),
+    hsl(var(--primary) / 0.12),
+    transparent 45%
+  );
+}
+.spotlight:hover::before {
+  opacity: 1;
+}
+
+/* Light sweeping around the featured plan's border */
+@property --sheen-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+@keyframes sheen-spin {
+  to {
+    --sheen-angle: 360deg;
+  }
+}
+.sheen-border::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  pointer-events: none;
+  background:
+    conic-gradient(
+      from var(--sheen-angle),
+      transparent 0 62%,
+      hsl(var(--primary)) 76%,
+      hsl(var(--highlight)) 82%,
+      transparent 92%
+    ),
+    linear-gradient(hsl(var(--primary) / 0.45), hsl(var(--primary) / 0.45));
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#000 0 0) content-box exclude,
+    linear-gradient(#000 0 0);
+  animation: sheen-spin 6s linear infinite;
+}
+
+/* Typing caret and thinking dots in the AI example */
+@keyframes caret-blink {
+  50% {
+    opacity: 0;
+  }
+}
+.caret {
+  display: inline-block;
+  width: 2px;
+  height: 1.05em;
+  margin-left: 2px;
+  vertical-align: -0.15em;
+  background: hsl(var(--primary));
+  animation: caret-blink 0.9s steps(1) infinite;
+}
+@keyframes dot-bounce {
+  0%,
+  80%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.35;
+  }
+  40% {
+    transform: translateY(-4px);
+    opacity: 1;
+  }
+}
+.dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  background: hsl(var(--primary));
+  animation: dot-bounce 1s ease-in-out infinite;
+}
+
+/* Endless poster rows behind the closing call to action */
+@keyframes marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+.marquee {
+  width: max-content;
+  animation: marquee var(--marquee-s, 80s) linear infinite;
+}
+.marquee-reverse {
+  animation-direction: reverse;
+}
+
+/* Auth art panel: vertical poster columns */
+@keyframes column-up {
+  to {
+    transform: translateY(-50%);
+  }
+}
+.poster-column {
+  display: grid;
+  gap: 0.75rem;
+  animation: column-up var(--column-s, 80s) linear infinite;
+}
+.poster-column-reverse {
+  animation-direction: reverse;
+}
+
+/* Light sweep across primary auth buttons */
+.button-sweep {
+  transform: skewX(-20deg) translateX(0);
+  transition: transform 0.8s ease;
+}
+button:hover > .button-sweep,
+a:hover > .button-sweep {
+  transform: skewX(-20deg) translateX(400%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .poster-column,
+  .button-sweep {
+    animation: none;
+    transition: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kenburns,
+  .reel-progress,
+  .light-leak,
+  .sheen-border::after,
+  .caret,
+  .dot,
+  .marquee {
+    animation: none;
+  }
+}
+
+/* Long-form legal text (Privacy, Terms) */
+.legal-prose ul {
+  list-style: none;
+  display: grid;
+  gap: 0.6rem;
+}
+.legal-prose li {
+  position: relative;
+  padding-left: 1.25rem;
+}
+.legal-prose li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.6em;
+  width: 0.35rem;
+  height: 0.35rem;
+  border-radius: 9999px;
+  background: hsl(var(--primary));
+}
+.legal-prose strong {
+  color: hsl(var(--foreground));
+  font-weight: 600;
 }

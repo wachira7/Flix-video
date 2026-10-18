@@ -1,39 +1,35 @@
 // app/(dashboard)/layout.tsx
 "use client"
 
-import { Sidebar } from "@/components/dashboard/sidebar"
+import type { CSSProperties } from "react"
+import { MobileTabBar } from "@/components/dashboard/mobile-tab-bar"
+import { ShellProvider, useShell } from "@/components/dashboard/shell-context"
+import { Sidebar, SIDEBAR_WIDTH } from "@/components/dashboard/sidebar"
 import { Topbar } from "@/components/dashboard/topbar"
-import { useState, createContext, useContext } from "react"
 
-// Create context for sidebar state
-const SidebarContext = createContext({
-  collapsed: false,
-  setCollapsed: (collapsed: boolean) => {},
-})
-
-export const useSidebar = () => useContext(SidebarContext)
-
-export default function DashboardLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
-  const [collapsed, setCollapsed] = useState(false)
+function Shell({ children }: { children: React.ReactNode }) {
+  const { collapsed } = useShell()
+  const width = collapsed ? SIDEBAR_WIDTH.closed : SIDEBAR_WIDTH.open
 
   return (
-    <SidebarContext.Provider value={{ collapsed, setCollapsed }}>
-      <div className="min-h-screen bg-black">
-        <Sidebar />
-        <div 
-          className="transition-all duration-300"
-          style={{ marginLeft: collapsed ? '80px' : '256px' }}
-        >
-          <Topbar />
-          <main className="p-6">
-            {children}
-          </main>
-        </div>
+    <div
+      className="dark min-h-svh bg-background text-foreground"
+      style={{ "--sidebar-w": `${width}px` } as CSSProperties}
+    >
+      <Sidebar />
+      <div className="transition-[padding] duration-300 ease-out lg:pl-[var(--sidebar-w)]">
+        <Topbar />
+        <main className="px-4 pt-4 pb-28 sm:px-6 lg:px-8 lg:pb-12">{children}</main>
       </div>
-    </SidebarContext.Provider>
+      <MobileTabBar />
+    </div>
+  )
+}
+
+export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <ShellProvider>
+      <Shell>{children}</Shell>
+    </ShellProvider>
   )
 }

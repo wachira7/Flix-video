@@ -50,21 +50,21 @@ export function BanUserDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-gray-900 border-gray-800">
+      <DialogContent className="bg-card border-border">
         <DialogHeader>
-          <DialogTitle className="text-white flex items-center gap-2">
+          <DialogTitle className="text-foreground flex items-center gap-2">
             <AlertCircle className="w-5 h-5 text-red-500" />
             Ban User
           </DialogTitle>
-          <DialogDescription className="text-gray-400">
-            You are about to ban <span className="text-white font-semibold">{userEmail}</span>. 
+          <DialogDescription className="text-muted-foreground">
+            You are about to ban <span className="text-foreground font-semibold">{userEmail}</span>. 
             This will prevent them from accessing the platform.
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 py-4">
           <div>
-            <Label htmlFor="reason" className="text-white">
+            <Label htmlFor="reason" className="text-foreground">
               Reason for ban *
             </Label>
             <Textarea
@@ -72,10 +72,10 @@ export function BanUserDialog({
               placeholder="Enter the reason for banning this user..."
               value={reason}
               onChange={(e) => setReason(e.target.value)}
-              className="mt-2 bg-gray-800 border-gray-700 text-white min-h-[100px]"
+              className="mt-2 bg-secondary border-border text-foreground min-h-[100px]"
               required
             />
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-muted-foreground mt-1">
               This reason will be logged and visible to other administrators.
             </p>
           </div>
@@ -86,7 +86,7 @@ export function BanUserDialog({
             variant="outline"
             onClick={() => onOpenChange(false)}
             disabled={loading}
-            className="border-gray-700"
+            className="border-border"
           >
             Cancel
           </Button>

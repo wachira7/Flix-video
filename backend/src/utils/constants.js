@@ -38,7 +38,9 @@ const HTTP_STATUS = {
   FORBIDDEN: 403,
   NOT_FOUND: 404,
   CONFLICT: 409,
-  INTERNAL_SERVER_ERROR: 500
+  TOO_MANY_REQUESTS: 429,
+  INTERNAL_SERVER_ERROR: 500,
+  SERVICE_UNAVAILABLE: 503
 };
 
 // Password requirements
@@ -63,7 +65,7 @@ const USERNAME_REQUIREMENTS = {
 // Email configuration
 const EMAIL_CONFIG = {
   FROM_NAME: 'FlixVideo',
-  FROM_EMAIL: 'onboarding@resend.dev',
+  FROM_EMAIL: process.env.EMAIL_FROM || 'onboarding@resend.dev', // see config/email.js
   SUPPORT_EMAIL: 'support@flixvideo.com'
 };
 

@@ -6,6 +6,29 @@ const cryptoService = require('../../integrations/crypto/nowpayments');
 const { paymentsTotal, failedPayments, revenueTotal } = require('../../config/metrics');
 const logger = require('../../utils/logger');
 const { notificationQueue } = require('../../jobs/queues');
+const { getPlan } = require('../../config/plans');
+const { grantPlanSafely } = require('../../services/subscription.service');
+
+/**
+ * Price a subscription payment from the server-side plan list.
+ * The client may say which plan it wants, never what it costs.
+ * Returns null for unknown or free plans.
+ */
+const priceForPlan = (planType) => {
+  try {
+    const plan = getPlan(String(planType || ''));
+    if (!plan.price || plan.price <= 0) return null;
+    return { plan_type: plan.id, amount: plan.price, currency: plan.currency || 'KES' };
+  } catch {
+    return null;
+  }
+};
+
+const invalidPlan = (res) =>
+  res.status(HTTP_STATUS.BAD_REQUEST).json({
+    success: false,
+    error: 'Choose a paid plan (basic or premium)'
+  });
 
 
 
@@ -19,14 +42,12 @@ const { notificationQueue } = require('../../jobs/queues');
 const createStripeCheckout = async (req, res) => {
   try {
     const userId = req.user.id;
-    const { amount, currency = 'KES', plan_type, description } = req.body;
+    const { description } = req.body;
 
-    if (!amount || amount <= 0) {
-      return res.status(HTTP_STATUS.BAD_REQUEST).json({
-        success: false,
-        error: 'Invalid amount'
-      });
-    }
+    // Amount and currency come from the plan, not the request body
+    const priced = priceForPlan(req.body.plan_type);
+    if (!priced) return invalidPlan(res);
+    const { amount, currency, plan_type } = priced;
 
     // Create payment record
     const paymentResult = await global.pgPool.query(
@@ -65,14 +86,6 @@ const createStripeCheckout = async (req, res) => {
        WHERE id = $2`,
       [session.session_id, paymentId]
     );
-
-    // Update user's plan type
-    if (plan_type) {
-      await global.pgPool.query(
-        'UPDATE users SET plan_type = $1 WHERE id = $2',
-        [plan_type, userId]
-      );
-    }
 
     paymentsTotal.inc({ status: 'succeeded', provider: 'stripe' });
     revenueTotal.inc({ provider: 'stripe' }, session.amount_total / 100);
@@ -130,6 +143,7 @@ const stripeWebhook = async (req, res) => {
       );
 
       logger.info(`✅ Stripe payment ${paymentId} completed!`);
+      await grantPlanSafely(paymentId);
     }
 
     // Get user email for notification
@@ -268,14 +282,19 @@ const getStripeStatus = async (req, res) => {
 const initiateMpesaPayment = async (req, res) => {
   try {
     const userId = req.user.id;
-    const { phone_number, amount, plan_type, description } = req.body;
+    const { phone_number, description } = req.body;
 
-    if (!phone_number || !amount || amount <= 0) {
+    if (!phone_number) {
       return res.status(HTTP_STATUS.BAD_REQUEST).json({
         success: false,
-        error: 'Phone number and valid amount required'
+        error: 'Phone number required'
       });
     }
+
+    // Amount comes from the plan, not the request body
+    const priced = priceForPlan(req.body.plan_type);
+    if (!priced) return invalidPlan(res);
+    const { amount, plan_type } = priced;
 
     // Create payment record
     const paymentResult = await global.pgPool.query(
@@ -376,17 +395,19 @@ const mpesaCallback = async (req, res) => {
       );
 
       // Update main payment
-      await global.pgPool.query(
+      const paid = await global.pgPool.query(
         `UPDATE payments 
          SET status = 'succeeded', paid_at = NOW()
-         WHERE mpesa_checkout_request_id = $1`,
+         WHERE mpesa_checkout_request_id = $1
+         RETURNING id`,
         [checkoutRequestId]
       );
 
       logger.info(`✅ M-Pesa payment ${checkoutRequestId} completed!`);
+      if (paid.rows[0]) await grantPlanSafely(paid.rows[0].id);
 
     const mpesaUser = await global.pgPool.query(
-       `SELECT u.email, up.username, p.amount, p.plan_type
+       `SELECT u.id, u.email, up.username, p.amount, p.plan_type
         FROM payments p
         JOIN users u ON p.user_id = u.id
         LEFT JOIN user_profiles up ON u.id = up.user_id
@@ -412,11 +433,11 @@ const mpesaCallback = async (req, res) => {
 
       // Increment revenue metric
       paymentsTotal.inc({ status: 'succeeded', provider: 'mpesa' });
-      revenueTotal.inc({ provider: 'mpesa' }, payload.amount);
+      const paidAmount = callbackMetadata.find(item => item.Name === 'Amount')?.Value;
+      if (paidAmount) revenueTotal.inc({ provider: 'mpesa' }, Number(paidAmount));
 
       // Send success response
-      res.json({ ResultCode: 0, ResultDesc: 'Success' });
-
+      return res.json({ ResultCode: 0, ResultDesc: 'Success' });
 
     } else {
       // Payment failed
@@ -442,10 +463,9 @@ const mpesaCallback = async (req, res) => {
       );
 
       logger.warn(`❌ M-Pesa payment ${checkoutRequestId} failed: ${resultDesc}`);
-    }
 
       const mpesaFailedUser = await global.pgPool.query(
-       `SELECT u.email, up.username, p.amount, p.plan_type
+       `SELECT u.id, u.email, up.username, p.amount, p.plan_type
         FROM payments p
         JOIN users u ON p.user_id = u.id
         LEFT JOIN user_profiles up ON u.id = up.user_id
@@ -464,13 +484,14 @@ const mpesaCallback = async (req, res) => {
             currency: 'KES',
             plan: user.plan_type,
             payment_method: 'M-Pesa',
-            transaction_id: mpesaReceiptNumber
+            transaction_id: checkoutRequestId
           }
         });
       }
 
-    failedPayments.inc({ provider: 'mpesa' });
-    paymentsTotal.inc({ status: 'failed', provider: 'mpesa' });
+      failedPayments.inc({ provider: 'mpesa' });
+      paymentsTotal.inc({ status: 'failed', provider: 'mpesa' });
+    }
 
     res.json({ ResultCode: 0, ResultDesc: 'Success' });
 
@@ -531,14 +552,19 @@ const getMpesaStatus = async (req, res) => {
 const createCryptoPayment = async (req, res) => {
   try {
     const userId = req.user.id;
-    const { amount, currency = 'KES', crypto_currency, plan_type, description } = req.body;
+    const { crypto_currency, description } = req.body;
 
-    if (!amount || !crypto_currency) {
+    if (!crypto_currency) {
       return res.status(HTTP_STATUS.BAD_REQUEST).json({
         success: false,
-        error: 'Amount and crypto currency required'
+        error: 'Crypto currency required'
       });
     }
+
+    // Amount and currency come from the plan, not the request body
+    const priced = priceForPlan(req.body.plan_type);
+    if (!priced) return invalidPlan(res);
+    const { amount, currency, plan_type } = priced;
 
     // Create payment record
     const paymentResult = await global.pgPool.query(
@@ -654,6 +680,7 @@ const cryptoWebhook = async (req, res) => {
         ['succeeded', paymentId]
       );
       logger.info(`✅ Crypto payment ${paymentId} completed!`);
+      await grantPlanSafely(paymentId);
 
       const cryptoUser = await global.pgPool.query(
        `SELECT u.email, up.username, p.amount, p.currency, p.plan_type

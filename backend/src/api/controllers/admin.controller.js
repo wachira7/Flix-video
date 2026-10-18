@@ -1,4 +1,5 @@
 // src/api/controllers/admin.controller.js
+const { deleteAccount } = require('../../services/account-deletion.service');
 const { HTTP_STATUS, ERROR_MESSAGES } = require('../../utils/constants');
 const { logAdminActivity } = require('../middlewares/admin.middleware');
 
@@ -365,12 +366,14 @@ const deleteUser = async (req, res) => {
       req.ip
     );
 
-    // Delete user (CASCADE will delete all related data)
-    await global.pgPool.query('DELETE FROM users WHERE id = $1', [userId]);
+    // Same deletion as a user deleting their own account: personal data is
+    // removed and the account anonymised, but payment records are kept
+    // (a real DELETE would cascade into payments and subscriptions)
+    await deleteAccount(userId);
 
     res.json({
       success: true,
-      message: 'User deleted permanently'
+      message: 'User deleted. Their payment records are kept, without personal details.'
     });
 
   } catch (error) {
@@ -492,12 +495,12 @@ const getPaymentStats = async (req, res) => {
     const statsResult = await global.pgPool.query(
       `SELECT 
         COUNT(*) as total_payments,
-        COUNT(*) FILTER (WHERE status = 'completed') as successful_payments,
+        COUNT(*) FILTER (WHERE status = 'succeeded') as successful_payments,
         COUNT(*) FILTER (WHERE status = 'failed') as failed_payments,
         COUNT(*) FILTER (WHERE status = 'pending') as pending_payments,
-        SUM(amount) FILTER (WHERE status = 'completed') as total_revenue,
-        SUM(amount) FILTER (WHERE created_at >= NOW() - INTERVAL '30 days' AND status = 'completed') as revenue_30d,
-        SUM(amount) FILTER (WHERE created_at >= NOW() - INTERVAL '7 days' AND status = 'completed') as revenue_7d
+        SUM(amount) FILTER (WHERE status = 'succeeded') as total_revenue,
+        SUM(amount) FILTER (WHERE created_at >= NOW() - INTERVAL '30 days' AND status = 'succeeded') as revenue_30d,
+        SUM(amount) FILTER (WHERE created_at >= NOW() - INTERVAL '7 days' AND status = 'succeeded') as revenue_7d
        FROM payments`
     );
 
@@ -508,7 +511,7 @@ const getPaymentStats = async (req, res) => {
         COUNT(*) as count,
         SUM(amount) as total
        FROM payments
-       WHERE status = 'completed'
+       WHERE status = 'succeeded'
        GROUP BY payment_method
        ORDER BY total DESC`
     );

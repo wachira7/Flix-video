@@ -2,22 +2,34 @@
 const { HTTP_STATUS } = require('../../utils/constants');
 const { getPlan, getLimit } = require('../../config/plans');
 
+const isKnownPlan = (planType) => {
+  try {
+    getPlan(String(planType || ''));
+    return true;
+  } catch {
+    return false;
+  }
+};
+
 /**
  * Get user's current subscription
  */
 const getUserSubscription = async (userId) => {
   try {
     const result = await global.pgPool.query(
-      `SELECT s.*, sp.name as plan_name, sp.features, sp.price
+      `SELECT s.*, sp.slug as plan_type, sp.name as plan_name, sp.features, sp.price
        FROM subscriptions s
        JOIN subscription_plans sp ON s.plan_id = sp.id
        WHERE s.user_id = $1 AND s.status = 'active'
+         AND (s.current_period_end IS NULL OR s.current_period_end > NOW())
        ORDER BY s.created_at DESC
        LIMIT 1`,
       [userId]
     );
 
-    if (result.rows.length === 0) {
+    // subscriptions has no plan_type column; the plan's slug ("basic",
+    // "premium") is the plan id used in config/plans.js
+    if (result.rows.length === 0 || !isKnownPlan(result.rows[0].plan_type)) {
       // No active subscription, return free plan
       return {
         plan_type: 'free',
@@ -73,10 +85,11 @@ const checkUsageLimit = (feature, period = 'daily') => {
         });
       }
 
-      // Increment usage
+      // Increment usage. The window starts at first use; setting the TTL on
+      // every call would keep pushing the reset back for active users.
       const ttl = period === 'daily' ? 86400 : 2592000; // 1 day or 30 days
-      await redis.incr(key);
-      await redis.expire(key, ttl);
+      const count = await redis.incr(key);
+      if (count === 1) await redis.expire(key, ttl);
 
       // Add usage info to request
       req.usageInfo = {
@@ -115,7 +128,8 @@ const requirePlan = (requiredPlans) => {
           success: false,
           error: 'This feature requires a premium subscription',
           required_plans: allowedPlans,
-          current_plan: planType
+          current_plan: planType,
+          upgrade_required: true
         });
       }
 

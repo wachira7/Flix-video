@@ -43,25 +43,25 @@ export function StripeForm({ planId, amount }: StripeFormProps) {
   }
 
   return (
-    <Card className="p-6 bg-gray-900 border-gray-800">
+    <Card className="p-6 bg-card border-border">
       <div className="text-center mb-6">
         <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
-          <CreditCard className="w-8 h-8 text-white" />
+          <CreditCard className="w-8 h-8 text-foreground" />
         </div>
-        <h2 className="text-2xl font-bold text-white mb-2">Pay with Card</h2>
-        <p className="text-gray-400">
+        <h2 className="text-2xl text-foreground mb-2">Pay with Card</h2>
+        <p className="text-muted-foreground">
           You'll be redirected to Stripe's secure payment page
         </p>
       </div>
 
       <div className="space-y-4 mb-6">
-        <div className="flex justify-between p-4 bg-gray-800 rounded-lg">
-          <span className="text-gray-400">Amount</span>
-          <span className="text-white font-semibold">KES {amount.toLocaleString()}</span>
+        <div className="flex justify-between p-4 bg-secondary rounded-lg">
+          <span className="text-muted-foreground">Amount</span>
+          <span className="text-foreground font-semibold">KES {amount.toLocaleString()}</span>
         </div>
-        <div className="flex justify-between p-4 bg-gray-800 rounded-lg">
-          <span className="text-gray-400">Plan</span>
-          <span className="text-white font-semibold capitalize">{planId}</span>
+        <div className="flex justify-between p-4 bg-secondary rounded-lg">
+          <span className="text-muted-foreground">Plan</span>
+          <span className="text-foreground font-semibold capitalize">{planId}</span>
         </div>
       </div>
 
@@ -81,7 +81,7 @@ export function StripeForm({ planId, amount }: StripeFormProps) {
         )}
       </Button>
 
-      <p className="text-xs text-gray-500 text-center mt-4">
+      <p className="text-xs text-muted-foreground text-center mt-4">
         Powered by Stripe • Secure payment processing
       </p>
     </Card>

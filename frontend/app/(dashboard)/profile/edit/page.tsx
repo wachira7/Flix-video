@@ -1,2 +1,7 @@
-// frontend/app/(dashboard)/profile/edit/page.tsx 
-export default function Page() { return <div className="p-8"><h1 className="text-2xl text-white">Coming Soon</h1></div> }
+// app/(dashboard)/profile/edit/page.tsx
+// Editing lives on the profile page itself.
+import { redirect } from "next/navigation"
+
+export default function Page() {
+  redirect("/profile#edit")
+}

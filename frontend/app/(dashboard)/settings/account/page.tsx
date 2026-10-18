@@ -1,232 +1,128 @@
-// app/(dashboard)/settings/account/page.tsx -
-
+// app/(dashboard)/settings/account/page.tsx
 "use client"
 
-import { useState, useEffect } from "react"
-import { userAPI } from "@/lib/api/user"
-import { Card } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { Label } from "@/components/ui/label"
-import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
-import { toast } from "sonner"
-import { ArrowLeft, User, Mail, Phone, Shield, Lock } from "lucide-react"
+import { useEffect, useState } from "react"
 import Link from "next/link"
+import { format } from "date-fns"
+import { BadgeCheck, Loader2, Lock } from "lucide-react"
+import { toast } from "sonner"
+import { userAPI } from "@/lib/api/user"
+import { PasswordChecklist, useReveal } from "@/components/auth/auth-fields"
+import { SettingRow, SettingsCard, SettingsHeader } from "@/components/settings/settings-ui"
+
+const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/
+
+interface Me {
+  email?: string
+  email_verified?: boolean
+  phone?: string | null
+  created_at?: string
+}
+
+function PasswordInput({ id, label, value, onChange, autoComplete }: { id: string; label: string; value: string; onChange: (v: string) => void; autoComplete: string }) {
+  const reveal = useReveal()
+  return (
+    <div className="space-y-2">
+      <label htmlFor={id} className="text-sm font-medium">
+        {label}
+      </label>
+      <div className="relative">
+        <Lock className="pointer-events-none absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
+        <input
+          id={id}
+          type={reveal.type}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          autoComplete={autoComplete}
+          className="h-11 w-full rounded-lg border border-input bg-background/60 pr-11 pl-10 text-sm focus:border-primary/60 focus:ring-[3px] focus:ring-primary/15 focus:outline-none"
+        />
+        {reveal.toggle}
+      </div>
+    </div>
+  )
+}
 
 export default function AccountSettingsPage() {
-  const [loading, setLoading] = useState(true)
-  const [saving, setSaving] = useState(false)
-  const [userData, setUserData] = useState<any>({})
-  const [passwordData, setPasswordData] = useState({
-    current_password: '',
-    new_password: '',
-    confirm_password: ''
-  })
+  const [me, setMe] = useState<Me | null>(null)
+  const [current, setCurrent] = useState("")
+  const [next, setNext] = useState("")
+  const [confirm, setConfirm] = useState("")
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    fetchUserData()
+    userAPI
+      .getProfile()
+      .then((r) => setMe(r.user ?? {}))
+      .catch(() => setMe({}))
   }, [])
 
-  const fetchUserData = async () => {
-    try {
-      const response = await userAPI.getProfile()
-      setUserData(response.user || {})
-    } catch (error) {
-      toast.error("Failed to load account data")
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const handlePasswordChange = async (e: React.FormEvent) => {
+  const save = async (e: React.FormEvent) => {
     e.preventDefault()
-
-    if (passwordData.new_password.length < 8) {
-      toast.error("New password must be at least 8 characters")
-      return
-    }
-
-    if (passwordData.new_password !== passwordData.confirm_password) {
-      toast.error("Passwords do not match")
-      return
-    }
-
-    setSaving(true)
+    setError(null)
+    if (!passwordRegex.test(next)) return setError("Your new password doesn't meet all the rules below.")
+    if (next !== confirm) return setError("The new passwords don't match.")
+    setBusy(true)
     try {
-      await userAPI.changePassword({
-        current_password: passwordData.current_password,
-        new_password: passwordData.new_password
-      })
-      
-      toast.success("Password changed successfully!")
-      setPasswordData({ current_password: '', new_password: '', confirm_password: '' })
-    } catch (error: any) {
-      toast.error(error.response?.data?.error || "Failed to change password")
+      await userAPI.changePassword({ current_password: current, new_password: next })
+      toast.success("Password updated")
+      setCurrent("")
+      setNext("")
+      setConfirm("")
+    } catch (err) {
+      const message = (err as { response?: { data?: { error?: string; message?: string } } }).response?.data
+      setError(message?.error || message?.message || "We couldn't change your password. Check your current password and try again.")
     } finally {
-      setSaving(false)
+      setBusy(false)
     }
   }
 
   return (
-    <div className="p-8 max-w-4xl mx-auto">
-      {/* Header */}
-      <div className="flex items-center gap-4 mb-8">
-        <Link href="/settings">
-          <Button variant="ghost" size="icon">
-            <ArrowLeft className="w-5 h-5" />
-          </Button>
+    <>
+      <SettingsHeader title="Your" italic="account">
+        Sign-in details and password.{" "}
+        <Link href="/profile" className="text-primary hover:underline">
+          Edit your profile and avatar
         </Link>
-        <div>
-          <h1 className="text-3xl font-bold text-white">Account Settings</h1>
-          <p className="text-gray-400 mt-1">Manage your account details and security</p>
-        </div>
-      </div>
+        .
+      </SettingsHeader>
 
-      <div className="space-y-6">
-        {/* Account Information */}
-        <Card className="p-6 bg-gray-900 border-gray-800">
-          <div className="flex items-center gap-3 mb-6">
-            <User className="w-6 h-6 text-blue-500" />
-            <h2 className="text-xl font-semibold text-white">Account Information</h2>
+      <SettingsCard title="Sign-in details">
+        <SettingRow label="Email" description={me === null ? "Loading…" : me.email || "Not available"}>
+          {me?.email_verified ? (
+            <span className="inline-flex items-center gap-1 text-xs font-medium text-success">
+              <BadgeCheck className="h-4 w-4" /> Verified
+            </span>
+          ) : me ? (
+            <span className="text-xs text-muted-foreground">Not verified</span>
+          ) : null}
+        </SettingRow>
+        {me?.created_at && <SettingRow label="Member since" description={format(new Date(me.created_at), "d MMMM yyyy")}>{null}</SettingRow>}
+      </SettingsCard>
+
+      <SettingsCard title="Change password" description="If you signed up with Google and never set a password, use Forgot password on the sign-in page to create one.">
+        <form onSubmit={save} className="space-y-5 px-5 py-5 sm:px-6">
+          <PasswordInput id="current-password" label="Current password" value={current} onChange={setCurrent} autoComplete="current-password" />
+          <div className="space-y-2">
+            <PasswordInput id="new-password" label="New password" value={next} onChange={setNext} autoComplete="new-password" />
+            <PasswordChecklist password={next} />
           </div>
-
-          <div className="space-y-4">
-            {/* Email */}
-            <div>
-              <Label className="text-gray-300 flex items-center gap-2">
-                <Mail className="w-4 h-4" />
-                Email Address
-              </Label>
-              <div className="flex items-center gap-3 mt-2">
-                <Input
-                  value={userData.email || ''}
-                  disabled
-                  className="bg-gray-800 border-gray-700 text-white"
-                />
-                {userData.email_verified ? (
-                  <Badge className="bg-green-600 shrink-0">Verified</Badge>
-                ) : (
-                  <Badge variant="outline" className="border-yellow-600 text-yellow-600 shrink-0">
-                    Not Verified
-                  </Badge>
-                )}
-              </div>
-              {!userData.email_verified && (
-                <Button size="sm" variant="link" className="text-purple-500 mt-1 p-0">
-                  Send verification email
-                </Button>
-              )}
-            </div>
-
-            <Separator className="bg-gray-800" />
-
-            {/* Phone */}
-            <div>
-              <Label className="text-gray-300 flex items-center gap-2">
-                <Phone className="w-4 h-4" />
-                Phone Number
-              </Label>
-              <div className="flex items-center gap-3 mt-2">
-                <Input
-                  value={userData.phone || ''}
-                  placeholder="Add phone number"
-                  className="bg-gray-800 border-gray-700 text-white"
-                />
-                {userData.phone_verified ? (
-                  <Badge className="bg-green-600 shrink-0">Verified</Badge>
-                ) : userData.phone ? (
-                  <Badge variant="outline" className="border-yellow-600 text-yellow-600 shrink-0">
-                    Not Verified
-                  </Badge>
-                ) : (
-                  <Badge variant="outline" className="border-gray-600 text-gray-400 shrink-0">
-                    Not Set
-                  </Badge>
-                )}
-              </div>
-            </div>
-
-            <Separator className="bg-gray-800" />
-
-            {/* Account Status */}
-            <div>
-              <Label className="text-gray-300 flex items-center gap-2">
-                <Shield className="w-4 h-4" />
-                Account Status
-              </Label>
-              <div className="flex items-center gap-3 mt-2">
-                <Badge className="bg-green-600 capitalize">{userData.status || 'Active'}</Badge>
-                <span className="text-sm text-gray-400">
-                  Member since {userData.created_at ? new Date(userData.created_at).toLocaleDateString() : 'N/A'}
-                </span>
-              </div>
-            </div>
-          </div>
-        </Card>
-
-        {/* Change Password */}
-        <Card className="p-6 bg-gray-900 border-gray-800">
-          <div className="flex items-center gap-3 mb-6">
-            <Lock className="w-6 h-6 text-purple-500" />
-            <h2 className="text-xl font-semibold text-white">Change Password</h2>
-          </div>
-
-          <form onSubmit={handlePasswordChange} className="space-y-4">
-            <div>
-              <Label htmlFor="current_password" className="text-gray-300">
-                Current Password
-              </Label>
-              <Input
-                id="current_password"
-                type="password"
-                value={passwordData.current_password}
-                onChange={(e) => setPasswordData(prev => ({ ...prev, current_password: e.target.value }))}
-                className="bg-gray-800 border-gray-700 text-white mt-2"
-                required
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="new_password" className="text-gray-300">
-                New Password
-              </Label>
-              <Input
-                id="new_password"
-                type="password"
-                value={passwordData.new_password}
-                onChange={(e) => setPasswordData(prev => ({ ...prev, new_password: e.target.value }))}
-                className="bg-gray-800 border-gray-700 text-white mt-2"
-                minLength={8}
-                required
-              />
-              <p className="text-xs text-gray-500 mt-1">Must be at least 8 characters</p>
-            </div>
-
-            <div>
-              <Label htmlFor="confirm_password" className="text-gray-300">
-                Confirm New Password
-              </Label>
-              <Input
-                id="confirm_password"
-                type="password"
-                value={passwordData.confirm_password}
-                onChange={(e) => setPasswordData(prev => ({ ...prev, confirm_password: e.target.value }))}
-                className="bg-gray-800 border-gray-700 text-white mt-2"
-                required
-              />
-            </div>
-
-            <Button
-              type="submit"
-              disabled={saving}
-              className="bg-linear-to-r from-purple-700 to-fuchsia-600"
-            >
-              {saving ? "Updating..." : "Update Password"}
-            </Button>
-          </form>
-        </Card>
-      </div>
-    </div>
+          <PasswordInput id="confirm-password" label="Confirm new password" value={confirm} onChange={setConfirm} autoComplete="new-password" />
+          {error && (
+            <p role="alert" className="rounded-lg border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm">
+              {error}
+            </p>
+          )}
+          <button
+            type="submit"
+            disabled={busy || !current || !next || !confirm}
+            className="inline-flex h-11 items-center gap-2 rounded-lg bg-primary px-5 text-sm font-semibold text-primary-foreground transition-[filter] hover:brightness-110 disabled:opacity-50"
+          >
+            {busy && <Loader2 className="h-4 w-4 animate-spin" />}
+            Update password
+          </button>
+        </form>
+      </SettingsCard>
+    </>
   )
 }

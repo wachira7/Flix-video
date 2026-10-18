@@ -67,10 +67,10 @@ export function ReviewCard({ review, currentUserId, onDelete, onEdit }: ReviewCa
   }
 
   return (
-    <Card className="p-6 bg-gray-900 border-gray-800">
+    <Card className="p-6 bg-card border-border">
       <div className="flex items-start gap-4">
         <Avatar>
-          <AvatarFallback className="bg-linear-to-r from-purple-700 to-fuchsia-600">
+          <AvatarFallback className="bg-linear-to-r from-primary/90 to-highlight">
             {review.user_id.charAt(0).toUpperCase()}
           </AvatarFallback>
         </Avatar>
@@ -80,9 +80,9 @@ export function ReviewCard({ review, currentUserId, onDelete, onEdit }: ReviewCa
           <div className="flex items-start justify-between mb-2">
             <div>
               {review.title && (
-                <h4 className="text-lg font-semibold text-white mb-1">{review.title}</h4>
+                <h4 className="text-lg font-semibold text-foreground mb-1">{review.title}</h4>
               )}
-              <p className="text-sm text-gray-400">
+              <p className="text-sm text-muted-foreground">
                 {format(new Date(review.created_at), "MMM d, yyyy")}
               </p>
             </div>
@@ -127,7 +127,7 @@ export function ReviewCard({ review, currentUserId, onDelete, onEdit }: ReviewCa
               </Button>
             </div>
           ) : (
-            <p className="text-gray-300 whitespace-pre-wrap mb-4">{review.content}</p>
+            <p className="text-foreground/80 whitespace-pre-wrap mb-4">{review.content}</p>
           )}
 
           {/* Actions */}
@@ -137,7 +137,7 @@ export function ReviewCard({ review, currentUserId, onDelete, onEdit }: ReviewCa
               variant="ghost"
               onClick={handleLike}
               disabled={loading || isOwnReview}
-              className={liked ? "text-purple-500" : "text-gray-400"}
+              className={liked ? "text-primary" : "text-muted-foreground"}
             >
               <ThumbsUp className="w-4 h-4 mr-2" fill={liked ? "currentColor" : "none"} />
               {likesCount}
@@ -148,7 +148,7 @@ export function ReviewCard({ review, currentUserId, onDelete, onEdit }: ReviewCa
               size="sm"
               variant="ghost"
               onClick={() => setShowComments(!showComments)}
-              className="text-gray-400 hover:text-white"
+              className="text-muted-foreground hover:text-foreground"
             >
               <MessageCircle className="w-4 h-4 mr-2" />
               Comments

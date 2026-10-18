@@ -1,395 +1,176 @@
 // components/dashboard/sidebar.tsx
-
+// Desktop navigation rail. Collapses to icons (button or "[" key); the amber
+// indicator slides to the active item.
 "use client"
 
-import { useState, useEffect } from "react"
-import { useSidebar } from "@/app/(dashboard)/layout"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { motion, AnimatePresence } from "framer-motion"
-import { Home, Search, Heart, Film, Tv, User, Settings, LogOut, Play, ChevronLeft, ChevronRight, TrendingUp, Clock, Star, Sparkles, Brain, Users, List } from "lucide-react"
+import { motion } from "framer-motion"
+import { Crown, PanelLeftClose, PanelLeftOpen, Settings } from "lucide-react"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { useCurrentUser } from "@/lib/hooks/use-auth"
 import { cn } from "@/lib/utils"
-import { logout, getUser } from "@/lib/auth"
-import { subscriptionAPI } from "@/lib/api/subscriptions"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Button } from "@/components/ui/button"
-import { Separator } from "@/components/ui/separator"
-import { avatarEvents } from "@/lib/events/avatar-events"
+import { navGroups, isActive, type NavItem } from "./nav-config"
+import { useShell } from "./shell-context"
 
-const mainNavItems = [
-  { href: "/dashboard", label: "Home", icon: Home },
-  { href: "/search", label: "Search", icon: Search },
-  { href: "/my-list", label: "My List", icon: Heart },
-  { href: "/lists", label: "My Lists", icon: List }, 
-]
+export const SIDEBAR_WIDTH = { open: 248, closed: 76 }
 
-const libraryNavItems = [
-  { href: "/movie", label: "Movies", icon: Film },
-  { href: "/tv", label: "TV Shows", icon: Tv },
-]
+function NavLink({ item, active, collapsed }: { item: NavItem; active: boolean; collapsed: boolean }) {
+  const Icon = item.icon
+  const link = (
+    <Link
+      href={item.href}
+      aria-current={active ? "page" : undefined}
+      className={cn(
+        "group relative flex h-10 items-center gap-3 rounded-lg px-3 text-sm font-medium transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none",
+        active ? "text-foreground" : "text-muted-foreground hover:bg-accent/60 hover:text-foreground",
+        collapsed && "justify-center px-0"
+      )}
+    >
+      {active && (
+        <motion.span
+          layoutId="sidebar-active"
+          className="absolute inset-0 -z-10 rounded-lg bg-accent"
+          transition={{ type: "spring", stiffness: 500, damping: 40 }}
+        >
+          <span className="absolute top-2 bottom-2 -left-3 w-[3px] rounded-r-full bg-primary" />
+        </motion.span>
+      )}
+      <Icon
+        className={cn(
+          "h-[18px] w-[18px] shrink-0 transition-[color,transform] duration-200 group-hover:scale-110",
+          active && "text-primary"
+        )}
+        aria-hidden="true"
+      />
+      {!collapsed && <span className="truncate">{item.label}</span>}
+    </Link>
+  )
 
-const discoverNavItems = [
-  { href: "/trending", label: "Trending", icon: TrendingUp },
-  { href: "/new-releases", label: "New Releases", icon: Sparkles },
-  { href: "/top-rated", label: "Top Rated", icon: Star },
-  { href: "/recently-added", label: "Recently Added", icon: Clock },
-  { href: "/ai-chat", label: "AI Chat", icon: Brain },
-  { href: "/watch-party", label: "Watch Party", icon: Users }, 
-]
+  if (!collapsed) return link
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>{link}</TooltipTrigger>
+      <TooltipContent side="right" sideOffset={10}>
+        {item.label}
+      </TooltipContent>
+    </Tooltip>
+  )
+}
 
-const bottomNavItems = [
-  { href: "/profile", label: "Profile", icon: User },
-  { href: "/settings", label: "Settings", icon: Settings },
-]
+function PlanCard({ collapsed }: { collapsed: boolean }) {
+  const { plan } = useCurrentUser()
+  if (!plan || plan === "premium") return null
 
-export function Sidebar() {
-  const pathname = usePathname()
-  const { collapsed, setCollapsed } = useSidebar()
-  const [user, setUser] = useState<any>(null)
-  const [subscriptionPlan, setSubscriptionPlan] = useState<string>('free')
-  const [mounted, setMounted] = useState(false)
-  const [avatarUrl, setAvatarUrl] = useState<string | null>(null)
-
-    useEffect(() => {
-      setMounted(true)
-      const currentUser = getUser()
-      setUser(currentUser)
-      setAvatarUrl(currentUser?.avatar_url || null)
-
-      // Fetch subscription plan
-      const fetchSubscription = async () => {
-        try {
-          const response = await subscriptionAPI.getMySubscription()
-          setSubscriptionPlan(response.subscription?.plan_type || 'free')
-        } catch (error) {
-          setSubscriptionPlan('free')
-        }
-      }
-      fetchSubscription()
-
-      // Subscribe to avatar updates
-      const unsubscribe = avatarEvents.subscribe((newAvatarUrl) => {
-        setAvatarUrl(newAvatarUrl)
-      })
-
-      return () => unsubscribe()
-    }, [])
-
-  if (!mounted) {
+  if (collapsed) {
     return (
-      <motion.aside
-        initial={{ x: 0 }}
-        animate={{ width: collapsed ? 80 : 256 }}
-        transition={{ duration: 0.3, ease: "easeInOut" }}
-        className="fixed left-0 top-0 z-40 h-screen bg-linear-to-b from-gray-900 to-black border-r border-gray-800"
-      >
-        <div className="flex flex-col h-full">
-          <div className="p-4 border-b border-gray-800 flex items-center justify-between">
-            <Link href="/dashboard" className="flex items-center space-x-2">
-              <div className="bg-linear-to-r from-purple-700 to-fuchsia-600 p-2 rounded-lg">
-                <Play className="w-6 h-6 text-white" fill="white" />
-              </div>
-              {!collapsed && (
-                <span className="text-2xl font-bold gradient-text whitespace-nowrap">
-                  FlixVideo
-                </span>
-              )}
-            </Link>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setCollapsed(!collapsed)}
-              className="shrink-0 hover:bg-gray-800"
-            >
-              {collapsed ? (
-                <ChevronRight className="w-5 h-5 text-gray-400" />
-              ) : (
-                <ChevronLeft className="w-5 h-5 text-gray-400" />
-              )}
-            </Button>
-          </div>
-          <div className="p-4 border-b border-gray-800">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-full bg-gray-800 animate-pulse" />
-              {!collapsed && (
-                <div className="flex-1">
-                  <div className="h-4 w-24 bg-gray-800 rounded animate-pulse mb-2" />
-                  <div className="h-3 w-20 bg-gray-800 rounded animate-pulse" />
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </motion.aside>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Link
+            href="/subscription"
+            className="mx-auto flex h-10 w-10 items-center justify-center rounded-lg border border-primary/40 text-primary transition-colors hover:bg-primary/10"
+            aria-label="Upgrade your plan"
+          >
+            <Crown className="h-4 w-4" />
+          </Link>
+        </TooltipTrigger>
+        <TooltipContent side="right" sideOffset={10}>
+          Upgrade
+        </TooltipContent>
+      </Tooltip>
     )
   }
 
   return (
-    <motion.aside
-      initial={{ x: 0 }}
-      animate={{ width: collapsed ? 80 : 256 }}
-      transition={{ duration: 0.3, ease: "easeInOut" }}
-      className="fixed left-0 top-0 z-40 h-screen bg-linear-to-b from-gray-900 to-black border-r border-gray-800"
+    <Link
+      href="/subscription"
+      className="spotlight group block rounded-xl border border-primary/30 bg-primary/[0.06] p-4 transition-colors hover:border-primary/60"
     >
-      <div className="flex flex-col h-full">
-        {/* Logo & Toggle */}
-        <div className="p-4 border-b border-gray-800 flex items-center justify-between">
-          <Link href="/dashboard" className="flex items-center space-x-2">
-            <div className="bg-linear-to-r from-purple-700 to-fuchsia-600 p-2 rounded-lg">
-              <Play className="w-6 h-6 text-white" fill="white" />
-            </div>
-            <AnimatePresence>
-              {!collapsed && (
-                <motion.span
-                  initial={{ opacity: 0, width: 0 }}
-                  animate={{ opacity: 1, width: "auto" }}
-                  exit={{ opacity: 0, width: 0 }}
-                  transition={{ duration: 0.2 }}
-                  className="text-2xl font-bold gradient-text whitespace-nowrap overflow-hidden"
-                >
-                  FlixVideo
-                </motion.span>
-              )}
-            </AnimatePresence>
+      <p className="flex items-center gap-2 text-sm font-semibold">
+        <Crown className="h-4 w-4 text-primary" aria-hidden="true" />
+        {plan === "free" ? "You're on Free" : "You're on Basic"}
+      </p>
+      <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+        {plan === "free" ? "Get more AI picks and no ads from KSh 499." : "Unlock the AI assistant with Premium."}
+      </p>
+      <span className="mt-3 inline-flex text-xs font-semibold text-primary transition-transform group-hover:translate-x-0.5">
+        See plans →
+      </span>
+    </Link>
+  )
+}
+
+export function Sidebar() {
+  const pathname = usePathname()
+  const { collapsed, toggle } = useShell()
+  const settingsActive = pathname.startsWith("/settings")
+
+  return (
+    <TooltipProvider delayDuration={150}>
+      <motion.aside
+        initial={false}
+        animate={{ width: collapsed ? SIDEBAR_WIDTH.closed : SIDEBAR_WIDTH.open }}
+        transition={{ type: "spring", stiffness: 400, damping: 40 }}
+        className="fixed inset-y-0 left-0 z-40 hidden flex-col border-r border-sidebar-border bg-sidebar lg:flex"
+      >
+        <div className={cn("flex h-16 items-center px-5", collapsed && "justify-center px-0")}>
+          <Link href="/dashboard" aria-label="FlixVideo home" className="flex items-center gap-2.5">
+            <svg viewBox="0 0 24 24" className="h-6 w-6 shrink-0 text-primary" aria-hidden="true">
+              <circle cx="12" cy="12" r="10.5" fill="none" stroke="currentColor" strokeWidth="1.5" />
+              <path d="M9.5 7.5v9l7-4.5z" fill="currentColor" />
+            </svg>
+            {!collapsed && (
+              <span className="font-display text-[1.4rem] leading-none tracking-tight">
+                Flix<em className="italic">Video</em>
+              </span>
+            )}
           </Link>
-          
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setCollapsed(!collapsed)}
-            className="shrink-0 hover:bg-gray-800"
-          >
-            {collapsed ? (
-              <ChevronRight className="w-5 h-5 text-gray-400" />
-            ) : (
-              <ChevronLeft className="w-5 h-5 text-gray-400" />
-            )}
-          </Button>
         </div>
 
-        {/* User Info UPDATES REACTIVELY */}
-        <div className="p-4 border-b border-gray-800">
-          <div className="flex items-center gap-3">
-            <Avatar className="border-2 border-purple-600">
-              {avatarUrl && (
-                <AvatarImage src={avatarUrl} alt={user?.email} />
+        <nav aria-label="Main" className="flex-1 space-y-6 overflow-y-auto px-3 py-4 scrollbar-hide">
+          {navGroups.map((group) => (
+            <div key={group.label} className="space-y-1">
+              {!collapsed ? (
+                <p className="eyebrow px-3 pb-1 !text-muted-foreground/70">{group.label}</p>
+              ) : (
+                <div className="mx-auto mb-2 h-px w-6 bg-border" aria-hidden="true" />
               )}
-              <AvatarFallback className="bg-linear-to-r from-purple-700 to-fuchsia-600">
-                {user?.email?.charAt(0).toUpperCase() || "U"}
-              </AvatarFallback>
-            </Avatar>
-            <AnimatePresence>
-              {!collapsed && (
-                <motion.div
-                  initial={{ opacity: 0, width: 0 }}
-                  animate={{ opacity: 1, width: "auto" }}
-                  exit={{ opacity: 0, width: 0 }}
-                  className="flex-1 overflow-hidden"
-                >
-                  <p className="text-sm font-semibold text-white truncate">
-                    {user?.full_name || user?.email?.split('@')[0] || "User"}
-                  </p>
-                  <p className={cn(
-                    "text-xs truncate",
-                    subscriptionPlan === 'premium' ? "text-purple-400" : 
-                    subscriptionPlan === 'basic' ? "text-blue-400" : 
-                    "text-gray-400"
-                  )}>
-                    {subscriptionPlan === 'premium' && '👑 Premium Member'}
-                    {subscriptionPlan === 'basic' && '⭐ Basic Member'}
-                    {subscriptionPlan === 'free' && 'Free Plan'}
-                  </p>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-        </div>
-
-        {/* Navigation sections and links */}
-        <nav className="flex-1 p-4 space-y-6 overflow-y-auto">
-          {/* Main Section */}
-          <div className="space-y-1">
-            {!collapsed && (
-              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider px-3 mb-2">
-                Menu
-              </p>
-            )}
-            {mainNavItems.map((item) => {
-              const Icon = item.icon
-              const isActive = pathname === item.href || pathname.startsWith(item.href + "/")
-              
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={cn(
-                    "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group",
-                    isActive
-                      ? "bg-linear-to-r from-purple-700 to-fuchsia-600 text-white"
-                      : "text-gray-400 hover:text-white hover:bg-gray-800"
-                  )}
-                  title={collapsed ? item.label : undefined}
-                >
-                  <Icon className={cn("w-5 h-5 shrink-0", isActive && "text-white")} />
-                  <AnimatePresence>
-                    {!collapsed && (
-                      <motion.span
-                        initial={{ opacity: 0, width: 0 }}
-                        animate={{ opacity: 1, width: "auto" }}
-                        exit={{ opacity: 0, width: 0 }}
-                        className="font-medium whitespace-nowrap overflow-hidden"
-                      >
-                        {item.label}
-                      </motion.span>
-                    )}
-                  </AnimatePresence>
-                </Link>
-              )
-            })}
-          </div>
-
-          {!collapsed && <Separator className="bg-gray-800" />}
-
-          {/* Library & Discover sections...  */}
-          <div className="space-y-1">
-            {!collapsed && (
-              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider px-3 mb-2">
-                Library
-              </p>
-            )}
-            {libraryNavItems.map((item) => {
-              const Icon = item.icon
-              const isActive = pathname === item.href || pathname.startsWith(item.href + "/")
-              
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={cn(
-                    "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200",
-                    isActive
-                      ? "bg-linear-to-r from-purple-700 to-fuchsia-600 text-white"
-                      : "text-gray-400 hover:text-white hover:bg-gray-800"
-                  )}
-                  title={collapsed ? item.label : undefined}
-                >
-                  <Icon className="w-5 h-5 shrink-0" />
-                  <AnimatePresence>
-                    {!collapsed && (
-                      <motion.span
-                        initial={{ opacity: 0, width: 0 }}
-                        animate={{ opacity: 1, width: "auto" }}
-                        exit={{ opacity: 0, width: 0 }}
-                        className="font-medium whitespace-nowrap overflow-hidden"
-                      >
-                        {item.label}
-                      </motion.span>
-                    )}
-                  </AnimatePresence>
-                </Link>
-              )
-            })}
-          </div>
-
-          {!collapsed && <Separator className="bg-gray-800" />}
-
-          <div className="space-y-1">
-            {!collapsed && (
-              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider px-3 mb-2">
-                Discover
-              </p>
-            )}
-            {discoverNavItems.map((item) => {
-              const Icon = item.icon
-              const isActive = pathname === item.href
-              
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={cn(
-                    "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200",
-                    isActive
-                      ? "bg-linear-to-r from-purple-700 to-fuchsia-600 text-white"
-                      : "text-gray-400 hover:text-white hover:bg-gray-800"
-                  )}
-                  title={collapsed ? item.label : undefined}
-                >
-                  <Icon className="w-5 h-5 shrink-0" />
-                  <AnimatePresence>
-                    {!collapsed && (
-                      <motion.span
-                        initial={{ opacity: 0, width: 0 }}
-                        animate={{ opacity: 1, width: "auto" }}
-                        exit={{ opacity: 0, width: 0 }}
-                        className="font-medium whitespace-nowrap overflow-hidden"
-                      >
-                        {item.label}
-                      </motion.span>
-                    )}
-                  </AnimatePresence>
-                </Link>
-              )
-            })}
-          </div>
+              {group.items.map((item) => (
+                <NavLink key={item.href} item={item} active={isActive(pathname, item)} collapsed={collapsed} />
+              ))}
+            </div>
+          ))}
         </nav>
 
-        {/* Bottom Navigation */}
-        <div className="p-4 space-y-1 border-t border-gray-800">
-          {bottomNavItems.map((item) => {
-            const Icon = item.icon
-            const isActive = pathname === item.href
-            
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={cn(
-                  "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200",
-                  isActive
-                    ? "bg-linear-to-r from-purple-700 to-fuchsia-600 text-white"
-                    : "text-gray-400 hover:text-white hover:bg-gray-800"
-                )}
-                title={collapsed ? item.label : undefined}
-              >
-                <Icon className="w-5 h-5 shrink-0" />
-                <AnimatePresence>
-                  {!collapsed && (
-                    <motion.span
-                      initial={{ opacity: 0, width: 0 }}
-                      animate={{ opacity: 1, width: "auto" }}
-                      exit={{ opacity: 0, width: 0 }}
-                      className="font-medium whitespace-nowrap overflow-hidden"
-                    >
-                      {item.label}
-                    </motion.span>
-                  )}
-                </AnimatePresence>
-              </Link>
-            )
-          })}
-          
+        <div className="space-y-3 border-t border-sidebar-border p-3">
+          <PlanCard collapsed={collapsed} />
+          <NavLink
+            item={{ href: "/settings", label: "Settings", icon: Settings }}
+            active={settingsActive}
+            collapsed={collapsed}
+          />
           <button
-            onClick={logout}
-            className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-400 hover:text-white hover:bg-gray-800 transition-all duration-200 w-full"
-            title={collapsed ? "Logout" : undefined}
+            type="button"
+            onClick={toggle}
+            aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+            title={`${collapsed ? "Expand" : "Collapse"} sidebar ( [ )`}
+            className={cn(
+              "flex h-10 w-full items-center gap-3 rounded-lg px-3 text-sm text-muted-foreground transition-colors hover:bg-accent/60 hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none",
+              collapsed && "justify-center px-0"
+            )}
           >
-            <LogOut className="w-5 h-5 shrink-0" />
-            <AnimatePresence>
-              {!collapsed && (
-                <motion.span
-                  initial={{ opacity: 0, width: 0 }}
-                  animate={{ opacity: 1, width: "auto" }}
-                  exit={{ opacity: 0, width: 0 }}
-                  className="font-medium whitespace-nowrap overflow-hidden"
-                >
-                  Logout
-                </motion.span>
-              )}
-            </AnimatePresence>
+            {collapsed ? (
+              <PanelLeftOpen className="h-[18px] w-[18px]" aria-hidden="true" />
+            ) : (
+              <>
+                <PanelLeftClose className="h-[18px] w-[18px]" aria-hidden="true" />
+                Collapse
+                <kbd className="ml-auto rounded border px-1.5 font-mono text-[10px] text-muted-foreground">[</kbd>
+              </>
+            )}
           </button>
         </div>
-      </div>
-    </motion.aside>
+      </motion.aside>
+    </TooltipProvider>
   )
 }

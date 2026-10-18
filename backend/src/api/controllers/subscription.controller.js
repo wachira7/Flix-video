@@ -2,9 +2,9 @@
 const { HTTP_STATUS, ERROR_MESSAGES } = require('../../utils/constants');
 const { PLANS, getPlan, isValidUpgrade, isValidDowngrade } = require('../../config/plans');
 const { getUserSubscription } = require('../middlewares/subscription.middleware');
-const { subscriptionChanges, subscriptionsByTier } = require('../../config/metrics');
 const logger = require('../../utils/logger');
 const { notificationQueue } = require('../../jobs/queues');
+const { grantPlanForPayment } = require('../../services/subscription.service');
 
 // @desc    Get all subscription plans
 // @route   GET /api/subscriptions/plans
@@ -97,63 +97,16 @@ const upgradeSubscription = async (req, res) => {
       });
     }
 
-    // Get new plan details
+    // Nothing is written here: the plan is granted only once a payment for it
+    // succeeds (see services/subscription.service.js). This just quotes it.
     const newPlan = getPlan(plan_type);
 
-    // Check if plan exists in database
-    let planResult = await global.pgPool.query(
-      'SELECT id FROM subscription_plans WHERE name = $1',
-      [plan_type]
-    );
-
-    let planId;
-    if (planResult.rows.length === 0) {
-      // Create plan if doesn't exist
-      const createPlan = await global.pgPool.query(
-        `INSERT INTO subscription_plans (name, price, currency, billing_interval, features)
-         VALUES ($1, $2, $3, $4, $5)
-         RETURNING id`,
-        [
-          plan_type,
-          newPlan.price,
-          newPlan.currency,
-          'monthly',
-          JSON.stringify(newPlan.features)
-        ]
-      );
-      planId = createPlan.rows[0].id;
-    } else {
-      planId = planResult.rows[0].id;
-    }
-
-    // Deactivate old subscription if exists
-    if (currentSub.id) {
-      await global.pgPool.query(
-        'UPDATE subscriptions SET status = $1, cancelled_at = NOW() WHERE id = $2',
-        ['cancelled', currentSub.id]
-      );
-    }
-
-    // Create new subscription (pending until payment)
-    const newSubResult = await global.pgPool.query(
-      `INSERT INTO subscriptions (user_id, plan_id, status, current_period_start, current_period_end)
-       VALUES ($1, $2, 'active', NOW(), NOW() + INTERVAL '30 days')
-       RETURNING id`,
-      [userId, planId]
-    );
-
-    // Increment subscription changes metric
-    subscriptionChanges.inc({ from_tier: currentPlan, to_tier: plan_type });
-    subscriptionsByTier.inc({ tier: plan_type });
-
-    const subscriptionId = newSubResult.rows[0].id;
-
-    res.status(HTTP_STATUS.CREATED).json({
+    res.json({
       success: true,
-      message: 'Subscription upgrade initiated',
-      subscription_id: subscriptionId,
-      plan: plan_type,
+      message: 'Complete payment to upgrade',
+      plan: newPlan.id,
       amount: newPlan.price,
+      currency: newPlan.currency,
       next_step: `Complete payment via ${payment_method}`
     });
 
@@ -290,47 +243,40 @@ const getUsageStats = async (req, res) => {
 // @access  Private (Called by payment webhook)
 const activateSubscription = async (req, res) => {
   try {
-    const { subscription_id, payment_id } = req.body;
+    const { payment_id } = req.body;
 
-    if (!subscription_id || !payment_id) {
+    if (!payment_id) {
       return res.status(HTTP_STATUS.BAD_REQUEST).json({
         success: false,
-        error: 'Subscription ID and Payment ID required'
+        error: 'Payment ID required'
       });
     }
 
-    // Verify payment is successful
-    const paymentResult = await global.pgPool.query(
-      'SELECT status FROM payments WHERE id = $1',
-      [payment_id]
-    );
+    // The payment must be this user's; the grant checks it succeeded and covers the plan
+    const paymentResult = await global.pgPool.query('SELECT user_id FROM payments WHERE id = $1', [payment_id]);
+    const payment = paymentResult.rows[0];
 
-    if (paymentResult.rows.length === 0 || paymentResult.rows[0].status !== 'succeeded') {
+    if (!payment || String(payment.user_id) !== String(req.user.id)) {
       return res.status(HTTP_STATUS.BAD_REQUEST).json({
         success: false,
         error: 'Payment not successful'
       });
     }
 
-    // Activate subscription
-    await global.pgPool.query(
-      `UPDATE subscriptions 
-       SET status = 'active',
-           current_period_start = NOW(),
-           current_period_end = NOW() + INTERVAL '30 days'
-       WHERE id = $1`,
-      [subscription_id]
-    );
+    // Payment callbacks normally grant the plan already; this is a safe retry
+    const result = await grantPlanForPayment(payment_id);
 
-    // Link payment to subscription
-    await global.pgPool.query(
-      'UPDATE payments SET subscription_id = $1 WHERE id = $2',
-      [subscription_id, payment_id]
-    );
+    if (!result.granted && result.reason !== 'already_granted') {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        success: false,
+        error: result.reason === 'payment_does_not_match_plan' ? 'Payment does not match this plan' : 'Payment not successful'
+      });
+    }
 
     res.json({
       success: true,
-      message: 'Subscription activated successfully'
+      message: 'Subscription activated successfully',
+      subscription_id: result.subscription_id
     });
 
   } catch (error) {

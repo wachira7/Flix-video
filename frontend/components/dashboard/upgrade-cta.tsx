@@ -76,16 +76,16 @@ export function UpgradeCTA({
   // Inline variant (small CTA within content)
   if (variant === "inline") {
     return (
-      <div className="inline-flex items-center gap-2 px-4 py-2 bg-purple-600/20 border border-purple-600 rounded-lg">
-        <Lock className="w-4 h-4 text-purple-400" />
-        <span className="text-sm text-purple-300">
+      <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/20 border border-primary rounded-lg">
+        <Lock className="w-4 h-4 text-primary" />
+        <span className="text-sm text-primary">
           {displayTitle}
         </span>
         <Button
           onClick={handleUpgrade}
           size="sm"
           variant="ghost"
-          className="text-purple-300 hover:text-white h-auto py-1 px-2"
+          className="text-primary hover:text-foreground h-auto py-1 px-2"
         >
           Upgrade
           <ArrowRight className="w-3 h-3 ml-1" />
@@ -97,18 +97,18 @@ export function UpgradeCTA({
   // Banner variant (full-width alert)
   if (variant === "banner") {
     return (
-      <div className="p-4 bg-linear-to-r from-purple-900/50 to-pink-900/50 border border-purple-700 rounded-lg mb-6">
+      <div className="p-4 bg-linear-to-r from-primary/20 to-highlight/20 border border-primary rounded-lg mb-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Lock className="w-5 h-5 text-purple-400" />
+            <Lock className="w-5 h-5 text-primary" />
             <div>
-              <h4 className="text-white font-semibold">{displayTitle}</h4>
-              <p className="text-gray-300 text-sm">{displayDescription}</p>
+              <h4 className="text-foreground font-semibold">{displayTitle}</h4>
+              <p className="text-foreground/80 text-sm">{displayDescription}</p>
             </div>
           </div>
           <Button
             onClick={handleUpgrade}
-            className="bg-linear-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+            className="bg-linear-to-r from-primary to-highlight hover:from-primary/90 hover:to-highlight/90"
           >
             <Crown className="w-4 h-4 mr-2" />
             Upgrade to Premium
@@ -120,16 +120,16 @@ export function UpgradeCTA({
 
   // Modal variant (card that takes center stage)
   return (
-    <Card className="p-8 bg-linear-to-br from-purple-900/50 to-pink-900/50 border-purple-700 text-center max-w-lg mx-auto">
-      <div className="w-16 h-16 bg-linear-to-br from-purple-600 to-pink-600 rounded-full flex items-center justify-center mx-auto mb-4">
-        <Lock className="w-8 h-8 text-white" />
+    <Card className="p-8 bg-linear-to-br from-primary/20 to-highlight/20 border-primary text-center max-w-lg mx-auto">
+      <div className="w-16 h-16 bg-linear-to-br from-primary to-highlight rounded-full flex items-center justify-center mx-auto mb-4">
+        <Lock className="w-8 h-8 text-primary-foreground" />
       </div>
       
-      <h2 className="text-2xl font-bold text-white mb-2">
+      <h2 className="text-2xl text-foreground mb-2">
         {displayTitle}
       </h2>
       
-      <p className="text-gray-300 mb-6">
+      <p className="text-foreground/80 mb-6">
         {displayDescription}
       </p>
 
@@ -137,7 +137,7 @@ export function UpgradeCTA({
         <Button
           onClick={handleUpgrade}
           size="lg"
-          className="bg-linear-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+          className="bg-linear-to-r from-primary to-highlight hover:from-primary/90 hover:to-highlight/90"
         >
           <Crown className="w-4 h-4 mr-2" />
           Upgrade to Premium
@@ -146,13 +146,13 @@ export function UpgradeCTA({
           onClick={() => router.push('/subscription')}
           size="lg"
           variant="outline"
-          className="border-purple-700 text-white hover:bg-purple-800"
+          className="border-primary text-foreground hover:bg-primary/15"
         >
           Compare Plans
         </Button>
       </div>
 
-      <p className="text-xs text-gray-500 mt-4">
+      <p className="text-xs text-muted-foreground mt-4">
         Starting at just KES 499/month
       </p>
     </Card>

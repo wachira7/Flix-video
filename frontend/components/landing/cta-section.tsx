@@ -1,101 +1,64 @@
-"use client"
-
-import { Button } from "@/components/ui/button"
-import { Play, Sparkles } from "lucide-react"
+// components/landing/cta-section.tsx
+import Image from "next/image"
 import Link from "next/link"
-import { motion } from "framer-motion"
+import type { CSSProperties } from "react"
+import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils"
+import { tmdbImage, type LandingTitle } from "./landing-types"
 
-export function CTASection() {
+function PosterRow({ posters, reverse, seconds }: { posters: LandingTitle[]; reverse?: boolean; seconds: number }) {
+  // Duplicate the row so the -50% loop is seamless
+  const loop = [...posters, ...posters]
   return (
-    <section className="relative overflow-hidden bg-linear-to-r from-primary to-accent py-24 sm:py-32">
-      <motion.div
-        animate={{
-          x: [0, 30, 0],
-          y: [0, -20, 0],
-        }}
-        transition={{
-          duration: 8,
-          repeat: Number.POSITIVE_INFINITY,
-          ease: "easeInOut",
-        }}
-        className="absolute left-1/4 top-10 h-72 w-72 rounded-full bg-white opacity-10 blur-3xl"
+    <div
+      className={cn("marquee flex gap-3", reverse && "marquee-reverse")}
+      style={{ "--marquee-s": `${seconds}s` } as CSSProperties}
+    >
+      {loop.map((p, i) => {
+        const src = tmdbImage(p.poster, "w342")
+        return (
+          <div key={`${p.id}-${i}`} className="relative aspect-2/3 w-28 shrink-0 overflow-hidden rounded-md bg-muted md:w-36">
+            {src && <Image src={src} alt="" fill sizes="144px" className="object-cover" />}
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
+export function CTASection({ posters }: { posters: LandingTitle[] }) {
+  const half = Math.ceil(posters.length / 2)
+  const rowA = posters.slice(0, half)
+  const rowB = posters.slice(half)
+
+  return (
+    <section className="relative isolate overflow-hidden border-t py-28 md:py-40">
+      {rowA.length > 2 && (
+        <div aria-hidden="true" className="absolute inset-0 -z-20 flex -rotate-6 scale-110 flex-col justify-center gap-3 opacity-55">
+          <PosterRow posters={rowA} seconds={90} />
+          {rowB.length > 2 && <PosterRow posters={rowB} seconds={110} reverse />}
+        </div>
+      )}
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_60%_55%_at_center,hsl(var(--background)/0.88)_0%,hsl(var(--background)/0.55)_70%,hsl(var(--background)/0.9)_100%)]"
       />
-      <motion.div
-        animate={{
-          x: [0, -30, 0],
-          y: [0, 20, 0],
-        }}
-        transition={{
-          duration: 10,
-          repeat: Number.POSITIVE_INFINITY,
-          ease: "easeInOut",
-        }}
-        className="absolute bottom-10 right-1/4 h-96 w-96 rounded-full bg-white opacity-10 blur-3xl"
-      />
 
-      <div className="mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8 relative z-10">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5 }}
-          viewport={{ once: true }}
-          className="inline-flex items-center gap-2 rounded-full bg-white/20 px-4 py-2 text-sm text-white backdrop-blur-sm"
-        >
-          <Sparkles className="h-4 w-4" />
-          <span>30-Day Free Trial</span>
-        </motion.div>
-
-        <motion.h2
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.1 }}
-          viewport={{ once: true }}
-          className="mt-6 text-balance text-4xl font-bold text-white sm:text-5xl lg:text-6xl"
-        >
-          Ready to start watching?
-        </motion.h2>
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-          viewport={{ once: true }}
-          className="mt-6 text-pretty text-lg text-white/90 sm:text-xl"
-        >
-          Join other users enjoying unlimited entertainment with AI-powered recommendations.
-        </motion.p>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.3 }}
-          viewport={{ once: true }}
-          className="mt-10 flex flex-wrap items-center justify-center gap-4"
-        >
-          <Button size="lg" variant="secondary" className="h-12 px-8 text-base" asChild>
-            <Link href="/signup">
-              Start Free Trial
-              <Play className="ml-2 h-5 w-5" />
-            </Link>
+      <div className="reveal mx-auto max-w-3xl px-5 text-center md:px-8" data-reveal="zoom">
+        <h2 className="text-4xl leading-[1.05] md:text-6xl">
+          Your next favourite film <em className="italic">is already out there.</em>
+        </h2>
+        <p className="mx-auto mt-6 max-w-lg text-lg text-muted-foreground">
+          Rate a few titles you love and FlixVideo will take it from there.
+        </p>
+        <div className="mt-10 flex flex-wrap justify-center gap-3">
+          <Button size="lg" className="h-12 px-8 text-base" asChild>
+            <Link href="/signup">Start free</Link>
           </Button>
-          <Button
-            size="lg"
-            variant="outline"
-            className="h-12 border-white bg-transparent px-8 text-base text-white hover:bg-white/10 hover:text-white"
-            asChild
-          >
-            <Link href="#pricing">View Plans</Link>
+          <Button size="lg" variant="ghost" className="h-12 px-6 text-base" asChild>
+            <Link href="/login">I already have an account</Link>
           </Button>
-        </motion.div>
-
-        <motion.p
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.4 }}
-          viewport={{ once: true }}
-          className="mt-6 text-sm text-white/80"
-        >
-          No credit card required • Cancel anytime • Instant access
-        </motion.p>
+        </div>
       </div>
     </section>
   )

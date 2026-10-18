@@ -1,230 +1,219 @@
 // app/(dashboard)/watch-party/page.tsx
-
+// Your watch parties, plus join-with-a-code.
 "use client"
 
-import { useState, useEffect } from "react"
+import { useEffect, useMemo, useState } from "react"
+import Image from "next/image"
+import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { motion } from "framer-motion"
-import { Plus, Users, Play, Clock, Calendar, Copy, ExternalLink, Trash2 } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
+import { AnimatePresence, motion } from "framer-motion"
+import { formatDistanceToNow } from "date-fns"
+import { ArrowRight, Copy, Plus, Users } from "lucide-react"
 import { toast } from "sonner"
-import { watchPartyAPI, WatchParty } from "@/lib/api/watchparty"
+import { watchPartyAPI, type WatchParty } from "@/lib/api/watchparty"
+import { normalizeType, useTitles } from "@/lib/hooks/use-content"
+import { tmdbImage } from "@/components/landing/landing-types"
+import { cn } from "@/lib/utils"
 
-export default function WatchPartyPage() {
+type Filter = "all" | "playing" | "waiting" | "ended"
+const FILTERS: { id: Filter; label: string }[] = [
+  { id: "all", label: "All" },
+  { id: "playing", label: "Live" },
+  { id: "waiting", label: "Waiting" },
+  { id: "ended", label: "Ended" },
+]
+
+const STATUS: Record<WatchParty["status"], { label: string; tone: string; live?: boolean }> = {
+  playing: { label: "Live", tone: "text-success", live: true },
+  paused: { label: "Paused", tone: "text-primary" },
+  waiting: { label: "Waiting", tone: "text-primary" },
+  ended: { label: "Ended", tone: "text-white/70" },
+}
+
+export default function WatchPartiesPage() {
   const router = useRouter()
-  const [parties, setParties] = useState<WatchParty[]>([])
-  const [loading, setLoading] = useState(true)
-  const [filter, setFilter] = useState<'all' | 'waiting' | 'playing' | 'ended'>('all')
+  const [filter, setFilter] = useState<Filter>("all")
+  const [parties, setParties] = useState<WatchParty[] | null>(null)
+  const [failed, setFailed] = useState(false)
+  const [code, setCode] = useState("")
+  const [ending, setEnding] = useState<string | null>(null)
 
   useEffect(() => {
-    loadParties()
+    let alive = true
+    setParties(null)
+    setFailed(false)
+    watchPartyAPI
+      .getMyParties({ status: filter, limit: 50 })
+      .then((r) => alive && setParties(r.parties ?? []))
+      .catch(() => {
+        if (!alive) return
+        setFailed(true)
+        setParties([])
+      })
+    return () => {
+      alive = false
+    }
   }, [filter])
 
-  const loadParties = async () => {
+  const refs = useMemo(() => parties?.map((p) => ({ type: normalizeType(p.content_type), id: p.content_id })) ?? null, [parties])
+  const titles = useTitles(refs)
+  const titleFor = (p: WatchParty) => titles?.find((t) => t.id === p.content_id)
+
+  const join = (e: React.FormEvent) => {
+    e.preventDefault()
+    const c = code.trim().toUpperCase()
+    if (c.length >= 4) router.push(`/watch-party/${c}`)
+  }
+
+  const copyLink = async (c: string) => {
     try {
-      setLoading(true)
-      const response = await watchPartyAPI.getMyParties({ status: filter, limit: 50 })
-      setParties(response.parties)
-    } catch (error) {
-      console.error('Failed to load parties:', error)
-      toast.error('Failed to load watch parties')
+      await navigator.clipboard.writeText(`${window.location.origin}/watch-party/${c}`)
+      toast.success("Invite link copied")
+    } catch {
+      toast(`Party code: ${c}`)
+    }
+  }
+
+  const end = async (p: WatchParty) => {
+    try {
+      await watchPartyAPI.end(p.id)
+      setParties((list) => list?.map((x) => (x.id === p.id ? { ...x, status: "ended" } : x)) ?? null)
+      toast("Party ended")
+    } catch {
+      toast.error("Couldn't end that party.")
     } finally {
-      setLoading(false)
-    }
-  }
-
-  const copyPartyCode = (code: string) => {
-    navigator.clipboard.writeText(code)
-    toast.success('Party code copied!')
-  }
-
-  const copyPartyLink = (code: string) => {
-    const link = `${window.location.origin}/watch-party/${code}`
-    navigator.clipboard.writeText(link)
-    toast.success('Party link copied!')
-  }
-
-  const joinParty = (code: string) => {
-    router.push(`/watch-party/${code}`)
-  }
-
-  const endParty = async (partyId: string) => {
-    try {
-      await watchPartyAPI.end(partyId)
-      toast.success('Watch party ended')
-      loadParties()
-    } catch (error) {
-      toast.error('Failed to end party')
-    }
-  }
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'waiting': return 'bg-yellow-600'
-      case 'playing': return 'bg-green-600'
-      case 'paused': return 'bg-orange-600'
-      case 'ended': return 'bg-gray-600'
-      default: return 'bg-gray-600'
-    }
-  }
-
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'waiting': return <Clock className="w-4 h-4" />
-      case 'playing': return <Play className="w-4 h-4" />
-      case 'ended': return <Calendar className="w-4 h-4" />
-      default: return <Clock className="w-4 h-4" />
+      setEnding(null)
     }
   }
 
   return (
-    <div className="min-h-screen p-8">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-4xl font-bold text-white mb-2">Watch Parties</h1>
-            <p className="text-gray-400">Host or join synchronized viewing sessions</p>
+    <div className="space-y-10 pt-4">
+      <header className="grid grid-cols-[minmax(0,1fr)] gap-8 lg:grid-cols-[minmax(0,1fr)_380px] lg:items-end">
+        <div className="space-y-3">
+          <p className="eyebrow">Together</p>
+          <h1 className="text-4xl leading-none sm:text-5xl">
+            Watch <em className="italic text-primary">parties</em>
+          </h1>
+          <p className="max-w-lg text-muted-foreground">Pick something, share a code, and watch the trailer in sync while you chat and react.</p>
+          <Link href="/watch-party/create" className="mt-2 inline-flex h-12 items-center gap-2 rounded-lg bg-primary px-5 text-[15px] font-semibold text-primary-foreground transition-[filter] hover:brightness-110">
+            <Plus className="h-4 w-4" /> Start a party
+          </Link>
+        </div>
+        <form onSubmit={join} className="rounded-2xl border bg-card/60 p-5">
+          <label htmlFor="party-code" className="text-sm font-semibold">
+            Got a code?
+          </label>
+          <div className="mt-3 flex gap-2">
+            <input
+              id="party-code"
+              value={code}
+              onChange={(e) => setCode(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ""))}
+              maxLength={12}
+              placeholder="E.G. 7K2QXA"
+              autoComplete="off"
+              className="h-12 min-w-0 flex-1 rounded-lg border border-input bg-background/60 px-4 font-mono text-lg tracking-[0.2em] uppercase placeholder:tracking-normal placeholder:text-muted-foreground/60 focus:border-primary/60 focus:outline-none"
+            />
+            <button type="submit" disabled={code.length < 4} className="flex h-12 shrink-0 items-center gap-1.5 rounded-lg border px-4 text-sm font-semibold transition-colors hover:border-primary/60 hover:text-primary disabled:opacity-40">
+              Join <ArrowRight className="h-4 w-4" />
+            </button>
           </div>
-          <Button
-            onClick={() => router.push('/watch-party/create')}
-            className="bg-linear-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
-          >
-            <Plus className="w-5 h-5 mr-2" />
-            Create Party
-          </Button>
+        </form>
+      </header>
+
+      <section className="space-y-5">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h2 className="text-2xl">Your parties</h2>
+          <div className="flex gap-2">
+            {FILTERS.map((f) => (
+              <button
+                key={f.id}
+                type="button"
+                onClick={() => setFilter(f.id)}
+                aria-pressed={filter === f.id}
+                className={cn(
+                  "rounded-full border px-3.5 py-1 text-sm transition-colors",
+                  filter === f.id ? "border-foreground bg-foreground text-background" : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                {f.label}
+              </button>
+            ))}
+          </div>
         </div>
 
-        {/* Filter Tabs */}
-        <div className="flex gap-2 mb-6">
-          {(['all', 'waiting', 'playing', 'ended'] as const).map((status) => (
-            <Button
-              key={status}
-              variant={filter === status ? 'default' : 'outline'}
-              onClick={() => setFilter(status)}
-              className={filter === status ? 'bg-purple-600 hover:bg-purple-700' : ''}
-            >
-              {status.charAt(0).toUpperCase() + status.slice(1)}
-            </Button>
-          ))}
-        </div>
-
-        {/* Parties Grid */}
-        {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[1, 2, 3].map((i) => (
-              <Card key={i} className="p-6 bg-gray-900 border-gray-800 animate-pulse">
-                <div className="h-6 bg-gray-800 rounded mb-4" />
-                <div className="h-4 bg-gray-800 rounded mb-2" />
-                <div className="h-4 bg-gray-800 rounded w-2/3" />
-              </Card>
+        {parties === null ? (
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+            {[0, 1, 2].map((i) => (
+              <div key={i} className="h-44 animate-pulse rounded-2xl bg-muted" />
             ))}
           </div>
         ) : parties.length === 0 ? (
-          <Card className="p-12 bg-gray-900 border-gray-800 text-center">
-            <Users className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-white mb-2">No watch parties yet</h3>
-            <p className="text-gray-400 mb-6">Create your first watch party to get started!</p>
-            <Button
-              onClick={() => router.push('/watch-party/create')}
-              className="bg-purple-600 hover:bg-purple-700"
-            >
-              <Plus className="w-5 h-5 mr-2" />
-              Create Party
-            </Button>
-          </Card>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {parties.map((party, index) => (
-              <motion.div
-                key={party.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-              >
-                <Card className="p-6 bg-gray-900 border-gray-800 hover:border-purple-600 transition-all">
-                  {/* Status Badge */}
-                  <div className="flex items-center justify-between mb-4">
-                    <Badge className={`${getStatusColor(party.status)} text-white`}>
-                      <span className="flex items-center gap-1">
-                        {getStatusIcon(party.status)}
-                        {party.status}
-                      </span>
-                    </Badge>
-                    <span className="text-gray-400 text-sm flex items-center gap-1">
-                      <Users className="w-4 h-4" />
-                      {party.participant_count || 0}/{party.max_participants}
-                    </span>
-                  </div>
-
-                  {/* Title */}
-                  <h3 className="text-lg font-bold text-white mb-2 line-clamp-2">
-                    {party.title}
-                  </h3>
-
-                  {/* Episode Info */}
-                  {party.content_type === 'tv_show' && party.season_number && (
-                    <p className="text-sm text-gray-400 mb-3">
-                      S{party.season_number}E{party.episode_number}
-                    </p>
-                  )}
-
-                  {/* Party Code */}
-                  <div className="flex items-center gap-2 mb-4 p-3 bg-gray-800 rounded">
-                    <code className="text-purple-400 font-mono font-bold flex-1">
-                      {party.party_code}
-                    </code>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => copyPartyCode(party.party_code)}
-                    >
-                      <Copy className="w-4 h-4" />
-                    </Button>
-                  </div>
-
-                  {/* Created Date */}
-                  <p className="text-xs text-gray-500 mb-4">
-                    Created {new Date(party.created_at).toLocaleDateString()}
-                  </p>
-
-                  {/* Actions */}
-                  <div className="flex gap-2">
-                    {party.status !== 'ended' && (
-                      <>
-                        <Button
-                          onClick={() => joinParty(party.party_code)}
-                          className="flex-1 bg-purple-600 hover:bg-purple-700"
-                        >
-                          <Play className="w-4 h-4 mr-2" />
-                          Join
-                        </Button>
-                        <Button
-                          variant="outline"
-                          onClick={() => copyPartyLink(party.party_code)}
-                        >
-                          <ExternalLink className="w-4 h-4" />
-                        </Button>
-                      </>
-                    )}
-                    {party.status !== 'ended' && (
-                      <Button
-                        variant="outline"
-                        className="border-red-600 text-red-600 hover:bg-red-600 hover:text-white"
-                        onClick={() => endParty(party.id)}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    )}
-                  </div>
-                </Card>
-              </motion.div>
-            ))}
+          <div className="flex flex-col items-center rounded-2xl border border-dashed px-6 py-14 text-center">
+            <Users className="h-10 w-10 text-muted-foreground" />
+            <p className="mt-4 font-display text-3xl">{failed ? "We couldn't load your parties" : "No parties here yet"}</p>
+            <p className="mt-2 max-w-sm text-sm text-muted-foreground">
+              {failed ? "Check your connection and try again." : "Start one from any title page, or right here."}
+            </p>
           </div>
+        ) : (
+          <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+            <AnimatePresence initial={false}>
+              {parties.map((p, i) => {
+                const t = titleFor(p)
+                const bg = tmdbImage(t?.backdrop_path ?? null, "w780")
+                const s = STATUS[p.status] ?? STATUS.waiting
+                const open = p.status !== "ended"
+                return (
+                  <motion.li key={p.id} layout initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0, transition: { delay: i * 0.04 } }}>
+                    <div className="spotlight group relative flex h-full flex-col overflow-hidden rounded-2xl border bg-card transition-[border-color,transform] duration-300 hover:-translate-y-1 hover:border-primary/50">
+                      <div className="relative h-28 bg-muted">
+                        {bg && <Image src={bg} alt="" fill sizes="400px" className="object-cover transition-transform duration-700 group-hover:scale-105" />}
+                        <div className="absolute inset-0 bg-linear-to-t from-card to-transparent" />
+                        <span className={cn("absolute top-3 left-3 inline-flex items-center gap-1.5 rounded-full bg-black/70 px-2.5 py-0.5 text-xs font-semibold backdrop-blur-md", s.tone)}>
+                          {s.live && <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-success" />}
+                          {s.label}
+                        </span>
+                      </div>
+                      <div className="flex flex-1 flex-col gap-3 p-4">
+                        <div>
+                          <p className="truncate font-display text-xl leading-tight">{p.title}</p>
+                          <p className="text-xs text-muted-foreground">
+                            Started {formatDistanceToNow(new Date(p.created_at), { addSuffix: true })} · up to {p.max_participants} guests
+                          </p>
+                        </div>
+                        <div className="mt-auto flex items-center gap-2">
+                          <button type="button" onClick={() => copyLink(p.party_code)} title="Copy invite link" className="inline-flex h-9 items-center gap-1.5 rounded-lg border px-2.5 font-mono text-xs tracking-wider transition-colors hover:border-primary/60">
+                            <Copy className="h-3.5 w-3.5" /> {p.party_code}
+                          </button>
+                          {open && (
+                            <>
+                              {ending === p.id ? (
+                                <span className="ml-auto flex gap-1.5">
+                                  <button type="button" onClick={() => end(p)} className="h-9 rounded-lg bg-destructive px-3 text-xs font-medium text-white">End</button>
+                                  <button type="button" onClick={() => setEnding(null)} className="h-9 rounded-lg border px-3 text-xs">Keep</button>
+                                </span>
+                              ) : (
+                                <>
+                                  <button type="button" onClick={() => setEnding(p.id)} className="ml-auto h-9 rounded-lg px-2.5 text-xs text-muted-foreground transition-colors hover:text-destructive">
+                                    End
+                                  </button>
+                                  <Link href={`/watch-party/${p.party_code}`} className="inline-flex h-9 items-center gap-1 rounded-lg bg-primary px-3 text-xs font-semibold text-primary-foreground hover:brightness-110">
+                                    Open <ArrowRight className="h-3.5 w-3.5" />
+                                  </Link>
+                                </>
+                              )}
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </motion.li>
+                )
+              })}
+            </AnimatePresence>
+          </ul>
         )}
-      </div>
+      </section>
     </div>
   )
 }

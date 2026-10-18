@@ -58,17 +58,17 @@ export default function SubscriptionFailurePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-950 flex items-center justify-center p-6">
-      <Card className="max-w-2xl w-full p-8 bg-gray-900 border-gray-800">
+    <div className="min-h-screen bg-background flex items-center justify-center p-6">
+      <Card className="max-w-2xl w-full p-8 bg-card border-border">
         {/* Error Icon */}
         <div className="text-center mb-6">
           <div className="w-24 h-24 bg-red-500/10 border-2 border-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
             <XCircle className="w-12 h-12 text-red-500" />
           </div>
-          <h1 className="text-3xl font-bold text-white mb-2">
+          <h1 className="text-3xl text-foreground mb-2">
             Payment Failed
           </h1>
-          <p className="text-gray-400 text-lg">
+          <p className="text-muted-foreground text-lg">
             {getErrorMessage()}
           </p>
         </div>
@@ -76,45 +76,45 @@ export default function SubscriptionFailurePage() {
         {/* Error Details (Collapsible) */}
         <button
           onClick={() => setShowDetails(!showDetails)}
-          className="w-full mb-6 p-4 bg-gray-800 rounded-lg text-left hover:bg-gray-750 transition-colors"
+          className="w-full mb-6 p-4 bg-secondary rounded-lg text-left hover:bg-accent transition-colors"
         >
           <div className="flex items-center justify-between">
-            <span className="text-white font-medium flex items-center gap-2">
+            <span className="text-foreground font-medium flex items-center gap-2">
               <AlertTriangle className="w-4 h-4 text-yellow-500" />
               Error Details
             </span>
-            <span className="text-gray-400 text-sm">
+            <span className="text-muted-foreground text-sm">
               {showDetails ? 'Hide' : 'Show'}
             </span>
           </div>
           {showDetails && (
-            <div className="mt-3 pt-3 border-t border-gray-700 space-y-2 text-sm">
+            <div className="mt-3 pt-3 border-t border-border space-y-2 text-sm">
               <div className="flex justify-between">
-                <span className="text-gray-400">Payment Method:</span>
-                <span className="text-white capitalize">{paymentMethod}</span>
+                <span className="text-muted-foreground">Payment Method:</span>
+                <span className="text-foreground capitalize">{paymentMethod}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-400">Error Code:</span>
-                <span className="text-white uppercase">{errorReason}</span>
+                <span className="text-muted-foreground">Error Code:</span>
+                <span className="text-foreground uppercase">{errorReason}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-400">Time:</span>
-                <span className="text-white">{new Date().toLocaleString()}</span>
+                <span className="text-muted-foreground">Time:</span>
+                <span className="text-foreground">{new Date().toLocaleString()}</span>
               </div>
             </div>
           )}
         </button>
 
         {/* Troubleshooting Steps */}
-        <div className="bg-gray-800 rounded-lg p-6 mb-8">
-          <h2 className="text-white font-semibold mb-4 flex items-center gap-2">
+        <div className="bg-secondary rounded-lg p-6 mb-8">
+          <h2 className="text-foreground mb-4 flex items-center gap-2">
             <HelpCircle className="w-5 h-5 text-blue-500" />
             What You Can Do
           </h2>
-          <ol className="space-y-3 text-gray-300 text-sm">
+          <ol className="space-y-3 text-foreground/80 text-sm">
             {getTroubleshootingSteps().map((step, index) => (
               <li key={index} className="flex gap-3">
-                <span className="shrink-0 w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center text-white text-xs">
+                <span className="shrink-0 w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center text-foreground text-xs">
                   {index + 1}
                 </span>
                 <span>{step}</span>
@@ -136,7 +136,7 @@ export default function SubscriptionFailurePage() {
           <Button
             onClick={() => router.push('/subscription')}
             variant="outline"
-            className="flex-1 border-gray-700 text-white hover:bg-gray-800"
+            className="flex-1 border-border text-foreground hover:bg-secondary"
             size="lg"
           >
             Choose Different Plan
@@ -145,7 +145,7 @@ export default function SubscriptionFailurePage() {
 
         {/* Support Link */}
         <div className="text-center">
-          <p className="text-gray-400 text-sm mb-2">
+          <p className="text-muted-foreground text-sm mb-2">
             Still having trouble?
           </p>
           <Link href="/support" className="text-blue-500 hover:text-blue-400 text-sm font-medium">
@@ -154,11 +154,11 @@ export default function SubscriptionFailurePage() {
         </div>
 
         {/* Back to Home */}
-        <div className="text-center mt-6 pt-6 border-t border-gray-800">
+        <div className="text-center mt-6 pt-6 border-t border-border">
           <Button
             onClick={() => router.push('/dashboard')}
             variant="ghost"
-            className="text-gray-400 hover:text-white"
+            className="text-muted-foreground hover:text-foreground"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Dashboard

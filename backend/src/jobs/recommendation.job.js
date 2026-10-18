@@ -1,5 +1,5 @@
 // src/jobs/recommendation.job.js
-const { Worker } = require('bullmq');
+const { Worker } = require('./worker');
 const aiService = require('../services/ai.service');
 const logger = require('../utils/logger');
 

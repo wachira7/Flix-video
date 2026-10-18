@@ -75,8 +75,8 @@ export default function AnalyticsPage() {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-gray-400">Loading analytics...</p>
+          <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-muted-foreground">Loading analytics...</p>
         </div>
       </div>
     )
@@ -87,13 +87,13 @@ export default function AnalyticsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-white mb-2">Analytics Dashboard</h1>
-          <p className="text-gray-400">Deep insights into platform performance</p>
+          <h1 className="text-3xl text-foreground mb-2">Analytics Dashboard</h1>
+          <p className="text-muted-foreground">Deep insights into platform performance</p>
         </div>
         <select
           value={days}
           onChange={(e) => setDays(Number(e.target.value))}
-          className="bg-gray-800 border border-gray-700 text-white rounded-lg px-4 py-2"
+          className="bg-secondary border border-border text-foreground rounded-lg px-4 py-2"
         >
           <option value={7}>Last 7 days</option>
           <option value={30}>Last 30 days</option>
@@ -115,13 +115,13 @@ export default function AnalyticsPage() {
           title="Total Views"
           value={contentAnalytics?.totalViews?.toLocaleString() || "0"}
           icon={Eye}
-          iconColor="text-purple-500"
+          iconColor="text-primary"
         />
         <StatsCard
           title="Engagement Rate"
           value={`${engagementAnalytics?.avgEngagementRate || 0}%`}
           icon={Heart}
-          iconColor="text-pink-500"
+          iconColor="text-primary"
         />
         <StatsCard
           title="Active Users"
@@ -134,8 +134,8 @@ export default function AnalyticsPage() {
       {/* Charts Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* User Growth */}
-        <Card className="bg-gray-900 border-gray-800 p-6">
-          <h3 className="text-xl font-semibold text-white mb-4">User Growth Trend</h3>
+        <Card className="bg-card border-border p-6">
+          <h3 className="text-xl font-semibold text-foreground mb-4">User Growth Trend</h3>
           {userAnalytics?.dailyGrowth ? (
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={userAnalytics.dailyGrowth}>
@@ -150,15 +150,15 @@ export default function AnalyticsPage() {
               </LineChart>
             </ResponsiveContainer>
           ) : (
-            <div className="h-[300px] flex items-center justify-center text-gray-500">
+            <div className="h-[300px] flex items-center justify-center text-muted-foreground">
               No data available
             </div>
           )}
         </Card>
 
         {/* Content Views */}
-        <Card className="bg-gray-900 border-gray-800 p-6">
-          <h3 className="text-xl font-semibold text-white mb-4">Content Views</h3>
+        <Card className="bg-card border-border p-6">
+          <h3 className="text-xl font-semibold text-foreground mb-4">Content Views</h3>
           {contentAnalytics?.topContent ? (
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={contentAnalytics.topContent.slice(0, 5)}>
@@ -172,15 +172,15 @@ export default function AnalyticsPage() {
               </BarChart>
             </ResponsiveContainer>
           ) : (
-            <div className="h-[300px] flex items-center justify-center text-gray-500">
+            <div className="h-[300px] flex items-center justify-center text-muted-foreground">
               No data available
             </div>
           )}
         </Card>
 
         {/* User Distribution */}
-        <Card className="bg-gray-900 border-gray-800 p-6">
-          <h3 className="text-xl font-semibold text-white mb-4">User by Role</h3>
+        <Card className="bg-card border-border p-6">
+          <h3 className="text-xl font-semibold text-foreground mb-4">User by Role</h3>
           {userAnalytics?.byRole ? (
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
@@ -202,43 +202,43 @@ export default function AnalyticsPage() {
               </PieChart>
             </ResponsiveContainer>
           ) : (
-            <div className="h-[300px] flex items-center justify-center text-gray-500">
+            <div className="h-[300px] flex items-center justify-center text-muted-foreground">
               No data available
             </div>
           )}
         </Card>
 
         {/* Engagement Metrics */}
-        <Card className="bg-gray-900 border-gray-800 p-6">
-          <h3 className="text-xl font-semibold text-white mb-4">Engagement Metrics</h3>
+        <Card className="bg-card border-border p-6">
+          <h3 className="text-xl font-semibold text-foreground mb-4">Engagement Metrics</h3>
           <div className="space-y-4">
             <div className="flex justify-between items-center">
-              <span className="text-gray-400">Total Watch Time</span>
-              <span className="text-white font-semibold">
+              <span className="text-muted-foreground">Total Watch Time</span>
+              <span className="text-foreground font-semibold">
                 {engagementAnalytics?.totalWatchTime?.toLocaleString() || 0} hrs
               </span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-gray-400">Avg Session Duration</span>
-              <span className="text-white font-semibold">
+              <span className="text-muted-foreground">Avg Session Duration</span>
+              <span className="text-foreground font-semibold">
                 {engagementAnalytics?.avgSessionDuration || 0} min
               </span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-gray-400">Total Favorites</span>
-              <span className="text-white font-semibold">
+              <span className="text-muted-foreground">Total Favorites</span>
+              <span className="text-foreground font-semibold">
                 {engagementAnalytics?.totalFavorites?.toLocaleString() || 0}
               </span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-gray-400">Total Lists Created</span>
-              <span className="text-white font-semibold">
+              <span className="text-muted-foreground">Total Lists Created</span>
+              <span className="text-foreground font-semibold">
                 {engagementAnalytics?.totalLists?.toLocaleString() || 0}
               </span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-gray-400">Active Watch Parties</span>
-              <span className="text-white font-semibold">
+              <span className="text-muted-foreground">Active Watch Parties</span>
+              <span className="text-foreground font-semibold">
                 {engagementAnalytics?.activeWatchParties?.toLocaleString() || 0}
               </span>
             </div>
