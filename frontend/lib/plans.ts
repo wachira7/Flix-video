@@ -8,6 +8,8 @@ export interface PlanInfo {
   id: PlanId
   name: string
   price: number
+  /** FlixVideo AI messages a day, resetting at midnight Nairobi time */
+  aiMessages: number
   blurb: string
   features: string[]
   featured?: boolean
@@ -18,8 +20,10 @@ export const PLANS: PlanInfo[] = [
     id: "free",
     name: "Free",
     price: 0,
+    aiMessages: 3,
     blurb: "For finding something good tonight.",
     features: [
+      "Ask FlixVideo AI 3 times a day",
       "1 AI pick a day",
       "3 watchlists and 5 custom lists",
       "2 watch parties a day, up to 5 guests",
@@ -31,8 +35,10 @@ export const PLANS: PlanInfo[] = [
     id: "basic",
     name: "Basic",
     price: 499,
+    aiMessages: 15,
     blurb: "For people who watch most weeks.",
     features: [
+      "Ask FlixVideo AI 15 times a day",
       "5 AI picks a day",
       "10 watchlists and 20 custom lists",
       "10 watch parties a day, up to 10 guests",
@@ -45,10 +51,11 @@ export const PLANS: PlanInfo[] = [
     id: "premium",
     name: "Premium",
     price: 999,
-    blurb: "Everything, with the AI assistant.",
+    aiMessages: 40,
+    blurb: "Everything, and the most time with FlixVideo AI.",
     features: [
+      "Ask FlixVideo AI 40 times a day",
       "Unlimited AI picks",
-      "AI assistant, 50 conversations a month",
       "Unlimited watchlists and lists",
       "Unlimited watch parties, up to 50 guests",
       "Custom themes and early access",

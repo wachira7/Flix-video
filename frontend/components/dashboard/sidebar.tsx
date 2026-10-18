@@ -91,7 +91,7 @@ function PlanCard({ collapsed }: { collapsed: boolean }) {
         {plan === "free" ? "You're on Free" : "You're on Basic"}
       </p>
       <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-        {plan === "free" ? "Get more AI picks and no ads from KSh 499." : "Unlock the AI assistant with Premium."}
+        {plan === "free" ? "More AI messages and no ads from KSh 499." : "40 AI messages a day and unlimited picks with Premium."}
       </p>
       <span className="mt-3 inline-flex text-xs font-semibold text-primary transition-transform group-hover:translate-x-0.5">
         See plans →
