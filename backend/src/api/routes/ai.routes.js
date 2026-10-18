@@ -3,39 +3,55 @@ const express = require('express');
 const router = express.Router();
 const rateLimit = require('express-rate-limit');
 const { protect } = require('../middlewares/auth.middleware');
-const { requirePlan, checkUsageLimit } = require('../middlewares/subscription.middleware');
 const AIConversation = require('../../models/aiConversation.model');
-const { sendMessage, getConversations, getConversation, deleteConversation, deleteAllConversations, getAIStatus } = require('../controllers/ai.controller');
+const { getUsage } = require('../../services/ai-usage.service');
+const { sendMessage, getConversations, getConversation, deleteConversation, deleteAllConversations, getAIStatus, getAIUsage } = require('../controllers/ai.controller');
 
-// ─── Rate Limiter ─────────────────────────────────────────────────
+// ─── Burst guard ──────────────────────────────────────────────────
+// Per user, so people sharing one network (offices, campuses, mobile
+// carriers) don't use up each other's limit. The daily allowance below
+// is the real cap; this only stops rapid-fire abuse.
 const aiLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour
-  max: 10,                   // 10 messages per hour per IP
+  max: 30,
+  keyGenerator: (req) => `user:${req.user.id}`,
   message: {
     success: false,
-    error: 'AI chat limit reached. Try again in an hour.'
+    error: 'You are sending messages very quickly. Try again in a little while.'
   }
 });
 
-// ─── Plan gate ────────────────────────────────────────────────────
-// AI chat is a Premium feature with a monthly cap on NEW conversations
-// (config/plans.js: chat_conversations_monthly). Follow-up messages in a
-// conversation the user already owns don't count against it.
-const newConversationLimit = checkUsageLimit('chat_conversations_monthly', 'monthly');
-
-const limitNewConversations = async (req, res, next) => {
+// ─── Daily allowance ──────────────────────────────────────────────
+// Every plan gets FlixVideo AI, with a daily message allowance
+// (config/plans.js: ai_messages_daily). The count only goes up once the
+// AI has replied (see sendMessage).
+const dailyAllowance = async (req, res, next) => {
   try {
     const sessionId = req.body?.session_id;
     if (sessionId) {
       const conversation = await AIConversation.getBySession(sessionId);
-      if (conversation) {
-        if (String(conversation.userId) !== String(req.user.id)) {
-          return res.status(404).json({ success: false, error: 'Conversation not found' });
-        }
-        return next();
+      if (conversation && String(conversation.userId) !== String(req.user.id)) {
+        return res.status(404).json({ success: false, error: 'Conversation not found' });
       }
     }
-    return newConversationLimit(req, res, next);
+
+    const usage = await getUsage(req.user.id);
+    if (usage.used >= usage.limit) {
+      return res.status(429).json({
+        success: false,
+        error: "You've used today's FlixVideo AI messages",
+        limit_info: {
+          limit: usage.limit,
+          used: usage.used,
+          period: 'daily',
+          plan: usage.plan,
+          resets_at: usage.resets_at,
+          upgrade_required: usage.plan !== 'premium'
+        }
+      });
+    }
+    req.aiUsage = usage;
+    next();
   } catch (error) {
     next(error);
   }
@@ -93,8 +109,8 @@ router.get('/status', getAIStatus);
  *     description: |
  *       Sends a user message to the configured AI provider (Claude or OpenAI) and returns a response.
  *       Conversation history is persisted in MongoDB for context continuity.
- *       Premium only, with up to 50 new conversations a month.
- *       Rate limited to 10 messages per hour.
+ *       Every plan has a daily message allowance (Free 3, Basic 15, Premium 40),
+ *       resetting at midnight Nairobi time. Also limited to 30 messages per hour.
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -146,16 +162,29 @@ router.get('/status', getAIStatus);
  *         description: Message is empty or too long
  *       401:
  *         description: Unauthorized
- *       403:
- *         description: Not on the Premium plan (upgrade_required is true)
  *       404:
  *         description: session_id belongs to another user
  *       429:
- *         description: Monthly conversation limit or hourly rate limit reached
+ *         description: Daily allowance used up (limit_info has resets_at and upgrade_required), or the hourly burst limit
  *       503:
  *         description: AI service unavailable
  */
-router.post('/chat', protect, aiLimiter, requirePlan('premium'), limitNewConversations, sendMessage);
+router.post('/chat', protect, aiLimiter, dailyAllowance, sendMessage);
+
+/**
+ * @swagger
+ * /api/ai/usage:
+ *   get:
+ *     tags: [AI]
+ *     summary: Today's FlixVideo AI message allowance
+ *     description: How many AI messages the user's plan allows today, how many are used, and when the count resets (midnight, Nairobi time).
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Usage for today
+ */
+router.get('/usage', protect, getAIUsage);
 
 /**
  * @swagger

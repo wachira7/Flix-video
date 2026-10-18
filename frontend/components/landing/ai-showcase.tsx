@@ -18,7 +18,7 @@ export function AIShowcase({ picks }: { picks: AIPick[] }) {
             tied to what you asked for, so you can decide in seconds instead of scrolling for twenty minutes.
           </p>
           <p className="text-sm text-muted-foreground">
-            The AI assistant is included with Premium. Every plan gets daily AI picks.
+            Every plan can ask FlixVideo AI: 3 questions a day on Free, 15 on Basic and 40 on Premium.
           </p>
         </div>
 

@@ -14,11 +14,11 @@ const faqs = [
   },
   {
     q: "Is there really a free plan?",
-    a: "Yes. The free plan never expires and needs no card. It includes one AI pick a day, watchlists, ratings, reviews and watch parties.",
+    a: "Yes. The free plan never expires and needs no card. It includes one AI pick a day, three questions to FlixVideo AI a day, watchlists, ratings, reviews and watch parties.",
   },
   {
     q: "How do the AI picks work?",
-    a: "They use your ratings, your lists and what you have watched to suggest titles, and every suggestion comes with a short reason. On Premium you can also chat with the assistant and ask for things like \"a feel-good comedy under 90 minutes\".",
+    a: "They use your ratings, your lists and what you have watched to suggest titles, and every suggestion comes with a short reason. You can also ask FlixVideo AI for things like \"a feel-good comedy under 90 minutes\": 3 times a day on Free, 15 on Basic and 40 on Premium.",
   },
   {
     q: "How do I pay?",

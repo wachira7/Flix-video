@@ -102,8 +102,8 @@ const sections: LegalSection[] = [
     body: (
       <p>
         FlixVideo AI&apos;s suggestions are written by a computer and can get details wrong, such as a year, a cast member or
-        where a title is available. Check a title&apos;s page before you plan a night around it. FlixVideo AI is included with
-        Premium, with up to 50 new conversations a month.
+        where a title is available. Check a title&apos;s page before you plan a night around it. Every plan includes a daily
+        number of FlixVideo AI messages (3 on Free, 15 on Basic, 40 on Premium), which resets at midnight Nairobi time.
       </p>
     ),
   },

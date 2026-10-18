@@ -4,6 +4,7 @@ const logger = require('../../utils/logger');
 const AIConversation = require('../../models/aiConversation.model');
 const { v4: uuidv4 } = require('uuid');
 const { getProviderStatus } = require('../../services/ai.service'); 
+const { getUsage, recordMessage } = require('../../services/ai-usage.service');
 // ─── AI Chat ──────────────────────────────────────────────────────
 
 // @desc    Send a message and get AI response
@@ -29,7 +30,7 @@ const sendMessage = async (req, res) => {
      }
 
      
-    // Plan and monthly limits are enforced by the route (ai.routes.js)
+    // The daily allowance is checked by the route (ai.routes.js)
 
     // Use existing session or create new one
     const sessionId = session_id || uuidv4();
@@ -111,12 +112,22 @@ const sendMessage = async (req, res) => {
 
     logger.info('AI chat message processed', { userId, sessionId, provider: providerUsed });
 
+    // Count the message now that it's been answered
+    let usage = req.aiUsage;
+    try {
+      const used = await recordMessage(userId);
+      if (usage) usage = { ...usage, used, remaining: Math.max(0, usage.limit - used) };
+    } catch (error) {
+      logger.warn('Could not record AI usage', { error: error.message });
+    }
+
     res.json({
       success: true,
       session_id: sessionId,
       response: aiResponse.content,
       provider: providerUsed,
-      tokens_used: aiResponse.tokens_used
+      tokens_used: aiResponse.tokens_used,
+      usage
     });
 
   } catch (error) {
@@ -234,11 +245,27 @@ const getAIStatus = async (req, res) => {
   }
 };
 
+// @desc    Today's AI message allowance
+// @route   GET /api/ai/usage
+// @access  Private
+const getAIUsage = async (req, res) => {
+  try {
+    res.json({ success: true, usage: await getUsage(req.user.id) });
+  } catch (error) {
+    logger.error('Get AI usage error', { error: error.message });
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      error: ERROR_MESSAGES.SERVER_ERROR
+    });
+  }
+};
+
 module.exports = {
   sendMessage,
   getConversations,
   getConversation,
   deleteConversation,
   deleteAllConversations,
-  getAIStatus
+  getAIStatus,
+  getAIUsage
 };
