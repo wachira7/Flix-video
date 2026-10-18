@@ -22,7 +22,7 @@ const PLANS = {
       
       // AI Features
       ai_recommendations_per_day: 1,
-      ai_chat: false,
+      ai_chat: true,
       
       // Watch Parties
       create_watch_parties: 2,
@@ -39,7 +39,8 @@ const PLANS = {
       watchlists: 3,
       ai_recommendations_daily: 1,
       watch_parties_daily: 2,
-      party_participants: 5
+      party_participants: 5,
+      ai_messages_daily: 3 // FlixVideo AI messages per day (Nairobi time)
     }
   },
 
@@ -61,7 +62,7 @@ const PLANS = {
       
       // AI Features
       ai_recommendations_per_day: 5,
-      ai_chat: false,
+      ai_chat: true,
       
       // Watch Parties
       create_watch_parties: 10,
@@ -78,7 +79,8 @@ const PLANS = {
       watchlists: 10,
       ai_recommendations_daily: 5,
       watch_parties_daily: 10,
-      party_participants: 10
+      party_participants: 10,
+      ai_messages_daily: 15 // FlixVideo AI messages per day (Nairobi time)
     }
   },
 
@@ -101,7 +103,6 @@ const PLANS = {
       // AI Features
       ai_recommendations_per_day: -1,
       ai_chat: true,
-      chat_conversations_per_month: 50,
       
       // Watch Parties
       create_watch_parties: -1,
@@ -120,7 +121,7 @@ const PLANS = {
       ai_recommendations_daily: -1,
       watch_parties_daily: -1,
       party_participants: 50,
-      chat_conversations_monthly: 50
+      ai_messages_daily: 40 // FlixVideo AI messages per day (Nairobi time)
     }
   }
 };
