@@ -9,7 +9,7 @@ import { LoadError, SettingsCard, SettingsHeader, ToggleRow } from "@/components
 type Key = keyof UserSettings["notifications"]
 
 const EMAILS: { key: Key; label: string; description: string }[] = [
-  { key: "billing_reminders", label: "Billing reminders", description: "A heads-up a few days before your plan renews or runs out." },
+  { key: "billing_reminders", label: "Billing reminders", description: "A heads-up a few days before your plan runs out, so you can pay again if you want to." },
   { key: "watch_party_invites", label: "Watch party invites", description: "When a friend invites you to watch together." },
   { key: "review_activity", label: "Activity on my reviews", description: "When someone replies to or likes your review." },
 ]

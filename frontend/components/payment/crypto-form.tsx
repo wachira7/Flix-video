@@ -1,275 +1,305 @@
 // frontend/components/payment/crypto-form.tsx
-
+// Crypto checkout via NOWPayments: pick a coin, get an address and exact
+// amount, then wait for the network to confirm. Priced in USD on the server.
 "use client"
 
-import { useState, useEffect } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
-import { paymentsAPI } from "@/lib/api/payments"
-import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Label } from "@/components/ui/label"
-import { Loader2, Bitcoin, Copy, CheckCircle, XCircle, ExternalLink } from "lucide-react"
+import { AnimatePresence, motion } from "framer-motion"
+import { Bitcoin, Check, Copy, ExternalLink, Loader2, RotateCcw, Smartphone, XCircle } from "lucide-react"
 import { toast } from "sonner"
-import Image from "next/image"
+import { paymentsAPI } from "@/lib/api/payments"
+import { cn } from "@/lib/utils"
 
 interface CryptoFormProps {
   planId: string
   amount: number
 }
 
+interface CryptoPayment {
+  payment_id: string
+  pay_address: string
+  pay_amount: number
+  pay_currency: string
+  payment_url?: string | null
+  expiration?: string | null
+}
+
+type Stage = "loading" | "unavailable" | "choose" | "creating" | "waiting" | "success" | "failed"
+
+const COIN_NAMES: Record<string, string> = {
+  btc: "Bitcoin",
+  eth: "Ethereum",
+  usdt: "Tether (ERC-20)",
+  usdttrc20: "Tether (TRC-20)",
+  usdc: "USD Coin",
+  ltc: "Litecoin",
+  bnb: "BNB",
+  sol: "Solana",
+}
+const coinLabel = (c: string) => (c === "usdttrc20" ? "USDT" : c.toUpperCase())
+
+const POLL_MS = 10000
+const MAX_POLLS = 90 // 15 minutes
+
+function apiError(e: unknown) {
+  return (e as { response?: { status?: number; data?: { error?: string } } }).response
+}
+
 export function CryptoForm({ planId, amount }: CryptoFormProps) {
   const router = useRouter()
-  const [currencies, setCurrencies] = useState<string[]>([])
-  const [selectedCurrency, setSelectedCurrency] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [paymentData, setPaymentData] = useState<any>(null)
-  const [polling, setPolling] = useState(false)
-  const [paymentStatus, setPaymentStatus] = useState<'pending' | 'success' | 'failed' | null>(null)
+  const [stage, setStage] = useState<Stage>("loading")
+  const [message, setMessage] = useState<string | null>(null)
+  const [coins, setCoins] = useState<string[]>([])
+  const [coin, setCoin] = useState("")
+  const [payment, setPayment] = useState<CryptoPayment | null>(null)
+  const [copied, setCopied] = useState<"address" | "amount" | null>(null)
+  const poll = useRef<ReturnType<typeof setInterval> | null>(null)
 
-  useEffect(() => {
-    fetchCurrencies()
+  const loadCoins = useCallback(async () => {
+    setStage("loading")
+    try {
+      const r = await paymentsAPI.getCryptoCurrencies()
+      const list: string[] = r.currencies ?? []
+      if (list.length === 0) {
+        setMessage("No cryptocurrencies are available right now. Please pay with M-Pesa or card.")
+        setStage("unavailable")
+        return
+      }
+      setCoins(list)
+      setCoin((c) => c || list[0])
+      setStage("choose")
+    } catch (e) {
+      const res = apiError(e)
+      setMessage(
+        res?.status === 503
+          ? res.data?.error || "Crypto payments aren't available right now. Please pay with M-Pesa or card."
+          : "We couldn't load the list of coins. Check your connection and try again."
+      )
+      setStage("unavailable")
+    }
   }, [])
 
-  const fetchCurrencies = async () => {
-    try {
-      const response = await paymentsAPI.getCryptoCurrencies()
-      setCurrencies(response.currencies || [])
-      if (response.currencies?.length > 0) {
-        setSelectedCurrency(response.currencies[0])
-      }
-    } catch (error) {
-      console.error('Fetch currencies error:', error)
-      toast.error('Failed to load cryptocurrencies')
+  useEffect(() => {
+    loadCoins()
+    return () => {
+      if (poll.current) clearInterval(poll.current)
     }
-  }
+  }, [loadCoins])
 
-  const handlePayment = async () => {
-    if (!selectedCurrency) {
-      toast.error('Please select a cryptocurrency')
-      return
-    }
-
-    setLoading(true)
-    try {
-      const response = await paymentsAPI.createCryptoPayment(
-        amount,
-        selectedCurrency,
-        planId,
-        `FlixVideo ${planId.charAt(0).toUpperCase() + planId.slice(1)} Plan`
-      )
-
-      if (response.success) {
-        setPaymentData(response)
-        toast.success('Payment address generated!')
-        
-        // Start polling for payment
-        startPolling(response.payment_id)
-      }
-    } catch (error: any) {
-      console.error('Crypto payment error:', error)
-      toast.error(error.response?.data?.error || 'Failed to create payment')
-      setLoading(false)
-    }
-  }
-
-  const startPolling = async (paymentId: string) => {
-    setPolling(true)
-    setLoading(false)
-    let attempts = 0
-    const maxAttempts = 60 // 10 minutes (10s intervals)
-
-    const pollInterval = setInterval(async () => {
-      attempts++
-
+  const watch = (paymentId: string) => {
+    let polls = 0
+    poll.current = setInterval(async () => {
+      polls++
       try {
-        const status = await paymentsAPI.getCryptoStatus(paymentId)
-        
-        if (status.payment.status === 'succeeded') {
-          clearInterval(pollInterval)
-          setPaymentStatus('success')
-          setPolling(false)
-          toast.success('Payment confirmed!')
-          
-          setTimeout(() => {
-            router.push('/subscription/success')
-          }, 2000)
-        } else if (status.payment.status === 'failed') {
-          clearInterval(pollInterval)
-          setPaymentStatus('failed')
-          setPolling(false)
-          toast.error('Payment failed')
+        const s = await paymentsAPI.getCryptoStatus(paymentId)
+        const status = s.payment?.status
+        if (status === "succeeded") {
+          if (poll.current) clearInterval(poll.current)
+          setStage("success")
+          setTimeout(() => router.push(`/subscription/success?method=crypto&plan=${planId}`), 1600)
+          return
         }
-      } catch (error) {
-        console.error('Polling error:', error)
+        if (status === "failed") {
+          if (poll.current) clearInterval(poll.current)
+          setMessage("The payment didn't go through. If you sent coins, email support@flixvideo.com with the address.")
+          setStage("failed")
+          return
+        }
+      } catch {
+        // keep polling; a single failed check isn't a failed payment
       }
-
-      if (attempts >= maxAttempts) {
-        clearInterval(pollInterval)
-        setPolling(false)
-        toast.error('Payment timeout. Please contact support.')
+      if (polls >= MAX_POLLS && poll.current) {
+        clearInterval(poll.current)
+        setMessage("We haven't seen the payment yet. Network confirmations can be slow: if you've sent it, your plan will switch on once it confirms.")
+        setStage("failed")
       }
-    }, 10000)
+    }, POLL_MS)
   }
 
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text)
-    toast.success('Copied to clipboard!')
+  const create = async () => {
+    if (!coin) return
+    setStage("creating")
+    setMessage(null)
+    try {
+      const r = await paymentsAPI.createCryptoPayment(amount, coin, planId, `FlixVideo ${planId} plan`)
+      setPayment(r as unknown as CryptoPayment)
+      setStage("waiting")
+      watch((r as unknown as CryptoPayment).payment_id)
+    } catch (e) {
+      const res = apiError(e)
+      if (res?.status === 503) {
+        setMessage(res.data?.error ?? "Crypto payments aren't available right now.")
+        setStage("unavailable")
+        return
+      }
+      setMessage(res?.data?.error || "We couldn't create the payment. Please try again or use another coin.")
+      setStage("choose")
+    }
+  }
+
+  const copy = async (what: "address" | "amount", text: string) => {
+    try {
+      await navigator.clipboard.writeText(text)
+      setCopied(what)
+      setTimeout(() => setCopied(null), 1600)
+    } catch {
+      toast.error("Couldn't copy. Select the text and copy it instead.")
+    }
   }
 
   return (
-    <Card className="p-6 bg-card border-border">
-      <div className="text-center mb-6">
-        <div className="w-16 h-16 bg-orange-600 rounded-full flex items-center justify-center mx-auto mb-4">
-          <Bitcoin className="w-8 h-8 text-foreground" />
-        </div>
-        <h2 className="text-2xl text-foreground mb-2">Pay with Crypto</h2>
-        <p className="text-muted-foreground">
-          Send cryptocurrency to complete your purchase
-        </p>
-      </div>
-
-      {paymentStatus === 'success' ? (
-        <div className="text-center py-8">
-          <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
-          <h3 className="text-xl font-bold text-foreground mb-2">Payment Confirmed!</h3>
-          <p className="text-muted-foreground">Redirecting to dashboard...</p>
-        </div>
-      ) : paymentStatus === 'failed' ? (
-        <div className="text-center py-8">
-          <XCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
-          <h3 className="text-xl font-bold text-foreground mb-2">Payment Failed</h3>
-          <p className="text-muted-foreground">Please contact support</p>
-        </div>
-      ) : !paymentData ? (
-        <div className="space-y-6">
-          <div className="space-y-4 mb-6">
-            <div className="flex justify-between p-4 bg-secondary rounded-lg">
-              <span className="text-muted-foreground">Amount</span>
-              <span className="text-foreground font-semibold">KES {amount.toLocaleString()}</span>
+    <div className="space-y-5">
+      <AnimatePresence mode="wait">
+        {stage === "loading" && (
+          <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-3">
+            <div className="h-5 w-40 animate-pulse rounded bg-muted" />
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="h-16 animate-pulse rounded-xl bg-muted/70" />
+              ))}
             </div>
-            <div className="flex justify-between p-4 bg-secondary rounded-lg">
-              <span className="text-muted-foreground">Plan</span>
-              <span className="text-foreground font-semibold capitalize">{planId}</span>
-            </div>
-          </div>
+          </motion.div>
+        )}
 
-          <div>
-            <Label className="text-foreground mb-2">Select Cryptocurrency</Label>
-            <Select value={selectedCurrency} onValueChange={setSelectedCurrency}>
-              <SelectTrigger className="bg-secondary border-border text-foreground mt-2">
-                <SelectValue placeholder="Choose currency" />
-              </SelectTrigger>
-              <SelectContent className="bg-secondary border-border">
-                {currencies.map((currency) => (
-                  <SelectItem key={currency} value={currency} className="text-foreground">
-                    {currency.toUpperCase()}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <Button
-            onClick={handlePayment}
-            disabled={loading || !selectedCurrency}
-            className="w-full bg-orange-600 hover:bg-orange-700"
-            size="lg"
-          >
-            {loading ? (
-              <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Generating address...
-              </>
-            ) : (
-              'Generate Payment Address'
-            )}
-          </Button>
-        </div>
-      ) : (
-        <div className="space-y-6">
-          {/* Payment Instructions */}
-          <div className="p-4 bg-blue-900/20 border border-blue-600 rounded-lg">
-            <p className="text-blue-400 text-sm">
-              💡 Send exactly <strong>{paymentData.pay_amount} {paymentData.pay_currency.toUpperCase()}</strong> to the address below
+        {stage === "unavailable" && (
+          <motion.div key="unavailable" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="flex flex-col items-center py-6 text-center">
+            <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-muted text-muted-foreground">
+              <Bitcoin className="h-6 w-6" aria-hidden="true" />
+            </span>
+            <p className="mt-5 font-display text-2xl">Crypto is resting</p>
+            <p className="mt-2 max-w-sm text-sm text-muted-foreground" role="status">
+              {message}
             </p>
-          </div>
-
-          {/* Payment Address */}
-          <div>
-            <Label className="text-foreground mb-2">Payment Address</Label>
-            <div className="flex gap-2 mt-2">
-              <input
-                type="text"
-                value={paymentData.pay_address}
-                readOnly
-                className="flex-1 px-4 py-2 bg-secondary border border-border rounded-lg text-foreground text-sm"
-              />
-              <Button
-                onClick={() => copyToClipboard(paymentData.pay_address)}
-                variant="outline"
-                className="border-border"
+            <div className="mt-6 flex flex-wrap justify-center gap-2">
+              <button
+                type="button"
+                onClick={() => router.replace(`/subscription/checkout?plan=${planId}&method=mpesa`)}
+                className="inline-flex h-10 items-center gap-2 rounded-lg bg-primary px-4 text-sm font-semibold text-primary-foreground"
               >
-                <Copy className="w-4 h-4" />
-              </Button>
+                <Smartphone className="h-4 w-4" aria-hidden="true" /> Pay with M-Pesa
+              </button>
+              <button type="button" onClick={loadCoins} className="inline-flex h-10 items-center gap-2 rounded-lg border px-4 text-sm text-muted-foreground hover:text-foreground">
+                <RotateCcw className="h-4 w-4" aria-hidden="true" /> Try again
+              </button>
             </div>
-          </div>
+          </motion.div>
+        )}
 
-          {/* Amount */}
-          <div>
-            <Label className="text-foreground mb-2">Amount to Send</Label>
-            <div className="flex gap-2 mt-2">
-              <input
-                type="text"
-                value={`${paymentData.pay_amount} ${paymentData.pay_currency.toUpperCase()}`}
-                readOnly
-                className="flex-1 px-4 py-2 bg-secondary border border-border rounded-lg text-foreground text-sm font-mono"
-              />
-              <Button
-                onClick={() => copyToClipboard(paymentData.pay_amount.toString())}
-                variant="outline"
-                className="border-border"
-              >
-                <Copy className="w-4 h-4" />
-              </Button>
-            </div>
-          </div>
+        {(stage === "choose" || stage === "creating") && (
+          <motion.div key="choose" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="space-y-5">
+            <fieldset>
+              <legend className="text-sm font-medium">Pay with</legend>
+              <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
+                {coins.map((c) => (
+                  <button
+                    key={c}
+                    type="button"
+                    aria-pressed={coin === c}
+                    onClick={() => setCoin(c)}
+                    className={cn(
+                      "rounded-xl border bg-background/60 px-3 py-3 text-left transition-[border-color,background-color]",
+                      coin === c ? "border-primary/70 bg-primary/10" : "hover:border-foreground/30"
+                    )}
+                  >
+                    <span className="block text-sm font-semibold">{coinLabel(c)}</span>
+                    <span className="block text-xs text-muted-foreground">{COIN_NAMES[c] ?? c.toUpperCase()}</span>
+                  </button>
+                ))}
+              </div>
+            </fieldset>
 
-          {/* Payment URL */}
-          {paymentData.payment_url && (
-            <Button
-              onClick={() => window.open(paymentData.payment_url, '_blank')}
-              variant="outline"
-              className="w-full border-border"
+            {message && (
+              <p role="alert" className="rounded-lg border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm">
+                {message}
+              </p>
+            )}
+
+            <button
+              type="button"
+              onClick={create}
+              disabled={!coin || stage === "creating"}
+              className="button-sweep flex h-12 w-full items-center justify-center gap-2 rounded-lg bg-primary text-[15px] font-semibold text-primary-foreground disabled:opacity-70"
             >
-              Open in Wallet
-              <ExternalLink className="w-4 h-4 ml-2" />
-            </Button>
-          )}
+              {stage === "creating" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Bitcoin className="h-4 w-4" aria-hidden="true" />}
+              {stage === "creating" ? "Getting your address…" : `Get a ${coinLabel(coin)} address`}
+            </button>
+            <p className="text-xs text-muted-foreground">
+              You&apos;ll see the exact amount to send. Crypto is priced in US dollars at today&apos;s rate, and network fees are separate.
+            </p>
+          </motion.div>
+        )}
 
-          {/* Status */}
-          {polling && (
-            <div className="text-center p-4 bg-yellow-900/20 border border-yellow-600 rounded-lg">
-              <Loader2 className="w-6 h-6 animate-spin mx-auto mb-2 text-yellow-500" />
-              <p className="text-yellow-500 text-sm">
-                Waiting for payment confirmation...
-              </p>
-              <p className="text-muted-foreground text-xs mt-1">
-                This may take a few minutes depending on network congestion
-              </p>
+        {stage === "waiting" && payment && (
+          <motion.div key="waiting" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              Send <span className="font-semibold text-foreground">exactly</span> this amount to this address. Sending less can leave the
+              payment incomplete.
+            </p>
+            {(
+              [
+                { key: "amount", label: "Amount", value: `${payment.pay_amount} ${coinLabel(payment.pay_currency)}`, raw: String(payment.pay_amount) },
+                { key: "address", label: `${coinLabel(payment.pay_currency)} address`, value: payment.pay_address, raw: payment.pay_address },
+              ] as const
+            ).map((row) => (
+              <div key={row.key} className="rounded-xl border bg-background/60 p-3">
+                <p className="eyebrow !text-muted-foreground/80">{row.label}</p>
+                <div className="mt-1.5 flex items-center gap-3">
+                  <code className="min-w-0 flex-1 break-all font-mono text-sm">{row.value}</code>
+                  <button
+                    type="button"
+                    onClick={() => copy(row.key, row.raw)}
+                    aria-label={`Copy ${row.label.toLowerCase()}`}
+                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border text-muted-foreground transition-colors hover:text-foreground"
+                  >
+                    {copied === row.key ? <Check className="h-4 w-4 text-success" /> : <Copy className="h-4 w-4" />}
+                  </button>
+                </div>
+              </div>
+            ))}
+            {payment.payment_url && (
+              <a href={payment.payment_url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 text-sm text-primary hover:underline">
+                Open in your wallet <ExternalLink className="h-3.5 w-3.5" />
+              </a>
+            )}
+            <div className="flex items-center gap-3 rounded-xl border border-primary/30 bg-primary/5 p-4" aria-live="polite">
+              <Loader2 className="h-5 w-5 shrink-0 animate-spin text-primary" />
+              <div className="text-sm">
+                <p className="font-medium">Waiting for the network to confirm</p>
+                <p className="text-muted-foreground">
+                  This can take a few minutes. You can leave this page; your plan switches on once it confirms.
+                  {payment.expiration ? ` The address expires ${new Date(payment.expiration).toLocaleString()}.` : ""}
+                </p>
+              </div>
             </div>
-          )}
+          </motion.div>
+        )}
 
-          {/* Expiration */}
-          <p className="text-xs text-muted-foreground text-center">
-            Payment expires: {new Date(paymentData.expiration).toLocaleString()}
-          </p>
-        </div>
-      )}
+        {stage === "success" && (
+          <motion.div key="success" initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} className="flex flex-col items-center py-6 text-center">
+            <span className="flex h-16 w-16 items-center justify-center rounded-full bg-success/15 text-success">
+              <Check className="h-8 w-8" />
+            </span>
+            <p className="mt-5 font-display text-3xl">Payment confirmed</p>
+            <p className="mt-2 text-sm text-muted-foreground">Switching on your plan…</p>
+          </motion.div>
+        )}
 
-      <p className="text-xs text-muted-foreground text-center mt-4">
-        Powered by NOWPayments • Secure crypto payments
-      </p>
-    </Card>
+        {stage === "failed" && (
+          <motion.div key="failed" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col items-center py-6 text-center">
+            <span className="flex h-16 w-16 items-center justify-center rounded-full bg-destructive/15 text-destructive">
+              <XCircle className="h-8 w-8" />
+            </span>
+            <p className="mt-5 font-display text-2xl">Not confirmed yet</p>
+            <p className="mt-2 max-w-sm text-sm text-muted-foreground">{message}</p>
+            <button type="button" onClick={loadCoins} className="mt-5 inline-flex items-center gap-1.5 text-sm text-primary hover:underline">
+              <RotateCcw className="h-3.5 w-3.5" /> Start a new payment
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <p className="text-center text-xs text-muted-foreground">Powered by NOWPayments</p>
+    </div>
   )
 }

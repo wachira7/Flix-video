@@ -121,7 +121,7 @@ function Checkout() {
               <span className="font-display text-2xl">{plan.name}</span>
               <span className="tabular-nums">{formatKes(plan.price)}</span>
             </div>
-            <p className="text-sm text-muted-foreground">Billed monthly. Cancel any time.</p>
+            <p className="text-sm text-muted-foreground">30 days of access. Doesn&apos;t renew on its own.</p>
             <ul className="mt-5 space-y-2.5 border-t pt-5">
               {plan.features.map((f) => (
                 <li key={f} className="flex gap-2.5 text-sm">

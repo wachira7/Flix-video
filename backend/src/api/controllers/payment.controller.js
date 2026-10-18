@@ -8,6 +8,23 @@ const logger = require('../../utils/logger');
 const { notificationQueue } = require('../../jobs/queues');
 const { getPlan } = require('../../config/plans');
 const { grantPlanSafely } = require('../../services/subscription.service');
+const { convertFromKES } = require('../../utils/currency');
+
+const CRYPTO_UNAVAILABLE = "Crypto payments aren't available right now. Please pay with M-Pesa or card.";
+
+// NOWPayments doesn't price in KES, so crypto is priced in USD. Rates come
+// from the exchange-rate job; until it has run, use a fixed fallback.
+const FALLBACK_KES_PER_USD = parseFloat(process.env.FALLBACK_KES_PER_USD) || 129;
+const kesToUsd = async (amountKes) => {
+  try {
+    const { amount_converted } = await convertFromKES(amountKes, 'USD');
+    if (amount_converted > 0) return Math.round(amount_converted * 100) / 100;
+  } catch {
+    // fall through to the fixed rate
+  }
+  logger.warn('Exchange rates unavailable; pricing crypto with the fallback rate', { FALLBACK_KES_PER_USD });
+  return Math.round((amountKes / FALLBACK_KES_PER_USD) * 100) / 100;
+};
 
 /**
  * Price a subscription payment from the server-side plan list.
@@ -550,6 +567,7 @@ const getMpesaStatus = async (req, res) => {
 // @route   POST /api/payments/crypto/create
 // @access  Private
 const createCryptoPayment = async (req, res) => {
+  let paymentId = null;
   try {
     const userId = req.user.id;
     const { crypto_currency, description } = req.body;
@@ -559,6 +577,10 @@ const createCryptoPayment = async (req, res) => {
         success: false,
         error: 'Crypto currency required'
       });
+    }
+
+    if (!cryptoService.isConfigured()) {
+      return res.status(HTTP_STATUS.SERVICE_UNAVAILABLE).json({ success: false, error: CRYPTO_UNAVAILABLE });
     }
 
     // Amount and currency come from the plan, not the request body
@@ -574,12 +596,13 @@ const createCryptoPayment = async (req, res) => {
       [userId, amount, currency, plan_type, description]
     );
 
-    const paymentId = paymentResult.rows[0].id;
+    paymentId = paymentResult.rows[0].id;
 
-    // Create NOWPayments payment
+    // Create NOWPayments payment, priced in USD (the payment row keeps the KES price)
+    const priceUsd = await kesToUsd(amount);
     const payment = await cryptoService.createPayment(
-      amount,
-      currency,
+      priceUsd,
+      'usd',
       crypto_currency,
       paymentId,
       description || 'FlixVideo Payment',
@@ -619,6 +642,12 @@ const createCryptoPayment = async (req, res) => {
 
   } catch (error) {
     logger.error('Create crypto payment error:', error);
+    // Don't leave a pending payment behind for a checkout that never started
+    if (paymentId) {
+      await global.pgPool
+        .query("UPDATE payments SET status = 'failed', failed_at = NOW(), error_message = $1 WHERE id = $2", [error.message, paymentId])
+        .catch(() => {});
+    }
     res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
       success: false,
       error: error.message || ERROR_MESSAGES.SERVER_ERROR
@@ -789,6 +818,9 @@ const getCryptoCurrencies = async (req, res) => {
     });
 
   } catch (error) {
+    if (error.code === 'CRYPTO_NOT_CONFIGURED') {
+      return res.status(HTTP_STATUS.SERVICE_UNAVAILABLE).json({ success: false, error: CRYPTO_UNAVAILABLE, unavailable: true });
+    }
     logger.error('Get crypto currencies error:', error);
     res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
       success: false,
