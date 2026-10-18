@@ -3,9 +3,8 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { AnimatePresence, motion } from "framer-motion"
 import { format } from "date-fns"
-import { Bitcoin, CreditCard, Crown, Loader2, Smartphone } from "lucide-react"
+import { Bitcoin, CreditCard, Crown, Smartphone } from "lucide-react"
 import { toast } from "sonner"
 import { subscriptionAPI } from "@/lib/api/subscriptions"
 import { paymentsAPI } from "@/lib/api/payments"
@@ -41,8 +40,6 @@ const STATUS_TONE: Record<string, string> = {
 export default function BillingPage() {
   const [sub, setSub] = useState<Subscription | null | undefined>(undefined)
   const [receipts, setReceipts] = useState<Receipt[] | null>(null)
-  const [confirm, setConfirm] = useState(false)
-  const [busy, setBusy] = useState(false)
 
   useEffect(() => {
     subscriptionAPI
@@ -57,21 +54,6 @@ export default function BillingPage() {
 
   const active = sub && (sub.status === "active" || sub.status === "trialing") && sub.plan_type !== "free"
   const plan = planById(active ? sub!.plan_type : "free")!
-
-  const cancel = async () => {
-    setBusy(true)
-    try {
-      await subscriptionAPI.cancelSubscription()
-      setSub((s) => (s ? { ...s, auto_renew: false } : s))
-      setConfirm(false)
-      toast("Your plan won't renew")
-    } catch (e) {
-      const message = (e as { response?: { data?: { error?: string } } }).response?.data?.error
-      toast.error(message || "We couldn't cancel. Please try again.")
-    } finally {
-      setBusy(false)
-    }
-  }
 
   return (
     <>
@@ -93,7 +75,7 @@ export default function BillingPage() {
                 {!active
                   ? "Free plan. No card needed."
                   : sub?.current_period_end
-                    ? `${formatKes(plan.price)} a month · ${sub.auto_renew === false ? "ends" : "renews"} ${format(new Date(sub.current_period_end), "d MMM yyyy")}`
+                    ? `${formatKes(plan.price)} for 30 days · active until ${format(new Date(sub.current_period_end), "d MMM yyyy")}`
                     : `${formatKes(plan.price)} a month`}
               </p>
             </div>
@@ -103,28 +85,10 @@ export default function BillingPage() {
           </div>
         )}
 
-        {active && sub?.auto_renew !== false && (
-          <div className="px-5 py-4 sm:px-6">
-            <AnimatePresence mode="wait" initial={false}>
-              {confirm ? (
-                <motion.div key="c" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="flex flex-wrap items-center gap-3 text-sm">
-                  <span className="flex-1 text-muted-foreground">
-                    You&apos;ll keep {plan.name} until {sub?.current_period_end ? format(new Date(sub.current_period_end), "d MMM yyyy") : "the end of this period"}, then move to Free.
-                  </span>
-                  <button type="button" onClick={cancel} disabled={busy} className="inline-flex h-9 items-center gap-2 rounded-lg bg-destructive px-3 font-medium text-white disabled:opacity-60">
-                    {busy && <Loader2 className="h-3.5 w-3.5 animate-spin" />} Cancel renewal
-                  </button>
-                  <button type="button" onClick={() => setConfirm(false)} className="h-9 rounded-lg border px-3 hover:bg-accent">
-                    Keep {plan.name}
-                  </button>
-                </motion.div>
-              ) : (
-                <motion.button key="a" type="button" onClick={() => setConfirm(true)} initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-sm text-muted-foreground transition-colors hover:text-destructive">
-                  Cancel renewal
-                </motion.button>
-              )}
-            </AnimatePresence>
-          </div>
+        {active && (
+          <p className="px-5 py-4 text-sm text-muted-foreground sm:px-6">
+            Plans don&apos;t renew on their own, so there&apos;s nothing to cancel. Pay again any time to add another 30 days.
+          </p>
         )}
       </SettingsCard>
 
