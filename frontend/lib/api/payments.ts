@@ -116,6 +116,14 @@ export const paymentsAPI = {
   // =========================================================================
 
   /**
+   * Which methods can take real money right now (test-mode ones are "coming soon")
+   */
+  async getAvailability(): Promise<{ methods: Record<'mpesa' | 'card' | 'crypto', { available: boolean; live: boolean }> }> {
+    const response = await apiClient.get('/api/payments/availability');
+    return response.data;
+  },
+
+  /**
    * Get available cryptocurrencies
    */
   async getCryptoCurrencies() {

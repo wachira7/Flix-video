@@ -21,6 +21,29 @@ class CryptoNotConfiguredError extends Error {
 }
 
 /**
+ * Does NOWPayments accept our key at the API we're pointed at? A sandbox
+ * key is rejected by the live API (and vice versa), so this tells us
+ * whether crypto checkout really works. Cached for 10 minutes.
+ */
+let keyCheck = { at: 0, ok: false };
+const verifyApiKey = async () => {
+  if (!isConfigured()) return false;
+  if (Date.now() - keyCheck.at < 10 * 60 * 1000) return keyCheck.ok;
+  let ok = false;
+  try {
+    const response = await axios.get(`${NOWPAYMENTS_API_URL}/currencies`, {
+      headers: { 'x-api-key': process.env.NOWPAYMENTS_API_KEY },
+      timeout: 8000
+    });
+    ok = response.status === 200 && Array.isArray(response.data?.currencies);
+  } catch (error) {
+    logger.warn('NOWPayments rejected the API key', { status: error.response?.status, environment: NOWPAYMENTS_API_URL.includes('sandbox') ? 'sandbox' : 'live' });
+  }
+  keyCheck = { at: Date.now(), ok };
+  return ok;
+};
+
+/**
  * Get available cryptocurrencies: the ones we support (config/payment.js,
  * overridable with SUPPORTED_CRYPTOCURRENCIES) that NOWPayments offers.
  */
@@ -171,6 +194,7 @@ const verifyIPNSignature = (request_signature, payload) => {
 
 module.exports = {
   isConfigured,
+  verifyApiKey,
   CryptoNotConfiguredError,
   getAvailableCurrencies,
   getEstimatedPrice,
