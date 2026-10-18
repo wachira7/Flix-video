@@ -69,22 +69,23 @@ export default function ProfilePage() {
     }
     setSaving(true)
     try {
+      // Empty strings clear a field on the server; every field is sent
       const payload = {
-        username: profile.username?.trim() || undefined,
-        full_name: profile.full_name?.trim() || undefined,
-        bio: profile.bio?.trim() || undefined,
-        date_of_birth: profile.date_of_birth || undefined,
-        gender: profile.gender || undefined,
-        country: profile.country?.trim() || undefined,
-        city: profile.city?.trim() || undefined,
-        timezone: profile.timezone || undefined,
+        username: profile.username?.trim() ?? "",
+        full_name: profile.full_name?.trim() ?? "",
+        bio: profile.bio?.trim() ?? "",
+        date_of_birth: profile.date_of_birth ?? "",
+        gender: profile.gender ?? "",
+        country: profile.country?.trim() ?? "",
+        city: profile.city?.trim() ?? "",
+        timezone: profile.timezone ?? "",
         language: profile.language || "en",
       }
       await userAPI.updateProfile(payload)
       // Keep the name shown in the shell in step
       try {
         const current = JSON.parse(localStorage.getItem("user") || "{}")
-        localStorage.setItem("user", JSON.stringify({ ...current, full_name: payload.full_name ?? current.full_name, username: payload.username ?? current.username }))
+        localStorage.setItem("user", JSON.stringify({ ...current, full_name: payload.full_name || null, username: payload.username || null }))
       } catch {}
       toast.success("Profile saved")
     } catch (err) {
