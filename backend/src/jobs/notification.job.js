@@ -8,7 +8,7 @@ const { connection } = require('./queues');
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-const FROM_EMAIL = 'FlixVideo <onboarding@resend.dev>';
+const { EMAIL_FROM: FROM_EMAIL } = require('../config/email');
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
 
 const notificationWorker = new Worker(

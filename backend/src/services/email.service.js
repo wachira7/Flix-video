@@ -1,5 +1,6 @@
 const { Resend } = require('resend');
 const logger = require('../utils/logger');
+const { EMAIL_FROM } = require('../config/email');
 
 
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -8,7 +9,7 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 const sendPasswordResetEmail = async (email, resetToken, resetUrl) => {
   try {
     const { data, error } = await resend.emails.send({
-      from: 'FlixVideo <onboarding@resend.dev>', // Resend's test domain
+      from: EMAIL_FROM,
       to: email,
       subject: 'Password Reset Request - FlixVideo',
       html: `
@@ -129,7 +130,7 @@ const sendPasswordResetEmail = async (email, resetToken, resetUrl) => {
 const sendWelcomeEmail = async (email, username) => {
   try {
     const { data, error } = await resend.emails.send({
-      from: 'FlixVideo <onboarding@resend.dev>',
+      from: EMAIL_FROM,
       to: email,
       subject: 'Welcome to FlixVideo! 🎬',
       html: `
@@ -262,7 +263,7 @@ const sendWelcomeEmail = async (email, username) => {
 const sendVerificationEmail = async (email, verificationUrl) => {
   try {
     const { data, error } = await resend.emails.send({
-      from: 'FlixVideo <onboarding@resend.dev>',
+      from: EMAIL_FROM,
       to: email,
       subject: 'Verify Your Email - FlixVideo',
       html: `
