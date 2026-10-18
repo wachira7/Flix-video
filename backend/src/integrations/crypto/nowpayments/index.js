@@ -1,34 +1,57 @@
 //backend/src/integrations/crypto/nowpayments/index.js
 const axios = require('axios');
 const logger = require('../../../utils/logger');
+const paymentConfig = require('../../../config/payment');
 
 const NOWPAYMENTS_API_URL = process.env.NOWPAYMENTS_ENVIRONMENT === 'sandbox'
   ? 'https://api-sandbox.nowpayments.io/v1'
   : 'https://api.nowpayments.io/v1';
 
 /**
- * Get available cryptocurrencies
+ * Crypto checkout needs a NOWPayments key. Without one, every call fails,
+ * so callers check this first and tell the user crypto is unavailable.
+ */
+const isConfigured = () => Boolean(process.env.NOWPAYMENTS_API_KEY);
+
+class CryptoNotConfiguredError extends Error {
+  constructor() {
+    super('Crypto payments are not configured');
+    this.code = 'CRYPTO_NOT_CONFIGURED';
+  }
+}
+
+/**
+ * Get available cryptocurrencies: the ones we support (config/payment.js,
+ * overridable with SUPPORTED_CRYPTOCURRENCIES) that NOWPayments offers.
  */
 const getAvailableCurrencies = async () => {
+  if (!isConfigured()) throw new CryptoNotConfiguredError();
+
+  const supported = paymentConfig.crypto.supported_currencies.map((c) => c.trim().toLowerCase()).filter(Boolean);
+
   try {
     const response = await axios.get(`${NOWPAYMENTS_API_URL}/currencies`, {
       headers: {
         'x-api-key': process.env.NOWPAYMENTS_API_KEY
-      }
+      },
+      timeout: 10000
     });
 
-    // Filter to supported currencies
-    const supported = process.env.SUPPORTED_CRYPTOCURRENCIES.split(',');
-    const available = response.data.currencies.filter(c => supported.includes(c));
+    const offered = new Set((response.data.currencies || []).map((c) => String(c).toLowerCase()));
+    const available = supported.filter((c) => offered.has(c));
 
     return {
       success: true,
-      currencies: available
+      currencies: available.length > 0 ? available : supported
     };
 
   } catch (error) {
-    logger.error('Get currencies error:', error.response?.data || error.message);
-    throw new Error('Failed to get available currencies');
+    // The list only fills the picker; creating the payment validates the coin
+    logger.error('Get currencies error, using the supported list:', error.response?.data || error.message);
+    return {
+      success: true,
+      currencies: supported
+    };
   }
 };
 
@@ -65,6 +88,7 @@ const getEstimatedPrice = async (amount, currency_from, currency_to) => {
  * Create payment
  */
 const createPayment = async (price_amount, price_currency, pay_currency, order_id, order_description, ipn_callback_url) => {
+  if (!isConfigured()) throw new CryptoNotConfiguredError();
   try {
     const payload = {
       price_amount,
@@ -146,6 +170,8 @@ const verifyIPNSignature = (request_signature, payload) => {
 };
 
 module.exports = {
+  isConfigured,
+  CryptoNotConfiguredError,
   getAvailableCurrencies,
   getEstimatedPrice,
   createPayment,
