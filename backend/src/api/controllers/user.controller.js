@@ -2,6 +2,7 @@
 // BACKEND: user.controller.js
 // ============================================
 
+const { withDefaults } = require('../../config/user-settings');
 const { HTTP_STATUS, ERROR_MESSAGES } = require('../../utils/constants');
 const { uploadToS3, deleteFromS3, generateUniqueFilename } = require('../../utils/s3');
 const multer = require('multer');
@@ -418,6 +419,14 @@ const updateWatchProgress = async (req, res) => {
       });
     }
  
+    // Respect "Record my watch history" (Settings > Privacy)
+    const { rows: settingRows } = await global.pgPool
+      .query('SELECT settings FROM users WHERE id = $1', [userId])
+      .catch(() => ({ rows: [] }));
+    if (withDefaults(settingRows[0]?.settings).privacy.record_watch_history === false) {
+      return res.json({ success: true, watch_progress: null, recorded: false });
+    }
+
     const record = await WatchHistory.upsert({
       userId,
       contentType: content_type,

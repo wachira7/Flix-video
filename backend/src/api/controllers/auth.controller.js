@@ -1,5 +1,6 @@
 // src/api/controllers/auth.controller.js
 const bcrypt = require('bcrypt');
+const { issueToken } = require('../../services/session.service');
 const jwt = require('jsonwebtoken');
 const { USER_ROLES, USER_STATUS, TOKEN_EXPIRY, HTTP_STATUS, ERROR_MESSAGES, SUCCESS_MESSAGES, PASSWORD_REQUIREMENTS } = require('../../utils/constants');
 const { newRegistrations, registrationsByMethod, failedLogins } = require('../../config/metrics');
@@ -10,9 +11,6 @@ const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || TOKEN_EXPIRY.ACCESS_TOKEN;
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
 
 // Generate JWT token
-const generateToken = (id) => {
-  return jwt.sign({ id }, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
-};
 
 // @desc    Register new user
 // @route   POST /api/auth/register
@@ -89,7 +87,7 @@ const register = async (req, res) => {
     await sendWelcomeEmail(user.email, username || email.split('@')[0]);
 
     // Generate token
-    const token = generateToken(user.id);
+    const token = await issueToken(user.id, req);
 
     // Update metrics
     newRegistrations.inc();
@@ -176,7 +174,7 @@ const login = async (req, res) => {
     );
 
     // Generate token
-    const token = generateToken(user.id);
+    const token = await issueToken(user.id, req);
 
     res.json({
       success: true,
@@ -205,7 +203,7 @@ const login = async (req, res) => {
 const googleCallback = async (req, res) => {
   try {
     // User authenticated by Passport
-    const token = generateToken(req.user.id);
+    const token = await issueToken(req.user.id, req);
 
     newRegistrations.inc();
     registrationsByMethod.inc({ method: 'google' });
