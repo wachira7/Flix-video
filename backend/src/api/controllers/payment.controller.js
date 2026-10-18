@@ -6,6 +6,28 @@ const cryptoService = require('../../integrations/crypto/nowpayments');
 const { paymentsTotal, failedPayments, revenueTotal } = require('../../config/metrics');
 const logger = require('../../utils/logger');
 const { notificationQueue } = require('../../jobs/queues');
+const { getPlan } = require('../../config/plans');
+
+/**
+ * Price a subscription payment from the server-side plan list.
+ * The client may say which plan it wants, never what it costs.
+ * Returns null for unknown or free plans.
+ */
+const priceForPlan = (planType) => {
+  try {
+    const plan = getPlan(String(planType || ''));
+    if (!plan.price || plan.price <= 0) return null;
+    return { plan_type: plan.id, amount: plan.price, currency: plan.currency || 'KES' };
+  } catch {
+    return null;
+  }
+};
+
+const invalidPlan = (res) =>
+  res.status(HTTP_STATUS.BAD_REQUEST).json({
+    success: false,
+    error: 'Choose a paid plan (basic or premium)'
+  });
 
 
 
@@ -19,14 +41,12 @@ const { notificationQueue } = require('../../jobs/queues');
 const createStripeCheckout = async (req, res) => {
   try {
     const userId = req.user.id;
-    const { amount, currency = 'KES', plan_type, description } = req.body;
+    const { description } = req.body;
 
-    if (!amount || amount <= 0) {
-      return res.status(HTTP_STATUS.BAD_REQUEST).json({
-        success: false,
-        error: 'Invalid amount'
-      });
-    }
+    // Amount and currency come from the plan, not the request body
+    const priced = priceForPlan(req.body.plan_type);
+    if (!priced) return invalidPlan(res);
+    const { amount, currency, plan_type } = priced;
 
     // Create payment record
     const paymentResult = await global.pgPool.query(
@@ -268,14 +288,19 @@ const getStripeStatus = async (req, res) => {
 const initiateMpesaPayment = async (req, res) => {
   try {
     const userId = req.user.id;
-    const { phone_number, amount, plan_type, description } = req.body;
+    const { phone_number, description } = req.body;
 
-    if (!phone_number || !amount || amount <= 0) {
+    if (!phone_number) {
       return res.status(HTTP_STATUS.BAD_REQUEST).json({
         success: false,
-        error: 'Phone number and valid amount required'
+        error: 'Phone number required'
       });
     }
+
+    // Amount comes from the plan, not the request body
+    const priced = priceForPlan(req.body.plan_type);
+    if (!priced) return invalidPlan(res);
+    const { amount, plan_type } = priced;
 
     // Create payment record
     const paymentResult = await global.pgPool.query(
@@ -531,14 +556,19 @@ const getMpesaStatus = async (req, res) => {
 const createCryptoPayment = async (req, res) => {
   try {
     const userId = req.user.id;
-    const { amount, currency = 'KES', crypto_currency, plan_type, description } = req.body;
+    const { crypto_currency, description } = req.body;
 
-    if (!amount || !crypto_currency) {
+    if (!crypto_currency) {
       return res.status(HTTP_STATUS.BAD_REQUEST).json({
         success: false,
-        error: 'Amount and crypto currency required'
+        error: 'Crypto currency required'
       });
     }
+
+    // Amount and currency come from the plan, not the request body
+    const priced = priceForPlan(req.body.plan_type);
+    if (!priced) return invalidPlan(res);
+    const { amount, currency, plan_type } = priced;
 
     // Create payment record
     const paymentResult = await global.pgPool.query(
