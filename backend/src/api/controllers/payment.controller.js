@@ -10,7 +10,7 @@ const { getPlan } = require('../../config/plans');
 const { grantPlanSafely } = require('../../services/subscription.service');
 const { convertFromKES } = require('../../utils/currency');
 
-const CRYPTO_UNAVAILABLE = "Crypto payments aren't available right now. Please pay with M-Pesa or card.";
+const CRYPTO_UNAVAILABLE = "Crypto payments aren't available right now. Please try again a little later.";
 const { isLive, canTakePayment, testPaymentsAllowed } = require('../../config/payment-modes');
 
 // A method in test mode (sandbox keys) can't take real money, so it's
