@@ -62,7 +62,7 @@ export function CryptoForm({ planId, amount }: CryptoFormProps) {
       const r = await paymentsAPI.getCryptoCurrencies()
       const list: string[] = r.currencies ?? []
       if (list.length === 0) {
-        setMessage("No cryptocurrencies are available right now. Please pay with M-Pesa or card.")
+        setMessage("No cryptocurrencies are available right now. Please try again a little later.")
         setStage("unavailable")
         return
       }
@@ -73,7 +73,7 @@ export function CryptoForm({ planId, amount }: CryptoFormProps) {
       const res = apiError(e)
       setMessage(
         res?.status === 503
-          ? res.data?.error || "Crypto payments aren't available right now. Please pay with M-Pesa or card."
+          ? res.data?.error || "Crypto payments aren't available right now. Please try again a little later."
           : "We couldn't load the list of coins. Check your connection and try again."
       )
       setStage("unavailable")

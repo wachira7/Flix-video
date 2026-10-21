@@ -59,7 +59,10 @@ export function HeroSection({ slides, showTop10 }: HeroProps) {
           </div>
 
           <p className="hero-reveal text-sm text-muted-foreground" style={{ "--delay": "0.8s" } as CSSProperties}>
-            Free plan, no card needed. Upgrade any time with M-Pesa or card.
+            Free plan, no card needed.{" "}
+            <Link href="/demo" className="text-foreground underline underline-offset-4 transition-colors hover:text-primary">
+              Or try the demo, no sign-up.
+            </Link>
           </p>
         </div>
       </div>

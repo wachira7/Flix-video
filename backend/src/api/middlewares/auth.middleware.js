@@ -1,6 +1,7 @@
 //backend/src/api/middlewares/auth.middleware.js
 const jwt = require('jsonwebtoken');
 const { USER_STATUS, USER_ROLES, HTTP_STATUS, ERROR_MESSAGES } = require('../../utils/constants');
+const { applyDemoRules } = require('../../config/demo');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-this-in-production';
 
@@ -20,7 +21,7 @@ const protect = async (req, res, next) => {
       let rows;
       try {
         ({ rows } = await global.pgPool.query(
-          `SELECT u.id, u.email, u.role, u.sessions_valid_after,
+          `SELECT u.id, u.email, u.role, u.sessions_valid_after, u.is_demo, u.demo_expires_at,
                   d.is_active AS session_active, d.last_active_at AS session_last_active
            FROM users u
            LEFT JOIN devices d ON d.id = $3 AND d.user_id = u.id
@@ -65,8 +66,17 @@ const protect = async (req, res, next) => {
           .catch(() => {});
       }
 
+      // One-click demo accounts expire, and can't pay or post publicly
+      if (row.is_demo) {
+        if (row.demo_expires_at && new Date(row.demo_expires_at).getTime() <= Date.now()) {
+          return res.status(HTTP_STATUS.UNAUTHORIZED).json({ error: 'This demo has ended. Start a new one any time.', demo_ended: true });
+        }
+        const blocked = applyDemoRules(req);
+        if (blocked) return res.status(HTTP_STATUS.FORBIDDEN).json(blocked);
+      }
+
       // Attach user to request
-      req.user = { id: row.id, email: row.email, role: row.role };
+      req.user = { id: row.id, email: row.email, role: row.role, isDemo: row.is_demo === true };
       req.sessionId = decoded.sid || null;
       next();
     } catch (error) {
