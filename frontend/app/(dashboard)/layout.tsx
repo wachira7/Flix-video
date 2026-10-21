@@ -2,6 +2,7 @@
 "use client"
 
 import type { CSSProperties } from "react"
+import { DemoBanner } from "@/components/dashboard/demo-banner"
 import { MobileTabBar } from "@/components/dashboard/mobile-tab-bar"
 import { ShellProvider, useShell } from "@/components/dashboard/shell-context"
 import { Sidebar, SIDEBAR_WIDTH } from "@/components/dashboard/sidebar"
@@ -18,6 +19,7 @@ function Shell({ children }: { children: React.ReactNode }) {
     >
       <Sidebar />
       <div className="transition-[padding] duration-300 ease-out lg:pl-[var(--sidebar-w)]">
+        <DemoBanner />
         <Topbar />
         <main className="px-4 pt-4 pb-28 sm:px-6 lg:px-8 lg:pb-12">{children}</main>
       </div>
