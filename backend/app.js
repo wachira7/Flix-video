@@ -68,6 +68,7 @@ const notificationRoutes = require('./src/api/routes/notification.routes');
 const socialRoutes = require('./src/api/routes/social.routes');
 const contentRoutes = require('./src/api/routes/content.routes');
 const aiRoutes = require('./src/api/routes/ai.routes');
+const demoRoutes = require('./src/api/routes/demo.routes');
 
 // ─── Routes with specific rate limiters ────────────────────────────
 app.use('/api/auth', authLimiter, authRoutes);
@@ -95,6 +96,7 @@ app.use('/api/notifications', notificationRoutes);
 app.use('/api/social', socialRoutes);
 app.use('/api/content', contentRoutes);
 app.use('/api/ai', aiRoutes);
+app.use('/api/demo', demoRoutes);
 
 // ─── Base Routes ───────────────────────────────────────────────────
 app.get('/', (req, res) => {

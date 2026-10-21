@@ -1,12 +1,11 @@
 // src/jobs/notification.job.js
 const { Worker } = require('./worker');
 const logger = require('../utils/logger');
-const { Resend } = require('resend');
 const Notification = require('../models/notification.model');
 
 const { connection } = require('./queues');
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const { resend } = require('../config/resend');
 
 const { EMAIL_FROM: FROM_EMAIL } = require('../config/email');
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';

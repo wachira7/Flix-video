@@ -1,9 +1,8 @@
-const { Resend } = require('resend');
 const logger = require('../utils/logger');
 const { EMAIL_FROM } = require('../config/email');
 
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const { resend } = require('../config/resend');
 
 // Send password reset email
 const sendPasswordResetEmail = async (email, resetToken, resetUrl) => {

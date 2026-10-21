@@ -119,6 +119,22 @@ function startScheduler() {
     'UTC'
   );
 
+  // 7. Demo cleanup - Every hour: delete one-click demo accounts after their day
+  const demoCleanupJob = new CronJob(
+    '15 * * * *',
+    async () => {
+      try {
+        const { removeExpiredDemos } = require('../services/demo.service');
+        await removeExpiredDemos();
+      } catch (error) {
+        console.error('Demo cleanup failed:', error.message);
+      }
+    },
+    null,
+    true,
+    'UTC'
+  );
+
   console.log('✅ Job scheduler started!');
   console.log('📅 Scheduled jobs:');
   console.log('   🪙 Crypto payments: Every 90 minutes');
@@ -127,6 +143,7 @@ function startScheduler() {
   console.log('   🤖 Recommendations: Daily at 3 AM UTC');
   console.log('   ⏰ Expiring subscriptions: Daily at 9 AM UTC');
   console.log('   💱 Exchange rates: Every 6 hours UTC');
+  console.log('   🧪 Demo cleanup: Every hour');
 
   return {
     cryptoPaymentJob,
@@ -134,7 +151,8 @@ function startScheduler() {
     cleanupJob,
     recommendationJob,
     expiringSubscriptionsJob,
-    exchangeRateJob
+    exchangeRateJob,
+    demoCleanupJob
   };
 }
 
