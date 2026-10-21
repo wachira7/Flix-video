@@ -53,8 +53,8 @@ const createWatchParty = async (req, res) => {
     const partyResult = await global.pgPool.query(
       `INSERT INTO watch_parties (
         host_user_id, content_type, content_id, title, 
-        episode_number, season_number, is_public, max_participants, party_code
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+        episode_number, season_number, is_public, max_participants, party_code, status
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'waiting')
       RETURNING *`,
       [userId, dbContentType, content_id, title, episode_number, season_number, is_public, max_participants, partyCode]
     );
